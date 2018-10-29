@@ -52,6 +52,8 @@ class IEWorker extends HandlerThread {
     private int[] mFboTextureIds = new int[2];
     private BaseImageDrawer mFboReader;
 
+    private int mSaveTexture;
+
     // operator list
     private List<AbstractOperator> mOpList;
 
@@ -147,6 +149,7 @@ class IEWorker extends HandlerThread {
         mSurfaceHeight = height;
         createOffScreenFrameBuffer();
         createOffScreenTextures();
+        mSaveTexture = mFboTextureIds[0];
 
         mFboReader = new BaseImageDrawer(1.0f, false, false);
     }
@@ -167,6 +170,8 @@ class IEWorker extends HandlerThread {
                 FilterOperator filterOperator = (FilterOperator) operator;
                 filterOperator.setSize(mBaseImgWidth, mBaseImgHeight);
                 filterOperator.setInputTexture(mFboTextureIds[0]);
+                filterOperator.setOutputTexture(mFboTextureIds[1]);
+                filterOperator.setFrameBuffer(mFboBuffer[0]);
                 break;
             case AbstractOperator.OP_TEXT:
                 break;
@@ -180,13 +185,14 @@ class IEWorker extends HandlerThread {
             bindOffScreenFrameBuffer(mFboTextureIds[1]);
             operator.exec();
             bindDefaultFrameBuffer();
-            mFboReader.draw(mFboTextureIds[1], 0, 0, mSurfaceWidth, mSurfaceHeight);
+            mSaveTexture = mFboTextureIds[1];
         } else {
             bindOffScreenFrameBuffer(mFboTextureIds[0]);
             operator.exec();
             bindDefaultFrameBuffer();
-            mFboReader.draw(mFboTextureIds[0], 0, 0, mSurfaceWidth, mSurfaceHeight);
+            mSaveTexture = mFboTextureIds[0];
         }
+        mFboReader.draw(mSaveTexture, 0, 0, mSurfaceWidth, mSurfaceHeight);
         mWindowSurface.swapBuffers();
     }
 
@@ -202,7 +208,7 @@ class IEWorker extends HandlerThread {
     }
 
     private void handleSave(File target, SaveListener listener) {
-        bindOffScreenFrameBuffer(mFboTextureIds[0]);
+        bindOffScreenFrameBuffer(mSaveTexture);
         captureImage(target, mBaseImgPosX, mBaseImgPosY, mBaseImgWidth, mBaseImgHeight, listener);
         bindDefaultFrameBuffer();
     }

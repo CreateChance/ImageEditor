@@ -3,6 +3,7 @@ package com.createchance.imageeditor.ops;
 import android.opengl.GLES20;
 
 import com.createchance.imageeditor.filters.GPUImageFilter;
+import com.createchance.imageeditor.filters.GPUImageFilterGroup;
 import com.createchance.imageeditor.filters.Rotation;
 import com.createchance.imageeditor.filters.util.TextureRotationUtil;
 
@@ -33,7 +34,8 @@ public class FilterOperator extends AbstractOperator {
     private FloatBuffer mGLCubeBuffer;
     private FloatBuffer mGLTextureBuffer;
 
-    private int mInputTextureId;
+    private int mInputTextureId, mOutputTextureId;
+    private int mFrameBufferId;
 
     private FilterOperator() {
         super(FilterOperator.class.getSimpleName(), OP_FILTER);
@@ -46,6 +48,14 @@ public class FilterOperator extends AbstractOperator {
 
     public void setInputTexture(int texture) {
         mInputTextureId = texture;
+    }
+
+    public void setOutputTexture(int texture) {
+        mOutputTextureId = texture;
+    }
+
+    public void setFrameBuffer(int frameBuffer) {
+        mFrameBufferId = frameBuffer;
     }
 
     @Override
@@ -69,6 +79,11 @@ public class FilterOperator extends AbstractOperator {
         mFilter.init();
         GLES20.glUseProgram(mFilter.getProgram());
         mFilter.onOutputSizeChanged(mWidth, mHeight);
+
+        if (mFilter instanceof GPUImageFilterGroup) {
+            ((GPUImageFilterGroup) mFilter).setOutput(mFrameBufferId, mOutputTextureId);
+        }
+
         mFilter.onDraw(mInputTextureId, mGLCubeBuffer, mGLTextureBuffer);
     }
 
