@@ -1,7 +1,17 @@
 package com.createchance.imageeditor.ops;
 
+import android.opengl.GLES20;
+
+import com.createchance.imageeditor.filters.GPUImageFilter;
+import com.createchance.imageeditor.filters.Rotation;
+import com.createchance.imageeditor.filters.util.TextureRotationUtil;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
 /**
- * ${DESC}
+ * Filter operator.
  *
  * @author gaochao1-iri
  * @date 2018/10/28
@@ -10,17 +20,69 @@ public class FilterOperator extends AbstractOperator {
 
     private static final String TAG = "FilterOperator";
 
-    public FilterOperator() {
+    private GPUImageFilter mFilter;
+
+    private int mWidth, mHeight;
+
+    private final float CUBE[] = {
+            -1.0f, 1.0f,
+            -1.0f, -1.0f,
+            1.0f, 1.0f,
+            1.0f, -1.0f,
+    };
+    private FloatBuffer mGLCubeBuffer;
+    private FloatBuffer mGLTextureBuffer;
+
+    private int mInputTextureId;
+
+    private FilterOperator() {
         super(FilterOperator.class.getSimpleName(), OP_FILTER);
+    }
+
+    public void setSize(int width, int height) {
+        mWidth = width;
+        mHeight = height;
+    }
+
+    public void setInputTexture(int texture) {
+        mInputTextureId = texture;
     }
 
     @Override
     public boolean checkRational() {
-        return false;
+        return mFilter != null;
     }
 
     @Override
     public void exec() {
+        mGLCubeBuffer = ByteBuffer.allocateDirect(CUBE.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        mGLCubeBuffer.put(CUBE).position(0);
 
+        mGLTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.TEXTURE_NO_ROTATION.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        float[] textureCords = TextureRotationUtil.getRotation(Rotation.ROTATION_270, false, true);
+        mGLTextureBuffer.put(textureCords).position(0);
+
+        mFilter.init();
+        GLES20.glUseProgram(mFilter.getProgram());
+        mFilter.onOutputSizeChanged(mWidth, mHeight);
+        mFilter.onDraw(mInputTextureId, mGLCubeBuffer, mGLTextureBuffer);
+    }
+
+    public static class Builder {
+        private FilterOperator operator = new FilterOperator();
+
+        public Builder filter(GPUImageFilter filter) {
+            operator.mFilter = filter;
+
+            return this;
+        }
+
+        public FilterOperator build() {
+            return operator;
+        }
     }
 }

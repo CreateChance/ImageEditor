@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -13,7 +15,11 @@ import android.widget.Toast;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.SaveListener;
+import com.createchance.imageeditor.filters.GPUImageGlassSphereFilter;
+import com.createchance.imageeditor.filters.GPUImageLookupFilter;
+import com.createchance.imageeditor.filters.GPUImageSwirlFilter;
 import com.createchance.imageeditor.ops.BaseImageOperator;
+import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditor.ops.TextOperator;
 
 import java.io.File;
@@ -30,6 +36,16 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     private int mCurPosX = 0, mCurPosY = 1000;
 
+    private GestureDetector mGestureDetector;
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mGestureDetector.onTouchEvent(event);
+
+            return true;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
         TextureView textureView = findViewById(R.id.vw_texture);
         textureView.setSurfaceTextureListener(this);
+        textureView.setOnTouchListener(mTouchListener);
         findViewById(R.id.btn_test).setOnClickListener(this);
         findViewById(R.id.btn_undo).setOnClickListener(this);
         findViewById(R.id.btn_redo).setOnClickListener(this);
@@ -46,6 +63,58 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             @Override
             public void run() {
                 tryCopyFontFile();
+            }
+        });
+
+        mGestureDetector = new GestureDetector(this, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        });
+        mGestureDetector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Log.d(TAG, "onSingleTapConfirmed: ");
+                return false;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                Log.d(TAG, "onDoubleTap: ");
+
+                return false;
+            }
+
+            @Override
+            public boolean onDoubleTapEvent(MotionEvent e) {
+                Log.d(TAG, "onDoubleTapEvent: ");
+                return false;
             }
         });
     }
@@ -93,6 +162,24 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 IEManager.getInstance().addOperator(textOperator);
                 mCurPosX += 50;
                 mCurPosY -= 50;
+
+                GPUImageLookupFilter lookupFilter = new GPUImageLookupFilter();
+                try {
+                    lookupFilter.setBitmap(BitmapFactory.decodeStream(getAssets().open("filters/nt-9-B1.png")));
+                    lookupFilter.setIntensity(1.0f);
+
+                    GPUImageSwirlFilter swirlFilter = new GPUImageSwirlFilter();
+                    swirlFilter.setAngle(0.5f);
+
+                    GPUImageGlassSphereFilter glassSphereFilter = new GPUImageGlassSphereFilter();
+                    glassSphereFilter.setRadius(0.3f);
+                    FilterOperator filterOperator = new FilterOperator.Builder()
+                            .filter(lookupFilter)
+                            .build();
+                    IEManager.getInstance().addOperator(filterOperator);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btn_undo:
 

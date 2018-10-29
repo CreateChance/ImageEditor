@@ -11,6 +11,7 @@ import com.createchance.imageeditor.gles.EglCore;
 import com.createchance.imageeditor.gles.WindowSurface;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BaseImageOperator;
+import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditor.utils.UiThreadUtil;
 
@@ -48,7 +49,7 @@ class IEWorker extends HandlerThread {
     private int mBaseImgWidth, mBaseImgHeight;
     private int mBaseImgPosX, mBaseImgPosY;
     private int[] mFboBuffer = new int[1];
-    private int[] mFboTextureIds = new int[1];
+    private int[] mFboTextureIds = new int[2];
     private BaseImageDrawer mFboReader;
 
     // operator list
@@ -163,6 +164,10 @@ class IEWorker extends HandlerThread {
                 adjustBaseImage((BaseImageOperator) operator);
                 break;
             case AbstractOperator.OP_FILTER:
+                FilterOperator filterOperator = (FilterOperator) operator;
+                filterOperator.setSize(mBaseImgWidth, mBaseImgHeight);
+                filterOperator.setInputTexture(mFboTextureIds[0]);
+                break;
             case AbstractOperator.OP_TEXT:
                 break;
             default:
@@ -171,13 +176,17 @@ class IEWorker extends HandlerThread {
 
         mOpList.add(operator);
 
-        bindOffScreenFrameBuffer(mFboTextureIds[0]);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        for (AbstractOperator op : mOpList) {
-            op.exec();
+        if (operator.getType() == AbstractOperator.OP_FILTER) {
+            bindOffScreenFrameBuffer(mFboTextureIds[1]);
+            operator.exec();
+            bindDefaultFrameBuffer();
+            mFboReader.draw(mFboTextureIds[1], 0, 0, mSurfaceWidth, mSurfaceHeight);
+        } else {
+            bindOffScreenFrameBuffer(mFboTextureIds[0]);
+            operator.exec();
+            bindDefaultFrameBuffer();
+            mFboReader.draw(mFboTextureIds[0], 0, 0, mSurfaceWidth, mSurfaceHeight);
         }
-        bindDefaultFrameBuffer();
-        mFboReader.draw(mFboTextureIds[0], 0, 0, mSurfaceWidth, mSurfaceHeight);
         mWindowSurface.swapBuffers();
     }
 
