@@ -97,7 +97,7 @@ static JNINativeMethod sMethods[] = {
 
 int register_freetype_native_function(JNIEnv *env) {
     jclass clazz;
-    static const char *const kClassName = "com/createchance/imageeditor/FreeType";
+    static const char *const kClassName = "com/createchance/imageeditor/freetype/FreeType";
 
     clazz = (*env)->FindClass(env, kClassName);
     if (clazz == NULL) {

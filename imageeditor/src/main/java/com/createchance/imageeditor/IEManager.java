@@ -1,16 +1,12 @@
 package com.createchance.imageeditor;
 
-import android.content.res.AssetManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.Surface;
 
+import com.createchance.imageeditor.freetype.FreeType;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.utils.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -26,6 +22,8 @@ public class IEManager {
     private IEWorker mWorker;
 
     private IEManager() {
+        // init freetype
+        FreeType.init();
     }
 
     public static IEManager getInstance() {
@@ -37,28 +35,12 @@ public class IEManager {
         mWorker.startWorking(surface, width, height);
     }
 
-    public void setImage(File imgFile) {
-        mWorker.setBaseImage(BitmapFactory.decodeFile(imgFile.getAbsolutePath()));
-    }
-
-    public void setImage(String imgPath) {
-        mWorker.setBaseImage(BitmapFactory.decodeFile(imgPath));
-    }
-
-    public void setImage(Resources resources, int resId) {
-        mWorker.setBaseImage(BitmapFactory.decodeResource(resources, resId));
-    }
-
-    public void setImage(AssetManager assetManager, String imgPath) {
-        try {
-            Bitmap image = BitmapFactory.decodeFileDescriptor(assetManager.openFd(imgPath).getFileDescriptor());
-            mWorker.setBaseImage(image);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public boolean addOperator(AbstractOperator operator) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return false;
+        }
+
         if (operator == null) {
             Logger.e(TAG, "Operator can not be null!");
             return false;
@@ -75,6 +57,11 @@ public class IEManager {
     }
 
     public boolean addOperator(List<AbstractOperator> operatorList) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return false;
+        }
+
         if (operatorList == null || operatorList.size() == 0) {
             Logger.e(TAG, "Operator list is null or empty!");
             return false;
@@ -91,6 +78,11 @@ public class IEManager {
     }
 
     public boolean removeOperator(AbstractOperator operator) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return false;
+        }
+
         if (operator == null) {
             Logger.e(TAG, "Operator can not be null!");
             return false;
@@ -102,7 +94,31 @@ public class IEManager {
     }
 
     public List<AbstractOperator> getOperatorList() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return null;
+        }
+
         return mWorker.getOpList();
+    }
+
+    public void save(File target, SaveListener listener) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return;
+        }
+
+        if (target == null) {
+            Logger.e(TAG, "Target file can not be null!");
+            return;
+        }
+
+        mWorker.save(target, listener);
+    }
+
+    public void stop() {
+        mWorker.stopWork();
+        mWorker = null;
     }
 
     private static class Holder {

@@ -1,6 +1,5 @@
 package com.createchance.imageeditor;
 
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
@@ -72,11 +71,7 @@ public class BaseImageDrawer {
 
     private int mProgramId;
 
-    public BaseImageDrawer(FloatBuffer vertexBuffer, FloatBuffer textureBuffer) {
-        init(vertexBuffer, textureBuffer);
-    }
-
-    private void init(FloatBuffer vertexBuffer, FloatBuffer textureBuffer) {
+    public BaseImageDrawer(float scaleFactor, boolean flipX, boolean flipY) {
         mProgramId = OpenGlUtils.loadProgram(
                 BASE_VERTEX_SHADER,
                 BASE_FRAGMENT_SHADER
@@ -90,30 +85,22 @@ public class BaseImageDrawer {
 
         glUseProgram(mProgramId);
 
-        if (vertexBuffer == null) {
-            vertexPositionBuffer = OpenGlUtils.createFloatBuffer(
-                    new float[]{
-                            -1.0f, 1.0f,
-                            -1.0f, -1.0f,
-                            1.0f, 1.0f,
-                            1.0f, -1.0f,
-                    }
-            );
-        } else {
-            vertexPositionBuffer = vertexBuffer;
-        }
-        if (textureBuffer == null) {
-            textureCoordinateBuffer = OpenGlUtils.createFloatBuffer(
-                    new float[]{
-                            0.0f, 0.0f,
-                            0.0f, 1.0f,
-                            1.0f, 0.0f,
-                            1.0f, 1.0f,
-                    }
-            );
-        } else {
-            textureCoordinateBuffer = textureBuffer;
-        }
+        vertexPositionBuffer = OpenGlUtils.createFloatBuffer(
+                new float[]{
+                        -1.0f * scaleFactor, 1.0f * scaleFactor,
+                        -1.0f * scaleFactor, -1.0f * scaleFactor,
+                        1.0f * scaleFactor, 1.0f * scaleFactor,
+                        1.0f * scaleFactor, -1.0f * scaleFactor,
+                }
+        );
+        textureCoordinateBuffer = OpenGlUtils.createFloatBuffer(
+                new float[]{
+                        0.0f, 0.0f,
+                        0.0f, 1.0f,
+                        1.0f, 0.0f,
+                        1.0f, 1.0f,
+                }
+        );
 
         // set matrix
         // set uniform vars
@@ -144,11 +131,11 @@ public class BaseImageDrawer {
                 mMartixLocation,
                 1,
                 false,
-                projectionMatrix,
+                OpenGlUtils.flip(projectionMatrix, flipX, flipY),
                 0);
     }
 
-    public void draw(Bitmap image, int posX, int posY, int width, int height) {
+    public void draw(int inputTexture, int posX, int posY, int width, int height) {
         glUseProgram(mProgramId);
         glViewport(posX, posY, width, height);
 
@@ -156,7 +143,7 @@ public class BaseImageDrawer {
 
         // bind texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, OpenGlUtils.loadTexture(image, OpenGlUtils.NO_TEXTURE));
+        glBindTexture(GL_TEXTURE_2D, inputTexture);
         glUniform1i(mTextureUnitLocation, 0);
 
         glEnableVertexAttribArray(mPositionLocaiton);

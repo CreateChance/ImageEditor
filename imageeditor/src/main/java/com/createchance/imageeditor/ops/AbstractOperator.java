@@ -8,7 +8,9 @@ package com.createchance.imageeditor.ops;
  */
 public abstract class AbstractOperator {
 
-    public static final int OP_FILTER = 0;
+    public static final int OP_BASE_IMAGE = 0;
+    public static final int OP_FILTER = 1;
+    public static final int OP_TEXT = 2;
 
     protected final String mName;
 
@@ -21,6 +23,10 @@ public abstract class AbstractOperator {
 
     public String getName() {
         return mName;
+    }
+
+    public int getType() {
+        return mType;
     }
 
     public abstract boolean checkRational();

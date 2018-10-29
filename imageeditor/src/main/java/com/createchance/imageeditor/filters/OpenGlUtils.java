@@ -23,20 +23,14 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.os.Environment;
 import android.util.Log;
 
 import com.createchance.imageeditor.utils.Logger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.concurrent.Semaphore;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -244,45 +238,6 @@ public class OpenGlUtils {
             String msg = op + ": glError 0x" + Integer.toHexString(error);
             Log.e(TAG, msg);
             throw new RuntimeException(msg);
-        }
-    }
-
-    public static void captureImage(int width, int height) throws InterruptedException {
-        final Semaphore waiter = new Semaphore(0);
-
-        // Take picture on OpenGL thread
-        final int[] pixelMirroredArray = new int[width * height];
-        final IntBuffer pixelBuffer = IntBuffer.allocate(width * height);
-        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuffer);
-        int[] pixelArray = pixelBuffer.array();
-
-        // Convert upside down mirror-reversed image to right-side up normal image.
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                pixelMirroredArray[(height - i - 1) * width + j] = pixelArray[i * width + j];
-            }
-        }
-        waiter.release();
-        waiter.acquire();
-
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(pixelMirroredArray));
-        saveBitmap(bitmap, new File(Environment.getExternalStorageDirectory(), "avflow/captured.png"));
-    }
-
-    private static void saveBitmap(Bitmap bitmap, File picFile) {
-        try {
-            FileOutputStream out = new FileOutputStream(picFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.flush();
-            out.close();
-            Log.i(TAG, "已经保存");
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 }
