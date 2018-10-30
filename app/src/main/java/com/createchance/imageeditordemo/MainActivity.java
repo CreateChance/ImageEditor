@@ -153,20 +153,10 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     @Override
     public void onClick(View v) {
+        GPUImageLookupFilter lookupFilter;
         switch (v.getId()) {
             case R.id.btn_test:
-                TextOperator textOperator = new TextOperator.Builder()
-                        .text("你好你好")
-                        .position(mCurPosX, mCurPosY)
-                        .size(100)
-                        .font(new File(getFilesDir(), "fonts/KaBuQiNuo.otf").getAbsolutePath())
-                        .color(0.2f, 0.3f, 0.5f)
-                        .build();
-                IEManager.getInstance().addOperator(textOperator);
-                mCurPosX += 50;
-                mCurPosY -= 50;
-
-                GPUImageLookupFilter lookupFilter = new GPUImageLookupFilter();
+                lookupFilter = new GPUImageLookupFilter();
                 try {
                     lookupFilter.setBitmap(BitmapFactory.decodeStream(getAssets().open("filters/nt-9-B1.png")));
                     lookupFilter.setIntensity(1.0f);
@@ -195,10 +185,29 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 }
                 break;
             case R.id.btn_undo:
-
+                TextOperator textOperator = new TextOperator.Builder()
+                        .text("你好你好")
+                        .position(mCurPosX, mCurPosY)
+                        .size(100)
+                        .font(new File(getFilesDir(), "fonts/SentyWEN2017.ttf").getAbsolutePath())
+                        .color(0.2f, 0.3f, 0.4f)
+                        .build();
+                IEManager.getInstance().addOperator(textOperator);
+                mCurPosX += 50;
+                mCurPosY -= 50;
                 break;
             case R.id.btn_redo:
-
+                lookupFilter = new GPUImageLookupFilter();
+                try {
+                    lookupFilter.setBitmap(BitmapFactory.decodeStream(getAssets().open("filters/nt-9-B1.png")));
+                    lookupFilter.setIntensity(1.0f);
+                    FilterOperator filterOperator = new FilterOperator.Builder()
+                            .filter(lookupFilter)
+                            .build();
+                    IEManager.getInstance().addOperator(filterOperator);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btn_save:
                 IEManager.getInstance().save(new File(Environment.getExternalStorageDirectory(), "avflow/output.png"), new SaveListener() {
