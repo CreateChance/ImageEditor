@@ -156,58 +156,48 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         GPUImageLookupFilter lookupFilter;
         switch (v.getId()) {
             case R.id.btn_test:
-                lookupFilter = new GPUImageLookupFilter();
-                try {
-                    lookupFilter.setBitmap(BitmapFactory.decodeStream(getAssets().open("filters/nt-9-B1.png")));
-                    lookupFilter.setIntensity(1.0f);
+//                lookupFilter = new GPUImageLookupFilter();
+//                try {
+//                    lookupFilter.setBitmap(BitmapFactory.decodeStream(getAssets().open("filters/nt-9-B1.png")));
+//                    lookupFilter.setIntensity(1.0f);
+//
+//                    GPUImageSwirlFilter swirlFilter = new GPUImageSwirlFilter();
+//                    swirlFilter.setAngle(0.5f);
+//
+//                    GPUImageGlassSphereFilter glassSphereFilter = new GPUImageGlassSphereFilter();
+//                    glassSphereFilter.setRadius(0.3f);
+//
+//                    GPUImageGaussianBlurFilter gaussianBlurFilter = new GPUImageGaussianBlurFilter();
+//                    gaussianBlurFilter.setBlurSize(0.9f);
+//
+//                    GPUImageSobelEdgeDetection sobelEdgeDetection = new GPUImageSobelEdgeDetection();
+//
+//                    GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
+//                    filterGroup.addFilter(lookupFilter);
+//                    filterGroup.addFilter(swirlFilter);
+//
+//                    FilterOperator filterOperator = new FilterOperator.Builder()
+//                            .filter(gaussianBlurFilter)
+//                            .build();
+//                    IEManager.getInstance().addOperator(filterOperator);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
 
-                    GPUImageSwirlFilter swirlFilter = new GPUImageSwirlFilter();
-                    swirlFilter.setAngle(0.5f);
-
-                    GPUImageGlassSphereFilter glassSphereFilter = new GPUImageGlassSphereFilter();
-                    glassSphereFilter.setRadius(0.3f);
-
-                    GPUImageGaussianBlurFilter gaussianBlurFilter = new GPUImageGaussianBlurFilter();
-                    gaussianBlurFilter.setBlurSize(0.9f);
-
-                    GPUImageSobelEdgeDetection sobelEdgeDetection = new GPUImageSobelEdgeDetection();
-
-                    GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
-                    filterGroup.addFilter(lookupFilter);
-                    filterGroup.addFilter(swirlFilter);
-
-                    FilterOperator filterOperator = new FilterOperator.Builder()
-                            .filter(gaussianBlurFilter)
-                            .build();
-                    IEManager.getInstance().addOperator(filterOperator);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.btn_undo:
                 TextOperator textOperator = new TextOperator.Builder()
-                        .text("你好你好")
-                        .position(mCurPosX, mCurPosY)
-                        .size(100)
+                        .text("你好")
                         .font(new File(getFilesDir(), "fonts/SentyWEN2017.ttf").getAbsolutePath())
-                        .color(0.2f, 0.3f, 0.4f)
+                        .size(100)
+                        .position(0, 1000)
+                        .color(1.0f, 0f, 0f)
                         .build();
                 IEManager.getInstance().addOperator(textOperator);
-                mCurPosX += 50;
-                mCurPosY -= 50;
+                break;
+            case R.id.btn_undo:
+                IEManager.getInstance().undo();
                 break;
             case R.id.btn_redo:
-                lookupFilter = new GPUImageLookupFilter();
-                try {
-                    lookupFilter.setBitmap(BitmapFactory.decodeStream(getAssets().open("filters/nt-9-B1.png")));
-                    lookupFilter.setIntensity(1.0f);
-                    FilterOperator filterOperator = new FilterOperator.Builder()
-                            .filter(lookupFilter)
-                            .build();
-                    IEManager.getInstance().addOperator(filterOperator);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                IEManager.getInstance().redo();
                 break;
             case R.id.btn_save:
                 IEManager.getInstance().save(new File(Environment.getExternalStorageDirectory(), "avflow/output.png"), new SaveListener() {

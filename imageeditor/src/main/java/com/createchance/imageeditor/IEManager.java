@@ -77,18 +77,24 @@ public class IEManager {
         return ret;
     }
 
-    public boolean removeOperator(AbstractOperator operator) {
+    public boolean undo() {
         if (mWorker == null) {
             Logger.e(TAG, "Failed, not prepared before!");
             return false;
         }
 
-        if (operator == null) {
-            Logger.e(TAG, "Operator can not be null!");
+        mWorker.undo();
+
+        return true;
+    }
+
+    public boolean redo() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
             return false;
         }
 
-        mWorker.removeOperator(operator);
+        mWorker.redo();
 
         return true;
     }

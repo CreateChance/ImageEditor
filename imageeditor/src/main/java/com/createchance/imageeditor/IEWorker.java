@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -37,8 +38,9 @@ class IEWorker extends HandlerThread {
     private final int MSG_START = 0;
     private final int MSG_STOP = 1;
     private final int MSG_NEW_OP = 2;
-    private final int MSG_REMOVE_OP = 3;
-    private final int MSG_SAVE = 4;
+    private final int MSG_UNDO_OP = 3;
+    private final int MSG_REDO_OP = 4;
+    private final int MSG_SAVE = 5;
 
     private Handler mHandler;
 
@@ -54,16 +56,18 @@ class IEWorker extends HandlerThread {
     private BaseImageDrawer mFboReader;
 
     // operator list
-    private List<AbstractOperator> mOpList;
+    private Stack<AbstractOperator> mOpList;
+    private Stack<AbstractOperator> mRemovedOps;
 
     public IEWorker() {
         super("IEWorker thread");
-        mOpList = new ArrayList<>();
+        mOpList = new Stack<>();
+        mRemovedOps = new Stack<>();
     }
 
     public IEWorker(int priority) {
         super("IEWorker thread", priority);
-        mOpList = new ArrayList<>();
+        mOpList = new Stack<>();
     }
 
     public void startWorking(Surface surface, int width, int height) {
@@ -81,10 +85,16 @@ class IEWorker extends HandlerThread {
                         handleStop();
                         break;
                     case MSG_NEW_OP:
-                        handleNewOperator((AbstractOperator) msg.obj);
+                        AbstractOperator operator = (AbstractOperator) msg.obj;
+                        mOpList.push(operator);
+                        mRemovedOps.clear();
+                        handleOperator((AbstractOperator) msg.obj);
                         break;
-                    case MSG_REMOVE_OP:
-                        handleRemoveOperator((AbstractOperator) msg.obj);
+                    case MSG_UNDO_OP:
+                        handleUndo();
+                        break;
+                    case MSG_REDO_OP:
+                        handleRedo();
                         break;
                     case MSG_SAVE:
                         List<Object> saveParams = (List<Object>) msg.obj;
@@ -115,11 +125,12 @@ class IEWorker extends HandlerThread {
         mHandler.sendMessage(message);
     }
 
-    public void removeOperator(AbstractOperator operator) {
-        Message message = Message.obtain();
-        message.what = MSG_REMOVE_OP;
-        message.obj = operator;
-        mHandler.sendMessage(message);
+    public void undo() {
+        mHandler.sendEmptyMessage(MSG_UNDO_OP);
+    }
+
+    public void redo() {
+        mHandler.sendEmptyMessage(MSG_REDO_OP);
     }
 
     public List<AbstractOperator> getOpList() {
@@ -159,7 +170,7 @@ class IEWorker extends HandlerThread {
         quitSafely();
     }
 
-    private void handleNewOperator(AbstractOperator operator) {
+    private void handleOperator(AbstractOperator operator) {
         switch (operator.getType()) {
             case AbstractOperator.OP_BASE_IMAGE:
                 adjustBaseImage((BaseImageOperator) operator);
@@ -178,8 +189,6 @@ class IEWorker extends HandlerThread {
                 break;
         }
 
-        mOpList.add(operator);
-
         if (operator.getType() == AbstractOperator.OP_FILTER) {
             bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
             operator.exec();
@@ -193,14 +202,25 @@ class IEWorker extends HandlerThread {
         mWindowSurface.swapBuffers();
     }
 
-    private void handleRemoveOperator(AbstractOperator operator) {
-        if (mOpList.contains(operator)) {
-            mOpList.remove(operator);
+    private void handleUndo() {
+        if (mOpList.size() > 1) {
+            AbstractOperator removedOp = mOpList.pop();
+            mRemovedOps.push(removedOp);
             for (AbstractOperator op : mOpList) {
-                op.exec();
+                handleOperator(op);
             }
         } else {
-            Logger.e(TAG, "No such operator! Can not remove.");
+            Logger.e(TAG, "Can not undo for now.");
+        }
+    }
+
+    private void handleRedo() {
+        if (!mRemovedOps.empty()) {
+            AbstractOperator operator = mRemovedOps.pop();
+            mOpList.push(operator);
+            handleOperator(operator);
+        } else {
+            Logger.e(TAG, "Can not redo for now.");
         }
     }
 
