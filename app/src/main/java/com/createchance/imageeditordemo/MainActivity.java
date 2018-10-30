@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.SaveListener;
+import com.createchance.imageeditor.filters.GPUImageFilterGroup;
 import com.createchance.imageeditor.filters.GPUImageGaussianBlurFilter;
 import com.createchance.imageeditor.filters.GPUImageGlassSphereFilter;
 import com.createchance.imageeditor.filters.GPUImageLookupFilter;
@@ -177,12 +178,16 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     glassSphereFilter.setRadius(0.3f);
 
                     GPUImageGaussianBlurFilter gaussianBlurFilter = new GPUImageGaussianBlurFilter();
-                    gaussianBlurFilter.setBlurSize(0.3f);
+                    gaussianBlurFilter.setBlurSize(0.9f);
 
                     GPUImageSobelEdgeDetection sobelEdgeDetection = new GPUImageSobelEdgeDetection();
 
+                    GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
+                    filterGroup.addFilter(lookupFilter);
+                    filterGroup.addFilter(swirlFilter);
+
                     FilterOperator filterOperator = new FilterOperator.Builder()
-                            .filter(sobelEdgeDetection)
+                            .filter(gaussianBlurFilter)
                             .build();
                     IEManager.getInstance().addOperator(filterOperator);
                 } catch (IOException e) {
