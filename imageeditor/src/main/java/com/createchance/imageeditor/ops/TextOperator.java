@@ -27,7 +27,11 @@ public class TextOperator extends AbstractOperator {
 
     private Bitmap mBackground;
 
+    private float mAlpha = 1.0f;
+
     private TextDrawer mDrawer;
+
+    private boolean mNeedReload = true;
 
     private TextOperator() {
         super(TextOperator.class.getSimpleName(), OP_TEXT);
@@ -51,8 +55,117 @@ public class TextOperator extends AbstractOperator {
         if (mDrawer == null) {
             mDrawer = new TextDrawer();
         }
-        mDrawer.setText(mFontPath, mText, mPosX, mPosY, mSize, mRed, mGreen, mBlue, mBackground);
+        if (mNeedReload) {
+            mNeedReload = false;
+            mDrawer.setText(mFontPath, mText, mSize);
+        }
+
+        // adjust position
+        if (mPosX > mWorker.getImgShowRight() - mDrawer.getWidth()) {
+            mPosX = mWorker.getImgShowRight() - mDrawer.getWidth();
+        } else if (mPosX < mWorker.getImgShowLeft()) {
+            mPosX = mWorker.getImgShowLeft();
+        }
+        if (mPosY > mWorker.getImgShowTop() - mDrawer.getHeight()) {
+            mPosY = mWorker.getImgShowTop() - mDrawer.getHeight();
+        } else if (mPosY < mWorker.getImgShowBottom()) {
+            mPosY = mWorker.getImgShowBottom();
+        }
+
+        mDrawer.setParams(mPosX, mPosY, mRed, mGreen, mBlue, mBackground);
         mDrawer.draw();
+    }
+
+    public String getText() {
+        return mText;
+    }
+
+    public void setText(String text) {
+        if (!TextUtils.equals(mText, text)) {
+            mNeedReload = true;
+        }
+
+        this.mText = text;
+    }
+
+    public String getFontPath() {
+        return mFontPath;
+    }
+
+    public void setFontPath(String fontPath) {
+        if (!TextUtils.equals(mFontPath, fontPath)) {
+            mNeedReload = true;
+        }
+
+        this.mFontPath = fontPath;
+    }
+
+    public int getPosX() {
+        return mPosX;
+    }
+
+    public void setPosX(int mPosX) {
+        this.mPosX = mPosX;
+    }
+
+    public int getPosY() {
+        return mPosY;
+    }
+
+    public void setPosY(int mPosY) {
+        this.mPosY = mPosY;
+    }
+
+    public int getSize() {
+        return mSize;
+    }
+
+    public void setSize(int size) {
+        if (mSize != size) {
+            mNeedReload = true;
+        }
+
+        this.mSize = size;
+    }
+
+    public float getRed() {
+        return mRed;
+    }
+
+    public void setRed(float mRed) {
+        this.mRed = mRed;
+    }
+
+    public float getGreen() {
+        return mGreen;
+    }
+
+    public void setGreen(float mGreen) {
+        this.mGreen = mGreen;
+    }
+
+    public float getBlue() {
+        return mBlue;
+    }
+
+    public void setBlue(float mBlue) {
+        this.mBlue = mBlue;
+    }
+
+    public Bitmap getBackground() {
+        return mBackground;
+    }
+
+    public void setBackground(Bitmap mBackground) {
+        this.mBackground = mBackground;
+    }
+
+    public float getAlpha() {
+        return mAlpha;
+    }
+
+    public void setAlpha(float mAlpha) {
+        this.mAlpha = mAlpha;
     }
 
     public static class Builder {
@@ -87,6 +200,12 @@ public class TextOperator extends AbstractOperator {
             operator.mRed = red;
             operator.mGreen = green;
             operator.mBlue = blue;
+
+            return this;
+        }
+
+        public Builder alpha(float alpha) {
+            operator.mAlpha = alpha;
 
             return this;
         }

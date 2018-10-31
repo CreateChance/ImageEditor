@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">ImageEditorDemo</string>
+
+    <string name="goto_work_list">作品列表</string>
+    <string name="save_work">保存</string>
+    <string name="undo">撤销</string>
+    <string name="redo">恢复</string>
+
+    <string name="dialog_confirm">确定</string>
+    <string name="dialog_cancel">取消</string>
+
+    <string name="edit_effect">特效</string>
+    <string name="edit_adjust">调整</string>
+    <string name="edit_cut">裁剪</string>
+    <string name="edit_rotate">旋转，翻转</string>
+
+    <string name="edit_text">文字</string>
+    <string name="edit_text_panel_add_dialog_content">请输入文字</string>
+    <string name="edit_text_panel_change_transparent">不透明度</string>
+    <string name="edit_text_panel_change_size">尺寸</string>
+    <string name="edit_text_panel_change_color">颜色</string>
+    <string name="edit_text_panel_change_color_red">红色</string>
+    <string name="edit_text_panel_change_color_green">绿色</string>
+    <string name="edit_text_panel_change_color_blue">蓝色</string>
+    <string name="edit_text_panel_change_texture">纹理</string>
+
+    <string name="edit_focus">对焦</string>
+    <string name="edit_sticker">贴纸</string>
+    <string name="edit_mosaic">马赛克</string>
 </resources>

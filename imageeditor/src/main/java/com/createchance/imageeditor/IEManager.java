@@ -56,6 +56,25 @@ public class IEManager {
         return true;
     }
 
+    public boolean updateOperator(AbstractOperator operator) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return false;
+        }
+
+        if (operator == null) {
+            Logger.e(TAG, "Operator can not be null!");
+            return false;
+        }
+
+        if (!operator.checkRational()) {
+            Logger.e(TAG, "Operator check rational failed, can not be executed!");
+            return false;
+        }
+
+        return mWorker.updateOperator(operator);
+    }
+
     public boolean addOperator(List<AbstractOperator> operatorList) {
         if (mWorker == null) {
             Logger.e(TAG, "Failed, not prepared before!");
@@ -123,8 +142,67 @@ public class IEManager {
     }
 
     public void stop() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return;
+        }
+
         mWorker.stopWork();
         mWorker = null;
+    }
+
+    public int getImgShowWidth() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return -1;
+        }
+
+        return mWorker.getImgShowWidth();
+    }
+
+    public int getImgShowHeight() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return -1;
+        }
+
+        return mWorker.getImgShowHeight();
+    }
+
+    public int getImgShowTop() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return -1;
+        }
+
+        return mWorker.getImgShowTop();
+    }
+
+    public int getImgShowLeft() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return -1;
+        }
+
+        return mWorker.getImgShowLeft();
+    }
+
+    public int getImgShowBottom() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return -1;
+        }
+
+        return mWorker.getImgShowBottom();
+    }
+
+    public int getImgShowRight() {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return -1;
+        }
+
+        return mWorker.getImgShowRight();
     }
 
     private static class Holder {

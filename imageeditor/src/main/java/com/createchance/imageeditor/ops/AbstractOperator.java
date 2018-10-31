@@ -1,5 +1,7 @@
 package com.createchance.imageeditor.ops;
 
+import com.createchance.imageeditor.IEWorker;
+
 /**
  * ${DESC}
  *
@@ -16,6 +18,8 @@ public abstract class AbstractOperator {
 
     protected final int mType;
 
+    protected IEWorker mWorker;
+
     public AbstractOperator(String name, int type) {
         mName = name;
         mType = type;
@@ -27,6 +31,10 @@ public abstract class AbstractOperator {
 
     public int getType() {
         return mType;
+    }
+
+    public void setWorker(IEWorker worker) {
+        mWorker = worker;
     }
 
     public abstract boolean checkRational();

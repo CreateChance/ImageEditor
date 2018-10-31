@@ -31,16 +31,17 @@ import java.util.concurrent.Semaphore;
  * @author gaochao1-iri
  * @date 2018/10/29
  */
-class IEWorker extends HandlerThread {
+public class IEWorker extends HandlerThread {
 
     private static final String TAG = "IEWorker";
 
     private final int MSG_START = 0;
     private final int MSG_STOP = 1;
     private final int MSG_NEW_OP = 2;
-    private final int MSG_UNDO_OP = 3;
-    private final int MSG_REDO_OP = 4;
-    private final int MSG_SAVE = 5;
+    private final int MSG_UPDATE_OP = 3;
+    private final int MSG_UNDO_OP = 4;
+    private final int MSG_REDO_OP = 5;
+    private final int MSG_SAVE = 6;
 
     private Handler mHandler;
 
@@ -48,7 +49,8 @@ class IEWorker extends HandlerThread {
     private EglCore mEglCore;
     private WindowSurface mWindowSurface;
     private int mSurfaceWidth, mSurfaceHeight;
-    private int mBaseImgWidth, mBaseImgHeight;
+    private int mBaseImgShowWidth, mBaseImgShowHeight;
+    private int mImgOriginWidth, mImgOriginHeight;
     private int mBaseImgPosX, mBaseImgPosY;
     private int[] mFboBuffer = new int[1];
     private int[] mFboTextureIds = new int[2];
@@ -85,10 +87,13 @@ class IEWorker extends HandlerThread {
                         handleStop();
                         break;
                     case MSG_NEW_OP:
-                        AbstractOperator operator = (AbstractOperator) msg.obj;
-                        mOpList.push(operator);
+                        AbstractOperator operatorAdd = (AbstractOperator) msg.obj;
+                        mOpList.push(operatorAdd);
                         mRemovedOps.clear();
                         handleOperator((AbstractOperator) msg.obj);
+                        break;
+                    case MSG_UPDATE_OP:
+                        handleUpdateOperator((AbstractOperator) msg.obj);
                         break;
                     case MSG_UNDO_OP:
                         handleUndo();
@@ -119,10 +124,24 @@ class IEWorker extends HandlerThread {
             return;
         }
 
+        operator.setWorker(this);
         Message message = Message.obtain();
         message.what = MSG_NEW_OP;
         message.obj = operator;
         mHandler.sendMessage(message);
+    }
+
+    public boolean updateOperator(AbstractOperator operator) {
+        if (!mOpList.contains(operator)) {
+            return false;
+        }
+
+        Message message = Message.obtain();
+        message.what = MSG_UPDATE_OP;
+        message.obj = operator;
+        mHandler.sendMessage(message);
+
+        return true;
     }
 
     public void undo() {
@@ -149,6 +168,30 @@ class IEWorker extends HandlerThread {
 
     public void stopWork() {
         mHandler.sendEmptyMessage(MSG_STOP);
+    }
+
+    public int getImgShowWidth() {
+        return mBaseImgShowWidth;
+    }
+
+    public int getImgShowHeight() {
+        return mBaseImgShowHeight;
+    }
+
+    public int getImgShowTop() {
+        return mBaseImgPosY + mBaseImgShowHeight;
+    }
+
+    public int getImgShowLeft() {
+        return mBaseImgPosX;
+    }
+
+    public int getImgShowBottom() {
+        return mBaseImgPosY;
+    }
+
+    public int getImgShowRight() {
+        return mBaseImgPosX + mBaseImgShowWidth;
     }
 
     private void handleStart(Surface surface, int width, int height) {
@@ -202,6 +245,12 @@ class IEWorker extends HandlerThread {
         mWindowSurface.swapBuffers();
     }
 
+    public void handleUpdateOperator(AbstractOperator operator) {
+        for (AbstractOperator op : mOpList) {
+            handleOperator(op);
+        }
+    }
+
     private void handleUndo() {
         if (mOpList.size() > 1) {
             AbstractOperator removedOp = mOpList.pop();
@@ -226,13 +275,15 @@ class IEWorker extends HandlerThread {
 
     private void handleSave(File target, SaveListener listener) {
         bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
-        captureImage(target, mBaseImgPosX, mBaseImgPosY, mBaseImgWidth, mBaseImgHeight, listener);
+        captureImage(target, listener);
         bindDefaultFrameBuffer();
     }
 
     private void adjustBaseImage(BaseImageOperator operator) {
-        int imgWidth = operator.getImage().getWidth();
-        int imgHeight = operator.getImage().getHeight();
+        mImgOriginWidth = operator.getImage().getWidth();
+        mImgOriginHeight = operator.getImage().getHeight();
+        int imgWidth = mImgOriginWidth;
+        int imgHeight = mImgOriginHeight;
         float scale = 1.0f;
         if (imgWidth > imgHeight) {
             if (imgWidth > mSurfaceWidth) {
@@ -251,24 +302,31 @@ class IEWorker extends HandlerThread {
         operator.setHeight(imgHeight);
         mBaseImgPosX = 0;
         mBaseImgPosY = (mSurfaceHeight - imgHeight) / 2;
-        mBaseImgWidth = imgWidth;
-        mBaseImgHeight = imgHeight;
+        mBaseImgShowWidth = imgWidth;
+        mBaseImgShowHeight = imgHeight;
         operator.setPosition(mBaseImgPosX, mBaseImgPosY);
     }
 
-    private void captureImage(File target, int posX, int posY, int width, int height, final SaveListener listener) {
+    private void captureImage(File target, final SaveListener listener) {
         final Semaphore waiter = new Semaphore(0);
 
         // Take picture on OpenGL thread
-        final int[] pixelMirroredArray = new int[width * height];
-        final IntBuffer pixelBuffer = IntBuffer.allocate(width * height);
-        GLES20.glReadPixels(posX, posY, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuffer);
+        final int[] pixelMirroredArray = new int[mBaseImgShowWidth * mBaseImgShowHeight];
+        final IntBuffer pixelBuffer = IntBuffer.allocate(mBaseImgShowWidth * mBaseImgShowHeight);
+        GLES20.glReadPixels(mBaseImgPosX,
+                mBaseImgPosY,
+                mBaseImgShowWidth,
+                mBaseImgShowHeight,
+                GLES20.GL_RGBA,
+                GLES20.GL_UNSIGNED_BYTE,
+                pixelBuffer);
         int[] pixelArray = pixelBuffer.array();
 
         // Convert upside down mirror-reversed image to right-side up normal image.
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                pixelMirroredArray[(height - i - 1) * width + j] = pixelArray[i * width + j];
+        for (int i = 0; i < mBaseImgShowHeight; i++) {
+            for (int j = 0; j < mBaseImgShowWidth; j++) {
+                pixelMirroredArray[(mBaseImgShowHeight - i - 1) * mBaseImgShowWidth + j] =
+                        pixelArray[i * mBaseImgShowWidth + j];
             }
         }
         waiter.release();
@@ -287,7 +345,7 @@ class IEWorker extends HandlerThread {
             return;
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(mBaseImgShowWidth, mBaseImgShowHeight, Bitmap.Config.ARGB_8888);
         bitmap.copyPixelsFromBuffer(IntBuffer.wrap(pixelMirroredArray));
         saveBitmap(bitmap, target, listener);
     }

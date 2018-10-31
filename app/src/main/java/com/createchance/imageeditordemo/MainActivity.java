@@ -5,25 +5,20 @@ import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.SaveListener;
-import com.createchance.imageeditor.filters.GPUImageFilterGroup;
-import com.createchance.imageeditor.filters.GPUImageGaussianBlurFilter;
-import com.createchance.imageeditor.filters.GPUImageGlassSphereFilter;
-import com.createchance.imageeditor.filters.GPUImageLookupFilter;
-import com.createchance.imageeditor.filters.GPUImageSobelEdgeDetection;
-import com.createchance.imageeditor.filters.GPUImageSwirlFilter;
 import com.createchance.imageeditor.ops.BaseImageOperator;
-import com.createchance.imageeditor.ops.FilterOperator;
-import com.createchance.imageeditor.ops.TextOperator;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,7 +32,8 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     private static final String TAG = "MainActivity";
 
-    private int mCurPosX = 0, mCurPosY = 1000;
+    private RecyclerView mEditListView;
+    private EditListAdapter mEditListAdapter;
 
     private GestureDetector mGestureDetector;
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -49,18 +45,66 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         }
     };
 
+    private ViewGroup mEditPanelContainer;
+    private EditTextPanel mTextPanel;
+
+    private int mTextureHeight;
+
+    private int mCurrentPanel = -1;
+
+    private int mLastX, mLastY;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mEditPanelContainer = findViewById(R.id.vw_edit_panel_container);
+        findViewById(R.id.tv_undo).setOnClickListener(this);
+        findViewById(R.id.tv_redo).setOnClickListener(this);
+        findViewById(R.id.tv_save).setOnClickListener(this);
         TextureView textureView = findViewById(R.id.vw_texture);
         textureView.setSurfaceTextureListener(this);
         textureView.setOnTouchListener(mTouchListener);
-        findViewById(R.id.btn_test).setOnClickListener(this);
-        findViewById(R.id.btn_undo).setOnClickListener(this);
-        findViewById(R.id.btn_redo).setOnClickListener(this);
-        findViewById(R.id.btn_save).setOnClickListener(this);
+        mEditListView = findViewById(R.id.rcv_edit_list);
+        mEditListView.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false));
+        mEditListAdapter = new EditListAdapter(this, new EditListAdapter.ItemClickListener() {
+            @Override
+            public void onItemClicked(int position) {
+                Log.d(TAG, "onItemClicked: " + position);
+                mCurrentPanel = position;
+                switch (position) {
+                    case 0:
+
+                        break;
+                    case 1:
+
+                        break;
+                    case 2:
+
+                        break;
+                    case 3:
+
+                        break;
+                    case 4:
+                        mTextPanel.show();
+                        break;
+                    case 5:
+
+                        break;
+                    case 6:
+
+                        break;
+                    case 7:
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        mEditListView.setAdapter(mEditListAdapter);
 
         WorkRunner.addTaskToBackground(new Runnable() {
             @Override
@@ -72,7 +116,9 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         mGestureDetector = new GestureDetector(this, new GestureDetector.OnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
-                return false;
+                mLastX = (int) e.getX();
+                mLastY = (int) e.getY();
+                return true;
             }
 
             @Override
@@ -82,12 +128,43 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                return false;
+                return true;
             }
 
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                return false;
+                switch (mCurrentPanel) {
+                    case 0:
+
+                        break;
+                    case 1:
+
+                        break;
+                    case 2:
+
+                        break;
+                    case 3:
+
+                        break;
+                    case 4:
+                        mTextPanel.moveText((int) (e2.getX() - mLastX), (int) (e2.getY() - mLastY));
+                        mLastX = (int) e2.getX();
+                        mLastY = (int) e2.getY();
+                        break;
+                    case 5:
+
+                        break;
+                    case 6:
+
+                        break;
+                    case 7:
+
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
             }
 
             @Override
@@ -97,33 +174,35 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return false;
+                return true;
             }
         });
         mGestureDetector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 Log.d(TAG, "onSingleTapConfirmed: ");
-                return false;
+                return true;
             }
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d(TAG, "onDoubleTap: ");
 
-                return false;
+                return true;
             }
 
             @Override
             public boolean onDoubleTapEvent(MotionEvent e) {
                 Log.d(TAG, "onDoubleTapEvent: ");
-                return false;
+                return true;
             }
         });
     }
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        mTextureHeight = height;
+        mTextPanel = new EditTextPanel(this, mEditPanelContainer, mTextureHeight);
         Surface holdSurface = new Surface(surface);
         IEManager.getInstance().prepare(holdSurface, width, height);
 
@@ -153,65 +232,26 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     @Override
     public void onClick(View v) {
-        GPUImageLookupFilter lookupFilter;
         switch (v.getId()) {
-            case R.id.btn_test:
-//                lookupFilter = new GPUImageLookupFilter();
-//                try {
-//                    lookupFilter.setBitmap(BitmapFactory.decodeStream(getAssets().open("filters/nt-9-B1.png")));
-//                    lookupFilter.setIntensity(1.0f);
-//
-//                    GPUImageSwirlFilter swirlFilter = new GPUImageSwirlFilter();
-//                    swirlFilter.setAngle(0.5f);
-//
-//                    GPUImageGlassSphereFilter glassSphereFilter = new GPUImageGlassSphereFilter();
-//                    glassSphereFilter.setRadius(0.3f);
-//
-//                    GPUImageGaussianBlurFilter gaussianBlurFilter = new GPUImageGaussianBlurFilter();
-//                    gaussianBlurFilter.setBlurSize(0.9f);
-//
-//                    GPUImageSobelEdgeDetection sobelEdgeDetection = new GPUImageSobelEdgeDetection();
-//
-//                    GPUImageFilterGroup filterGroup = new GPUImageFilterGroup();
-//                    filterGroup.addFilter(lookupFilter);
-//                    filterGroup.addFilter(swirlFilter);
-//
-//                    FilterOperator filterOperator = new FilterOperator.Builder()
-//                            .filter(gaussianBlurFilter)
-//                            .build();
-//                    IEManager.getInstance().addOperator(filterOperator);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
-                TextOperator textOperator = new TextOperator.Builder()
-                        .text("你好")
-                        .font(new File(getFilesDir(), "fonts/SentyWEN2017.ttf").getAbsolutePath())
-                        .size(100)
-                        .position(0, 1000)
-                        .color(1.0f, 0f, 0f)
-                        .build();
-                IEManager.getInstance().addOperator(textOperator);
-                break;
-            case R.id.btn_undo:
+            case R.id.tv_undo:
                 IEManager.getInstance().undo();
                 break;
-            case R.id.btn_redo:
+            case R.id.tv_redo:
                 IEManager.getInstance().redo();
                 break;
-            case R.id.btn_save:
-                IEManager.getInstance().save(new File(Environment.getExternalStorageDirectory(), "avflow/output.png"), new SaveListener() {
-                    @Override
-                    public void onSaveFailed() {
-                        Toast.makeText(MainActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
-                    }
+            case R.id.tv_save:
+                IEManager.getInstance().save(new File(Environment.getExternalStorageDirectory(), "avflow/output.png"),
+                        new SaveListener() {
+                            @Override
+                            public void onSaveFailed() {
+                                Toast.makeText(MainActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
+                            }
 
-                    @Override
-                    public void onSaved(File target) {
-                        Log.d(TAG, "onSaved: " + target);
-                        Toast.makeText(MainActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                            @Override
+                            public void onSaved(File target) {
+                                Toast.makeText(MainActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 break;
             default:
                 break;
@@ -228,9 +268,16 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         InputStream is = null;
         OutputStream os = null;
         List<String> fontList = new ArrayList<>();
+        fontList.add("Hanyi_Senty_Yongle_Encyclopedia.ttf");
+        fontList.add("HanyiSentyDiary.ttf");
+        fontList.add("HanyiSentyJournal.ttf");
+        fontList.add("HanyiSentyLingfeiScroll.ttf");
         fontList.add("KaBuQiNuo.otf");
         fontList.add("MFYanSong-Regular.ttf");
+        fontList.add("SentyChalk.ttf");
+        fontList.add("SentyTEA.ttf");
         fontList.add("SentyWEN2017.ttf");
+        fontList.add("SentyZHAO-20180827.ttf");
         fontList.add("YouLangRuanBi.ttf");
         try {
             for (String font : fontList) {

@@ -1,0 +1,57 @@
+[
+  {
+    "path": "fonts/KaBuQiNuo.otf",
+    "name": "卡布奇诺",
+    "chinese": true
+  },
+  {
+    "path": "fonts/MFYanSong-Regular.ttf",
+    "name": "颜宋",
+    "chinese": true
+  },
+  {
+    "path": "fonts/SentyWEN2017.ttf",
+    "name": "徵明",
+    "chinese": true
+  },
+  {
+    "path": "fonts/YouLangRuanBi.ttf",
+    "name": "软笔",
+    "chinese": true
+  },
+  {
+    "path": "fonts/Hanyi_Senty_Yongle_Encyclopedia.ttf",
+    "name": "永乐大典",
+    "chinese": true
+  },
+  {
+    "path": "fonts/SentyChalk.ttf",
+    "name": "黑板报",
+    "chinese": true
+  },
+  {
+    "path": "fonts/SentyTEA.ttf",
+    "name": "下午茶",
+    "chinese": true
+  },
+  {
+    "path": "fonts/SentyZHAO-20180827.ttf",
+    "name": "赵孟頫",
+    "chinese": true
+  },
+  {
+    "path": "fonts/HanyiSentyDiary.ttf",
+    "name": "日记",
+    "chinese": true
+  },
+  {
+    "path": "fonts/HanyiSentyJournal.ttf",
+    "name": "手札",
+    "chinese": true
+  },
+  {
+    "path": "fonts/HanyiSentyLingfeiScroll.ttf",
+    "name": "灵飞经",
+    "chinese": true
+  }
+]
