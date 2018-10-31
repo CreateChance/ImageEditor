@@ -59,13 +59,20 @@ public class TextDrawer {
             "precision mediump float;\n" +
                     "\n" +
                     "uniform sampler2D u_TextureUnit;\n" +
+                    "uniform sampler2D u_Background;\n" +
+                    "uniform int u_UseBackground;\n" +
                     "varying vec2 v_TextureCoordinates;\n" +
-                    "uniform vec3 u_TextColor;" +
-                    "uniform float u_AlphaFactor;" +
+                    "uniform vec3 u_TextColor;\n" +
+                    "uniform float u_AlphaFactor;\n" +
                     "\n" +
                     "void main() {\n" +
                     "    vec4 sampledColor = vec4(1.0, 1.0, 1.0, texture2D(u_TextureUnit, v_TextureCoordinates).a);\n" +
-                    "    gl_FragColor = vec4(u_TextColor, u_AlphaFactor) * sampledColor;\n" +
+                    "    if (u_UseBackground == 1) {\n" +
+                    "        vec4 backgroundColor = texture2D(u_Background, v_TextureCoordinates);\n" +
+                    "        gl_FragColor = vec4(backgroundColor.rgb, u_AlphaFactor) * sampledColor;\n" +
+                    "    } else {\n" +
+                    "        gl_FragColor = vec4(u_TextColor, u_AlphaFactor) * sampledColor;\n" +
+                    "    }\n" +
                     "}\n";
 
     // Uniform
@@ -73,6 +80,8 @@ public class TextDrawer {
     private final String U_TEXTURE_UNIT = "u_TextureUnit";
     private final String U_TEXT_COLOR = "u_TextColor";
     private final String U_ALPHA_FACTOR = "u_AlphaFactor";
+    private final String U_BACKGROUND = "u_Background";
+    private final String U_USE_BACKGROUND = "u_UseBackground";
 
     // Attribute
     private final String A_POSITION = "a_Position";
@@ -85,7 +94,9 @@ public class TextDrawer {
             mPositionLocation,
             mTextureCoorLocation,
             mTextColorLocation,
-            mAlphaFactorLocation;
+            mAlphaFactorLocation,
+            mBackgroundLocation,
+            mUseBackgroundLocation;
 
     private FloatBuffer mVertexPositionBuffer;
     private FloatBuffer mTextureCoordinateBuffer;
@@ -100,6 +111,7 @@ public class TextDrawer {
     private float mAlphaFactor = 1.0f;
 
     private Bitmap mBackground;
+    private int mBackgroundTextureId = -1;
 
     public TextDrawer() {
         mLoadedTextList = new ArrayList<>();
@@ -111,6 +123,8 @@ public class TextDrawer {
         mTextureUnitLocation = GLES20.glGetUniformLocation(mProgramId, U_TEXTURE_UNIT);
         mTextColorLocation = GLES20.glGetUniformLocation(mProgramId, U_TEXT_COLOR);
         mAlphaFactorLocation = GLES20.glGetUniformLocation(mProgramId, U_ALPHA_FACTOR);
+        mBackgroundLocation = GLES20.glGetUniformLocation(mProgramId, U_BACKGROUND);
+        mUseBackgroundLocation = GLES20.glGetUniformLocation(mProgramId, U_USE_BACKGROUND);
         mPositionLocation = GLES20.glGetAttribLocation(mProgramId, A_POSITION);
         mTextureCoorLocation = GLES20.glGetAttribLocation(mProgramId, A_TEXTURE_COORDINATES);
 
@@ -196,6 +210,11 @@ public class TextDrawer {
         mGreen = green;
         mBlue = blue;
         mAlphaFactor = alpha;
+
+        if (background != null && background != mBackground) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
+            mBackgroundTextureId = OpenGlUtils.loadTexture(background, OpenGlUtils.NO_TEXTURE, true);
+        }
         mBackground = background;
     }
 
@@ -204,10 +223,18 @@ public class TextDrawer {
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(mTextureUnitLocation, 0);
+
         GLES20.glUniform1f(mAlphaFactorLocation, mAlphaFactor);
         int currentPosX = mPosX;
+
+        if (mBackground != null) {
+            GLES20.glUniform1i(mUseBackgroundLocation, 1);
+        } else {
+            GLES20.glUniform1i(mUseBackgroundLocation, 0);
+        }
 
         for (LoadedText loadedText : mLoadedTextList) {
             int xpos = currentPosX + (int) (loadedText.left * mScaleFactor);
@@ -246,6 +273,34 @@ public class TextDrawer {
             glDisableVertexAttribArray(mTextureCoorLocation);
 
             currentPosX += (loadedText.advanceX >> 6) * mScaleFactor;
+
+            if (mBackground != null) {
+                GLES20.glUniform1i(mBackgroundLocation, 3);
+                GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBackgroundTextureId);
+                glEnableVertexAttribArray(mPositionLocation);
+                mVertexPositionBuffer.position(0);
+                glVertexAttribPointer(
+                        mPositionLocation,
+                        2,
+                        GLES20.GL_FLOAT,
+                        false,
+                        0,
+                        mVertexPositionBuffer);
+                glEnableVertexAttribArray(mTextureCoorLocation);
+                mTextureCoordinateBuffer.position(0);
+                glVertexAttribPointer(
+                        mTextureCoorLocation,
+                        2,
+                        GLES20.GL_FLOAT,
+                        false,
+                        0,
+                        mTextureCoordinateBuffer);
+                GLES20.glUniform3f(mTextColorLocation, mRed, mGreen, mBlue);
+                glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+                glDisableVertexAttribArray(mPositionLocation);
+                glDisableVertexAttribArray(mTextureCoorLocation);
+            }
         }
         glDisable(GL_BLEND);
     }

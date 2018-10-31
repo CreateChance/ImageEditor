@@ -134,6 +134,7 @@ public class TextOperator extends AbstractOperator {
 
     public void setRed(float mRed) {
         this.mRed = mRed;
+        mBackground = null;
     }
 
     public float getGreen() {
@@ -142,6 +143,7 @@ public class TextOperator extends AbstractOperator {
 
     public void setGreen(float mGreen) {
         this.mGreen = mGreen;
+        mBackground = null;
     }
 
     public float getBlue() {
@@ -150,6 +152,7 @@ public class TextOperator extends AbstractOperator {
 
     public void setBlue(float mBlue) {
         this.mBlue = mBlue;
+        mBackground = null;
     }
 
     public Bitmap getBackground() {
