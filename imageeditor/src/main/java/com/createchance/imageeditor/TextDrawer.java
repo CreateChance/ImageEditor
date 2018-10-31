@@ -61,16 +61,18 @@ public class TextDrawer {
                     "uniform sampler2D u_TextureUnit;\n" +
                     "varying vec2 v_TextureCoordinates;\n" +
                     "uniform vec3 u_TextColor;" +
+                    "uniform float u_AlphaFactor;" +
                     "\n" +
                     "void main() {\n" +
                     "    vec4 sampledColor = vec4(1.0, 1.0, 1.0, texture2D(u_TextureUnit, v_TextureCoordinates).a);\n" +
-                    "    gl_FragColor = vec4(u_TextColor, 1.0) * sampledColor;\n" +
+                    "    gl_FragColor = vec4(u_TextColor, u_AlphaFactor) * sampledColor;\n" +
                     "}\n";
 
     // Uniform
     private final String U_MATRIX = "u_Matrix";
     private final String U_TEXTURE_UNIT = "u_TextureUnit";
     private final String U_TEXT_COLOR = "u_TextColor";
+    private final String U_ALPHA_FACTOR = "u_AlphaFactor";
 
     // Attribute
     private final String A_POSITION = "a_Position";
@@ -78,7 +80,12 @@ public class TextDrawer {
 
     private int mProgramId;
 
-    private int mMatrixLocation, mTextureUnitLocation, mPositionLocaiton, mTextureCoorLocation, mTextColorLocation;
+    private int mMatrixLocation,
+            mTextureUnitLocation,
+            mPositionLocation,
+            mTextureCoorLocation,
+            mTextColorLocation,
+            mAlphaFactorLocation;
 
     private FloatBuffer mVertexPositionBuffer;
     private FloatBuffer mTextureCoordinateBuffer;
@@ -90,6 +97,7 @@ public class TextDrawer {
     private float mRed = 1.0f;
     private float mGreen = 1.0f;
     private float mBlue = 1.0f;
+    private float mAlphaFactor = 1.0f;
 
     private Bitmap mBackground;
 
@@ -102,7 +110,8 @@ public class TextDrawer {
         mMatrixLocation = GLES20.glGetUniformLocation(mProgramId, U_MATRIX);
         mTextureUnitLocation = GLES20.glGetUniformLocation(mProgramId, U_TEXTURE_UNIT);
         mTextColorLocation = GLES20.glGetUniformLocation(mProgramId, U_TEXT_COLOR);
-        mPositionLocaiton = GLES20.glGetAttribLocation(mProgramId, A_POSITION);
+        mAlphaFactorLocation = GLES20.glGetUniformLocation(mProgramId, U_ALPHA_FACTOR);
+        mPositionLocation = GLES20.glGetAttribLocation(mProgramId, A_POSITION);
         mTextureCoorLocation = GLES20.glGetAttribLocation(mProgramId, A_TEXTURE_COORDINATES);
 
         GLES20.glUseProgram(mProgramId);
@@ -180,12 +189,13 @@ public class TextDrawer {
         }
     }
 
-    public void setParams(int posX, int posY, float red, float green, float blue, Bitmap background) {
+    public void setParams(int posX, int posY, float red, float green, float blue, float alpha, Bitmap background) {
         mPosX = posX;
         mPosY = posY;
         mRed = red;
         mGreen = green;
         mBlue = blue;
+        mAlphaFactor = alpha;
         mBackground = background;
     }
 
@@ -196,6 +206,7 @@ public class TextDrawer {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(mTextureUnitLocation, 0);
+        GLES20.glUniform1f(mAlphaFactorLocation, mAlphaFactor);
         int currentPosX = mPosX;
 
         for (LoadedText loadedText : mLoadedTextList) {
@@ -211,10 +222,10 @@ public class TextDrawer {
             // bind texture
             glBindTexture(GL_TEXTURE_2D, loadedText.textureId);
 
-            glEnableVertexAttribArray(mPositionLocaiton);
+            glEnableVertexAttribArray(mPositionLocation);
             mVertexPositionBuffer.position(0);
             glVertexAttribPointer(
-                    mPositionLocaiton,
+                    mPositionLocation,
                     2,
                     GLES20.GL_FLOAT,
                     false,
@@ -231,7 +242,7 @@ public class TextDrawer {
                     mTextureCoordinateBuffer);
             GLES20.glUniform3f(mTextColorLocation, mRed, mGreen, mBlue);
             glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-            glDisableVertexAttribArray(mPositionLocaiton);
+            glDisableVertexAttribArray(mPositionLocation);
             glDisableVertexAttribArray(mTextureCoorLocation);
 
             currentPosX += (loadedText.advanceX >> 6) * mScaleFactor;

@@ -17,8 +17,9 @@
     <FrameLayout
         android:id="@+id/vw_edit_panel_container"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_above="@id/rcv_edit_list" />
+        android:layout_height="200dp"
+        android:layout_above="@id/rcv_edit_list"
+        android:background="@color/black" />
 
     <TextureView
         android:id="@+id/vw_texture"

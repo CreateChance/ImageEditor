@@ -1,12 +1,12 @@
 [
   {
-    "path": "fonts/KaBuQiNuo.otf",
-    "name": "卡布奇诺",
+    "path": "fonts/MFYanSong-Regular.ttf",
+    "name": "颜宋",
     "chinese": true
   },
   {
-    "path": "fonts/MFYanSong-Regular.ttf",
-    "name": "颜宋",
+    "path": "fonts/KaBuQiNuo.otf",
+    "name": "卡布奇诺",
     "chinese": true
   },
   {

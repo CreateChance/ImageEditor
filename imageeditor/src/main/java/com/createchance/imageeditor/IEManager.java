@@ -47,7 +47,7 @@ public class IEManager {
         }
 
         if (!operator.checkRational()) {
-            Logger.e(TAG, "Operator check rational failed, can not be executed!");
+            Logger.e(TAG, "Operator check rational failed, can not be executed! op: " + operator.getName());
             return false;
         }
 
@@ -68,7 +68,7 @@ public class IEManager {
         }
 
         if (!operator.checkRational()) {
-            Logger.e(TAG, "Operator check rational failed, can not be executed!");
+            Logger.e(TAG, "Operator check rational failed, can not be executed! op: " + operator.getName());
             return false;
         }
 

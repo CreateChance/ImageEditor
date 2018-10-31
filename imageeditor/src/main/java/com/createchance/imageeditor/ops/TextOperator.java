@@ -72,7 +72,7 @@ public class TextOperator extends AbstractOperator {
             mPosY = mWorker.getImgShowBottom();
         }
 
-        mDrawer.setParams(mPosX, mPosY, mRed, mGreen, mBlue, mBackground);
+        mDrawer.setParams(mPosX, mPosY, mRed, mGreen, mBlue, mAlpha, mBackground);
         mDrawer.draw();
     }
 

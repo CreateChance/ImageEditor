@@ -7,8 +7,6 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
@@ -19,6 +17,7 @@ import android.widget.Toast;
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.ops.BaseImageOperator;
+import com.createchance.imageeditordemo.panels.AbstractPanel;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,31 +27,32 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements
+        TextureView.SurfaceTextureListener,
+        View.OnClickListener,
+        AbstractPanel.PanelListener {
 
     private static final String TAG = "MainActivity";
 
     private RecyclerView mEditListView;
     private EditListAdapter mEditListAdapter;
 
-    private GestureDetector mGestureDetector;
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            mGestureDetector.onTouchEvent(event);
+            if (mCurrentPanel != null) {
+                mCurrentPanel.onTouchEvent(event);
+            }
 
             return true;
         }
     };
 
     private ViewGroup mEditPanelContainer;
-    private EditTextPanel mTextPanel;
 
-    private int mTextureHeight;
+    private int mTextureWidth, mTextureHeight;
 
-    private int mCurrentPanel = -1;
-
-    private int mLastX, mLastY;
+    private AbstractPanel mCurrentPanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,39 +71,15 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 LinearLayoutManager.HORIZONTAL, false));
         mEditListAdapter = new EditListAdapter(this, new EditListAdapter.ItemClickListener() {
             @Override
-            public void onItemClicked(int position) {
-                Log.d(TAG, "onItemClicked: " + position);
-                mCurrentPanel = position;
-                switch (position) {
-                    case 0:
-
-                        break;
-                    case 1:
-
-                        break;
-                    case 2:
-
-                        break;
-                    case 3:
-
-                        break;
-                    case 4:
-                        mTextPanel.show();
-                        break;
-                    case 5:
-
-                        break;
-                    case 6:
-
-                        break;
-                    case 7:
-
-                        break;
-                    default:
-                        break;
+            public void onItemClicked(EditListAdapter.EditItem editItem) {
+                mCurrentPanel = editItem.editPanel;
+                if (editItem.editPanel != null) {
+                    editItem.editPanel.show(mEditPanelContainer, mTextureWidth, mTextureHeight);
+                } else {
+                    Toast.makeText(MainActivity.this, "Panel not impl!", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        }, this);
         mEditListView.setAdapter(mEditListAdapter);
 
         WorkRunner.addTaskToBackground(new Runnable() {
@@ -112,97 +88,13 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 tryCopyFontFile();
             }
         });
-
-        mGestureDetector = new GestureDetector(this, new GestureDetector.OnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) {
-                mLastX = (int) e.getX();
-                mLastY = (int) e.getY();
-                return true;
-            }
-
-            @Override
-            public void onShowPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return true;
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                switch (mCurrentPanel) {
-                    case 0:
-
-                        break;
-                    case 1:
-
-                        break;
-                    case 2:
-
-                        break;
-                    case 3:
-
-                        break;
-                    case 4:
-                        mTextPanel.moveText((int) (e2.getX() - mLastX), (int) (e2.getY() - mLastY));
-                        mLastX = (int) e2.getX();
-                        mLastY = (int) e2.getY();
-                        break;
-                    case 5:
-
-                        break;
-                    case 6:
-
-                        break;
-                    case 7:
-
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return true;
-            }
-        });
-        mGestureDetector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                Log.d(TAG, "onSingleTapConfirmed: ");
-                return true;
-            }
-
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-                Log.d(TAG, "onDoubleTap: ");
-
-                return true;
-            }
-
-            @Override
-            public boolean onDoubleTapEvent(MotionEvent e) {
-                Log.d(TAG, "onDoubleTapEvent: ");
-                return true;
-            }
-        });
     }
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        mTextureWidth = width;
         mTextureHeight = height;
-        mTextPanel = new EditTextPanel(this, mEditPanelContainer, mTextureHeight);
+
         Surface holdSurface = new Surface(surface);
         IEManager.getInstance().prepare(holdSurface, width, height);
 
@@ -309,5 +201,42 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 }
             }
         }
+    }
+
+    @Override
+    public void onPanelShow(int type) {
+        switch (type) {
+            case AbstractPanel.TYPE_EFFECT:
+
+                break;
+            case AbstractPanel.TYPE_ADJUST:
+
+                break;
+            case AbstractPanel.TYPE_CUT:
+
+                break;
+            case AbstractPanel.TYPE_ROTATE:
+
+                break;
+            case AbstractPanel.TYPE_TEXT:
+
+                break;
+            case AbstractPanel.TYPE_FOCUS:
+
+                break;
+            case AbstractPanel.TYPE_STICKER:
+
+                break;
+            case AbstractPanel.TYPE_MOSAIC:
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onPanelClosed(int type) {
+
     }
 }

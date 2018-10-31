@@ -1,17 +1,23 @@
-package com.createchance.imageeditordemo;
+package com.createchance.imageeditordemo.panels;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.TextOperator;
+import com.createchance.imageeditordemo.R;
+import com.createchance.imageeditordemo.SetTextDialog;
+import com.createchance.imageeditordemo.TextFontAdapter;
+import com.createchance.imageeditordemo.TextTextureAdapter;
 import com.createchance.imageeditordemo.utils.AssetsUtil;
 
 import java.io.File;
@@ -24,13 +30,10 @@ import java.util.List;
  * @author gaochao1-iri
  * @date 2018/10/31
  */
-public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+public class EditTextPanel extends AbstractPanel implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private static final String TAG = "EditTextPanel";
 
-    public Context mContext;
-
-    private ViewGroup mParent;
     private View mTextPanel;
     private ViewGroup mSubPanelContainer;
 
@@ -44,14 +47,19 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
 
     private int mCurTextPosX = 0, mCurTextPosY;
 
-    public EditTextPanel(Context context, ViewGroup parent, int textureHeight) {
+    private int mLastPosX, mLastPosY;
+    private GestureDetector mGestureDetector;
+
+    private final int DEFAULT_TEXT_SIZE = 100;
+
+    public EditTextPanel(Context context, PanelListener listener) {
+        super(context, listener, TYPE_TEXT);
         mTextOpList = new ArrayList<>();
         mContext = context;
-        mParent = parent;
-        mCurTextPosY = textureHeight / 2;
 
         // init panels
         mTextPanel = LayoutInflater.from(mContext).inflate(R.layout.edit_panel_text, mParent, false);
+        mTextPanel.findViewById(R.id.iv_apply).setOnClickListener(this);
         mTextPanel.findViewById(R.id.iv_text_modify).setOnClickListener(this);
         mTextPanel.findViewById(R.id.iv_text_font).setOnClickListener(this);
         mTextPanel.findViewById(R.id.iv_text_color_bg).setOnClickListener(this);
@@ -60,6 +68,60 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
 
         initFontPanel();
         initColorPanel();
+
+        // init gesture detector
+        mGestureDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                mLastPosX = (int) e.getX();
+                mLastPosY = (int) e.getY();
+                return true;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                moveText((int) e2.getX() - mLastPosX, (int) e2.getY() - mLastPosY);
+                mLastPosX = (int) e2.getX();
+                mLastPosY = (int) e2.getY();
+                return true;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return true;
+            }
+        });
+        mGestureDetector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTapEvent(MotionEvent e) {
+                return true;
+            }
+        });
     }
 
     @Override
@@ -69,9 +131,11 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
                 SetTextDialog.start(mContext, new SetTextDialog.OnClickListener() {
                     @Override
                     public void onConfirm(String text) {
-                        TextOperator operator = mTextOpList.get(mCurOp);
-                        operator.setText(text);
-                        IEManager.getInstance().updateOperator(operator);
+                        if (!mTextOpList.isEmpty()) {
+                            TextOperator operator = mTextOpList.get(mCurOp);
+                            operator.setText(text);
+                            IEManager.getInstance().updateOperator(operator);
+                        }
                     }
 
                     @Override
@@ -97,7 +161,7 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
                         TextOperator textOperator = new TextOperator.Builder()
                                 .text(text)
                                 .color(1f, 1f, 1f)
-                                .size(100)
+                                .size(DEFAULT_TEXT_SIZE)
                                 .font(new File(mContext.getFilesDir(), mFontList.get(0).fontPath).getAbsolutePath())
                                 .position(mCurTextPosX, mCurTextPosY)
                                 .build();
@@ -114,12 +178,23 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
                     }
                 });
                 break;
+            case R.id.iv_apply:
+                mParent.setBackgroundColor(mContext.getResources().getColor(R.color.black));
+                mParent.removeAllViews();
+                if (mListener != null) {
+                    mListener.onPanelClosed(TYPE_TEXT);
+                }
+                break;
             default:
                 break;
         }
     }
 
-    public void show() {
+    @Override
+    public void show(ViewGroup parent, int surfaceWidth, int surfaceHeight) {
+        super.show(parent, surfaceWidth, surfaceHeight);
+        mCurTextPosY = mSurfaceHeight / 2;
+        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.theme_dark));
         mParent.removeAllViews();
         mParent.addView(mTextPanel);
 
@@ -130,7 +205,7 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
                     TextOperator textOperator = new TextOperator.Builder()
                             .text(text)
                             .color(1f, 1f, 1f)
-                            .size(100)
+                            .size(DEFAULT_TEXT_SIZE)
                             .font(new File(mContext.getFilesDir(), mFontList.get(0).fontPath).getAbsolutePath())
                             .position(mCurTextPosX, mCurTextPosY)
                             .build();
@@ -147,16 +222,27 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
                 }
             });
         }
+
+        if (mListener != null) {
+            mListener.onPanelShow(mType);
+        }
     }
 
-    public void selectText(int x, int y) {
-
+    @Override
+    public void onTouchEvent(MotionEvent event) {
+        mGestureDetector.onTouchEvent(event);
     }
 
     public void moveText(int deltaX, int deltaY) {
         TextOperator textOperator = mTextOpList.get(mCurOp);
         int curX = textOperator.getPosX() + deltaX;
         int curY = textOperator.getPosY() - deltaY;
+        if (curX < 0) {
+            curX = 0;
+        }
+        if (curY < 0) {
+            curY = 0;
+        }
         textOperator.setPosX(curX);
         textOperator.setPosY(curY);
         IEManager.getInstance().updateOperator(textOperator);
@@ -187,6 +273,7 @@ public class EditTextPanel implements View.OnClickListener, SeekBar.OnSeekBarCha
         mColorPanel = LayoutInflater.from(mContext).inflate(R.layout.edit_panel_text_color, mSubPanelContainer, false);
         ((SeekBar) mColorPanel.findViewById(R.id.sb_change_transparent)).setOnSeekBarChangeListener(this);
         ((SeekBar) mColorPanel.findViewById(R.id.sb_change_size)).setOnSeekBarChangeListener(this);
+        ((SeekBar) mColorPanel.findViewById(R.id.sb_change_size)).setProgress(DEFAULT_TEXT_SIZE);
         ((SeekBar) mColorPanel.findViewById(R.id.sb_change_color_red)).setOnSeekBarChangeListener(this);
         ((SeekBar) mColorPanel.findViewById(R.id.sb_change_color_green)).setOnSeekBarChangeListener(this);
         ((SeekBar) mColorPanel.findViewById(R.id.sb_change_color_blue)).setOnSeekBarChangeListener(this);

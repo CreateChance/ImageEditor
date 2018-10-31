@@ -90,7 +90,7 @@ public class IEWorker extends HandlerThread {
                         AbstractOperator operatorAdd = (AbstractOperator) msg.obj;
                         mOpList.push(operatorAdd);
                         mRemovedOps.clear();
-                        handleOperator((AbstractOperator) msg.obj);
+                        handleOperator((AbstractOperator) msg.obj, true);
                         break;
                     case MSG_UPDATE_OP:
                         handleUpdateOperator((AbstractOperator) msg.obj);
@@ -213,7 +213,7 @@ public class IEWorker extends HandlerThread {
         quitSafely();
     }
 
-    private void handleOperator(AbstractOperator operator) {
+    private void handleOperator(AbstractOperator operator, boolean swap) {
         switch (operator.getType()) {
             case AbstractOperator.OP_BASE_IMAGE:
                 adjustBaseImage((BaseImageOperator) operator);
@@ -242,13 +242,16 @@ public class IEWorker extends HandlerThread {
             bindDefaultFrameBuffer();
         }
         mFboReader.draw(mFboTextureIds[mCurrentTextureIndex], 0, 0, mSurfaceWidth, mSurfaceHeight);
-        mWindowSurface.swapBuffers();
+        if (swap) {
+            mWindowSurface.swapBuffers();
+        }
     }
 
     public void handleUpdateOperator(AbstractOperator operator) {
         for (AbstractOperator op : mOpList) {
-            handleOperator(op);
+            handleOperator(op, false);
         }
+        mWindowSurface.swapBuffers();
     }
 
     private void handleUndo() {
@@ -256,8 +259,9 @@ public class IEWorker extends HandlerThread {
             AbstractOperator removedOp = mOpList.pop();
             mRemovedOps.push(removedOp);
             for (AbstractOperator op : mOpList) {
-                handleOperator(op);
+                handleOperator(op, false);
             }
+            mWindowSurface.swapBuffers();
         } else {
             Logger.e(TAG, "Can not undo for now.");
         }
@@ -267,7 +271,7 @@ public class IEWorker extends HandlerThread {
         if (!mRemovedOps.empty()) {
             AbstractOperator operator = mRemovedOps.pop();
             mOpList.push(operator);
-            handleOperator(operator);
+            handleOperator(operator, true);
         } else {
             Logger.e(TAG, "Can not redo for now.");
         }

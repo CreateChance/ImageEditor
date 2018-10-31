@@ -11,10 +11,11 @@
     <TextView
         android:id="@+id/tv_font_show"
         android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_height="50dp"
         android:background="@drawable/bg_white_corner"
         android:gravity="center"
         android:textColor="@color/font_white"
+        android:textSize="18sp"
         tools:text="汉" />
 
     <TextView

@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.createchance.imageeditordemo.panels.AbstractPanel;
+import com.createchance.imageeditordemo.panels.EditTextPanel;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,21 +32,24 @@ public class EditListAdapter extends RecyclerView.Adapter<EditListAdapter.ViewHo
 
     private List<EditItem> mEditList;
 
-    public EditListAdapter(Context context, ItemClickListener listener) {
+    public EditListAdapter(Context context,
+                           ItemClickListener itemClickListener,
+                           AbstractPanel.PanelListener panelListener) {
         mContext = context;
-        mListener = listener;
+        mListener = itemClickListener;
 
         mEditList = new ArrayList<>();
 
         // init edit items
-        mEditList.add(new EditItem(R.drawable.icon_effects, R.string.edit_effect));
-        mEditList.add(new EditItem(R.drawable.icon_adjust, R.string.edit_adjust));
-        mEditList.add(new EditItem(R.drawable.icon_cut, R.string.edit_cut));
-        mEditList.add(new EditItem(R.drawable.icon_rotate, R.string.edit_rotate));
-        mEditList.add(new EditItem(R.drawable.icon_text, R.string.edit_text));
-        mEditList.add(new EditItem(R.drawable.icon_focus, R.string.edit_focus));
-        mEditList.add(new EditItem(R.drawable.icon_sticker, R.string.edit_sticker));
-        mEditList.add(new EditItem(R.drawable.icon_mosaic, R.string.edit_mosaic));
+        mEditList.add(new EditItem(R.drawable.icon_effects, R.string.edit_effect, AbstractPanel.TYPE_EFFECT, null));
+        mEditList.add(new EditItem(R.drawable.icon_adjust, R.string.edit_adjust, AbstractPanel.TYPE_ADJUST, null));
+        mEditList.add(new EditItem(R.drawable.icon_cut, R.string.edit_cut, AbstractPanel.TYPE_CUT, null));
+        mEditList.add(new EditItem(R.drawable.icon_rotate, R.string.edit_rotate, AbstractPanel.TYPE_ROTATE, null));
+        mEditList.add(new EditItem(R.drawable.icon_text, R.string.edit_text, AbstractPanel.TYPE_TEXT,
+                new EditTextPanel(mContext, panelListener)));
+        mEditList.add(new EditItem(R.drawable.icon_focus, R.string.edit_focus, AbstractPanel.TYPE_FOCUS, null));
+        mEditList.add(new EditItem(R.drawable.icon_sticker, R.string.edit_sticker, AbstractPanel.TYPE_STICKER, null));
+        mEditList.add(new EditItem(R.drawable.icon_mosaic, R.string.edit_mosaic, AbstractPanel.TYPE_MOSAIC, null));
     }
 
     @NonNull
@@ -96,7 +102,7 @@ public class EditListAdapter extends RecyclerView.Adapter<EditListAdapter.ViewHo
                 mEditList.get(getAdapterPosition()).selected = true;
                 notifyDataSetChanged();
                 if (mListener != null) {
-                    mListener.onItemClicked(index);
+                    mListener.onItemClicked(mEditList.get(index));
                 }
             } else {
                 Log.e(TAG, "onClick error, refreshing try later!");
@@ -104,18 +110,22 @@ public class EditListAdapter extends RecyclerView.Adapter<EditListAdapter.ViewHo
         }
     }
 
-    private class EditItem {
+    public static class EditItem {
         public int iconResId;
         public int textResId;
         public boolean selected;
+        public int editType;
+        public AbstractPanel editPanel;
 
-        public EditItem(int icon, int text) {
+        public EditItem(int icon, int text, int type, AbstractPanel panel) {
             iconResId = icon;
             textResId = text;
+            editType = type;
+            editPanel = panel;
         }
     }
 
     public interface ItemClickListener {
-        void onItemClicked(int position);
+        void onItemClicked(EditItem item);
     }
 }
