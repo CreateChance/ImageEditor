@@ -224,9 +224,6 @@ public class TextDrawer {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glActiveTexture(GL_TEXTURE0);
-        glUniform1i(mTextureUnitLocation, 0);
-
         GLES20.glUniform1f(mAlphaFactorLocation, mAlphaFactor);
         int currentPosX = mPosX;
 
@@ -237,6 +234,9 @@ public class TextDrawer {
         }
 
         for (LoadedText loadedText : mLoadedTextList) {
+            glActiveTexture(GL_TEXTURE0);
+            glUniform1i(mTextureUnitLocation, 0);
+
             int xpos = currentPosX + (int) (loadedText.left * mScaleFactor);
             int ypos = mPosY - (int) ((loadedText.height - loadedText.top) * mScaleFactor);
 
