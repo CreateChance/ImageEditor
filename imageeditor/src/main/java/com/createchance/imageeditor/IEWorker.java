@@ -220,7 +220,7 @@ public class IEWorker extends HandlerThread {
                 break;
             case AbstractOperator.OP_FILTER:
                 FilterOperator filterOperator = (FilterOperator) operator;
-                filterOperator.setSize(mSurfaceWidth, mSurfaceHeight);
+                filterOperator.setSize(mBaseImgShowWidth, mBaseImgShowHeight);
                 mCurrentTextureIndex = (mCurrentTextureIndex + 1) % mFboTextureIds.length;
                 filterOperator.setInputTexture(mFboTextureIds[(mCurrentTextureIndex + 1) % mFboTextureIds.length]);
                 filterOperator.setOutputTexture(mFboTextureIds[mCurrentTextureIndex]);

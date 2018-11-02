@@ -91,6 +91,15 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onBackPressed() {
+        if (mCurrentPanel != null) {
+            mCurrentPanel.close();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         mTextureWidth = width;
         mTextureHeight = height;
@@ -237,6 +246,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onPanelClosed(int type) {
-
+        mCurrentPanel = null;
     }
 }

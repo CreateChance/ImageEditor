@@ -43,6 +43,8 @@ public abstract class AbstractPanel {
         mSurfaceHeight = surfaceHeight;
     }
 
+    public abstract void close();
+
     public abstract void onTouchEvent(MotionEvent event);
 
     public interface PanelListener {

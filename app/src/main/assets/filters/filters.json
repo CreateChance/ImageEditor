@@ -1,0 +1,110 @@
+[
+  {
+    "code": "OR",
+    "type": 0,
+    "name": "原片",
+    "asset": "",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "F1",
+    "type": 1,
+    "name": "第八日的蝉",
+    "asset": "filters/nt-1-F1.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "F2",
+    "type": 1,
+    "name": "雾港",
+    "asset": "filters/nt-2-F2.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "F3",
+    "type": 1,
+    "name": "盛夏方程式",
+    "asset": "filters/nt-3-F3.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "P1",
+    "type": 1,
+    "name": "夏威夷少年",
+    "asset": "filters/nt-4-P1.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "P2",
+    "type": 1,
+    "name": "给桃子的信",
+    "asset": "filters/nt-5-P2.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "L1",
+    "type": 1,
+    "name": "白日梦想家",
+    "asset": "filters/nt-6-L1.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "L2",
+    "type": 1,
+    "name": "美国往事",
+    "asset": "filters/nt-7-L2.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "L3",
+    "type": 1,
+    "name": "迷失东京",
+    "asset": "filters/nt-8-L3.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "B1",
+    "type": 1,
+    "name": "寒冬夜行人",
+    "asset": "filters/nt-9-B1.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "B2",
+    "type": 1,
+    "name": "澄沙之味",
+    "asset": "filters/nt-10-B2.png",
+    "adjust": [
+      1.0
+    ]
+  },
+  {
+    "code": "B3",
+    "type": 1,
+    "name": "三月的狮子",
+    "asset": "filters/nt-11-B3.png",
+    "adjust": [
+      1.0
+    ]
+  }
+]

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/vw_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_filter_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp"
+            tools:text="三月的狮子" />
+
+        <ImageView
+            android:id="@+id/iv_apply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/tv_filter_name"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@id/tv_filter_name"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="18dp"
+            android:background="@drawable/bg_dark_red"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:src="@drawable/icon_apply" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/vw_adjust_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vw_title"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_effect_adjust_value" />
+
+        <TextView
+            android:id="@+id/tv_adjust_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            tools:text="50" />
+
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/sb_adjust_filter"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@id/vw_adjust_value"
+        android:layout_marginTop="10dp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcv_filter_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sb_adjust_filter"
+        android:layout_marginTop="20dp"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        tools:orientation="horizontal" />
+
+</RelativeLayout>

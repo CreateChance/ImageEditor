@@ -14,12 +14,14 @@
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         tools:orientation="horizontal" />
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/vw_edit_panel_container"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_above="@id/rcv_edit_list"
-        android:background="@color/black" />
+        android:background="@color/black"
+        android:gravity="center"
+        android:orientation="horizontal" />
 
     <TextureView
         android:id="@+id/vw_texture"

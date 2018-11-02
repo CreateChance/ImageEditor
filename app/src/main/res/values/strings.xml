@@ -10,6 +10,8 @@
     <string name="dialog_cancel">取消</string>
 
     <string name="edit_effect">特效</string>
+    <string name="edit_effect_adjust_value">调整值:</string>
+
     <string name="edit_adjust">调整</string>
     <string name="edit_cut">裁剪</string>
     <string name="edit_rotate">旋转，翻转</string>

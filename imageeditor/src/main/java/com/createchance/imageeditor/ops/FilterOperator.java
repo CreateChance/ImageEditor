@@ -58,13 +58,21 @@ public class FilterOperator extends AbstractOperator {
         mFrameBufferId = frameBuffer;
     }
 
+    public void setFilter(GPUImageFilter filter) {
+        this.mFilter = filter;
+    }
+
     @Override
     public boolean checkRational() {
-        return mFilter != null;
+        return true;
     }
 
     @Override
     public void exec() {
+        if (mFilter == null) {
+            return;
+        }
+
         mGLCubeBuffer = ByteBuffer.allocateDirect(CUBE.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();

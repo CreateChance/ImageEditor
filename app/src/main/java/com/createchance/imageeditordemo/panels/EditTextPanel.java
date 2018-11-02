@@ -30,7 +30,9 @@ import java.util.List;
  * @author gaochao1-iri
  * @date 2018/10/31
  */
-public class EditTextPanel extends AbstractPanel implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+public class EditTextPanel extends AbstractPanel implements
+        View.OnClickListener,
+        SeekBar.OnSeekBarChangeListener {
 
     private static final String TAG = "EditTextPanel";
 
@@ -179,11 +181,7 @@ public class EditTextPanel extends AbstractPanel implements View.OnClickListener
                 });
                 break;
             case R.id.iv_apply:
-                mParent.setBackgroundColor(mContext.getResources().getColor(R.color.black));
-                mParent.removeAllViews();
-                if (mListener != null) {
-                    mListener.onPanelClosed(TYPE_TEXT);
-                }
+                close();
                 break;
             default:
                 break;
@@ -225,6 +223,15 @@ public class EditTextPanel extends AbstractPanel implements View.OnClickListener
 
         if (mListener != null) {
             mListener.onPanelShow(mType);
+        }
+    }
+
+    @Override
+    public void close() {
+        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.black));
+        mParent.removeAllViews();
+        if (mListener != null) {
+            mListener.onPanelClosed(mType);
         }
     }
 
