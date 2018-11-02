@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
+import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.TextOperator;
 import com.createchance.imageeditordemo.R;
 import com.createchance.imageeditordemo.SetTextDialog;
@@ -44,7 +45,7 @@ public class EditTextPanel extends AbstractPanel implements
     private List<TextFontAdapter.FontItem> mFontList;
     private List<TextTextureAdapter.Texture> mTextureList;
 
-    List<TextOperator> mTextOpList;
+    List<AbstractOperator> mTextOpList;
     private int mCurOp;
 
     private int mCurTextPosX = 0, mCurTextPosY;
@@ -62,6 +63,7 @@ public class EditTextPanel extends AbstractPanel implements
         // init panels
         mTextPanel = LayoutInflater.from(mContext).inflate(R.layout.edit_panel_text, mParent, false);
         mTextPanel.findViewById(R.id.iv_apply).setOnClickListener(this);
+        mTextPanel.findViewById(R.id.iv_cancel).setOnClickListener(this);
         mTextPanel.findViewById(R.id.iv_text_modify).setOnClickListener(this);
         mTextPanel.findViewById(R.id.iv_text_font).setOnClickListener(this);
         mTextPanel.findViewById(R.id.iv_text_color_bg).setOnClickListener(this);
@@ -134,7 +136,7 @@ public class EditTextPanel extends AbstractPanel implements
                     @Override
                     public void onConfirm(String text) {
                         if (!mTextOpList.isEmpty()) {
-                            TextOperator operator = mTextOpList.get(mCurOp);
+                            TextOperator operator = (TextOperator) mTextOpList.get(mCurOp);
                             operator.setText(text);
                             IEManager.getInstance().updateOperator(operator);
                         }
@@ -181,7 +183,10 @@ public class EditTextPanel extends AbstractPanel implements
                 });
                 break;
             case R.id.iv_apply:
-                close();
+                close(false);
+                break;
+            case R.id.iv_cancel:
+                close(true);
                 break;
             default:
                 break;
@@ -192,8 +197,6 @@ public class EditTextPanel extends AbstractPanel implements
     public void show(ViewGroup parent, int surfaceWidth, int surfaceHeight) {
         super.show(parent, surfaceWidth, surfaceHeight);
         mCurTextPosY = mSurfaceHeight / 2;
-        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.theme_dark));
-        mParent.removeAllViews();
         mParent.addView(mTextPanel);
 
         if (mTextOpList.isEmpty()) {
@@ -220,18 +223,19 @@ public class EditTextPanel extends AbstractPanel implements
                 }
             });
         }
-
-        if (mListener != null) {
-            mListener.onPanelShow(mType);
-        }
     }
 
     @Override
-    public void close() {
-        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.black));
-        mParent.removeAllViews();
-        if (mListener != null) {
-            mListener.onPanelClosed(mType);
+    public void close(boolean discard) {
+        super.close(discard);
+
+        if (discard && mTextOpList != null && mTextOpList.size() > 0) {
+            List<AbstractOperator> tempList = new ArrayList<>();
+            tempList.addAll(mTextOpList);
+            if (!IEManager.getInstance().removeOperator(tempList)) {
+                Log.e(TAG, "Close panel, but remove op failed!!!");
+            }
+            mTextOpList.clear();
         }
     }
 
@@ -241,7 +245,7 @@ public class EditTextPanel extends AbstractPanel implements
     }
 
     public void moveText(int deltaX, int deltaY) {
-        TextOperator textOperator = mTextOpList.get(mCurOp);
+        TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
         int curX = textOperator.getPosX() + deltaX;
         int curY = textOperator.getPosY() - deltaY;
         if (curX < 0) {
@@ -264,7 +268,7 @@ public class EditTextPanel extends AbstractPanel implements
         TextFontAdapter textFontAdapter = new TextFontAdapter(mContext, mFontList, new TextFontAdapter.OnFontSelectListener() {
             @Override
             public void fontSelected(int position) {
-                TextOperator textOperator = mTextOpList.get(mCurOp);
+                TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
                 textOperator.setFontPath(new File(mContext.getFilesDir(), mFontList.get(position).fontPath).getAbsolutePath());
                 IEManager.getInstance().updateOperator(textOperator);
             }
@@ -291,7 +295,7 @@ public class EditTextPanel extends AbstractPanel implements
             @Override
             public void onTextureSelected(int position) {
                 Log.d(TAG, "onTextureSelected: " + position);
-                TextOperator textOperator = mTextOpList.get(mCurOp);
+                TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
                 textOperator.setBackground(BitmapFactory.decodeResource(mContext.getResources(), mTextureList.get(position).resId));
                 IEManager.getInstance().updateOperator(textOperator);
             }
@@ -338,7 +342,7 @@ public class EditTextPanel extends AbstractPanel implements
         if (!fromUser) {
             return;
         }
-        TextOperator textOperator = mTextOpList.get(mCurOp);
+        TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
         switch (seekBar.getId()) {
             case R.id.sb_change_transparent:
                 textOperator.setAlpha(progress * 1.0f / seekBar.getMax());

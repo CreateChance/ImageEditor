@@ -60,6 +60,19 @@ public class FilterListAdapter extends RecyclerView.Adapter<FilterListAdapter.Vi
         return mFilterList.size();
     }
 
+    public void resetSelect() {
+        if (mFilterList.isEmpty()) {
+            return;
+        }
+
+        for (FilterItem filterItem : mFilterList) {
+            filterItem.selected = false;
+        }
+        mFilterList.get(0).selected = true;
+
+        notifyDataSetChanged();
+    }
+
     private void initFilterItemList(List<Filter> filterList) {
         mFilterList = new ArrayList<>();
         for (Filter filter : filterList) {

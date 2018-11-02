@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.createchance.imageeditordemo.panels.AbstractPanel;
+import com.createchance.imageeditordemo.panels.EditAdjustPanel;
 import com.createchance.imageeditordemo.panels.EditFilterPanel;
 import com.createchance.imageeditordemo.panels.EditTextPanel;
 
@@ -44,7 +45,8 @@ public class EditListAdapter extends RecyclerView.Adapter<EditListAdapter.ViewHo
         // init edit items
         mEditList.add(new EditItem(R.drawable.icon_effects, R.string.edit_effect, AbstractPanel.TYPE_EFFECT,
                 new EditFilterPanel(mContext, panelListener)));
-        mEditList.add(new EditItem(R.drawable.icon_adjust, R.string.edit_adjust, AbstractPanel.TYPE_ADJUST, null));
+        mEditList.add(new EditItem(R.drawable.icon_adjust, R.string.edit_adjust, AbstractPanel.TYPE_ADJUST,
+                new EditAdjustPanel(mContext, panelListener)));
         mEditList.add(new EditItem(R.drawable.icon_cut, R.string.edit_cut, AbstractPanel.TYPE_CUT, null));
         mEditList.add(new EditItem(R.drawable.icon_rotate, R.string.edit_rotate, AbstractPanel.TYPE_ROTATE, null));
         mEditList.add(new EditItem(R.drawable.icon_text, R.string.edit_text, AbstractPanel.TYPE_TEXT,

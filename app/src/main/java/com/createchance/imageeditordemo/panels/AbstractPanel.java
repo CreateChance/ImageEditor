@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
+import com.createchance.imageeditordemo.R;
+
 /**
  * ${DESC}
  *
@@ -41,9 +43,21 @@ public abstract class AbstractPanel {
         mParent = parent;
         mSurfaceWidth = surfaceWidth;
         mSurfaceHeight = surfaceHeight;
+        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.theme_dark));
+        mParent.removeAllViews();
+
+        if (mListener != null) {
+            mListener.onPanelShow(mType);
+        }
     }
 
-    public abstract void close();
+    public void close(boolean discard) {
+        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.black));
+        mParent.removeAllViews();
+        if (mListener != null) {
+            mListener.onPanelClosed(mType);
+        }
+    }
 
     public abstract void onTouchEvent(MotionEvent event);
 

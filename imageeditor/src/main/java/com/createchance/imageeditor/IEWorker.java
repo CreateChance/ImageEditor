@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.util.Log;
 import android.view.Surface;
 
 import com.createchance.imageeditor.gles.EglCore;
@@ -41,7 +42,9 @@ public class IEWorker extends HandlerThread {
     private final int MSG_UPDATE_OP = 3;
     private final int MSG_UNDO_OP = 4;
     private final int MSG_REDO_OP = 5;
-    private final int MSG_SAVE = 6;
+    private final int MSG_SAVE_OP = 6;
+    private final int MSG_REMOVE_OP = 7;
+    private final int MSG_REMOVE_OP_LIST = 8;
 
     private Handler mHandler;
 
@@ -101,9 +104,16 @@ public class IEWorker extends HandlerThread {
                     case MSG_REDO_OP:
                         handleRedo();
                         break;
-                    case MSG_SAVE:
+                    case MSG_SAVE_OP:
                         List<Object> saveParams = (List<Object>) msg.obj;
                         handleSave((File) saveParams.get(0), (SaveListener) saveParams.get(1));
+                        break;
+                    case MSG_REMOVE_OP:
+                        AbstractOperator removedOp = (AbstractOperator) msg.obj;
+                        handleRemoveOp(removedOp);
+                        break;
+                    case MSG_REMOVE_OP_LIST:
+                        handleRemoveOpList((List<AbstractOperator>) msg.obj);
                         break;
                     default:
                         break;
@@ -133,6 +143,7 @@ public class IEWorker extends HandlerThread {
 
     public boolean updateOperator(AbstractOperator operator) {
         if (!mOpList.contains(operator)) {
+            Logger.e(TAG, "No such operator, can not update! op: " + operator.getName());
             return false;
         }
 
@@ -152,13 +163,44 @@ public class IEWorker extends HandlerThread {
         mHandler.sendEmptyMessage(MSG_REDO_OP);
     }
 
+    public boolean removeOperator(AbstractOperator operator) {
+        if (!mOpList.contains(operator) && !mRemovedOps.contains(operator)) {
+            return false;
+        }
+
+        Message message = Message.obtain();
+        message.what = MSG_REMOVE_OP;
+        message.obj = operator;
+        mHandler.sendMessage(message);
+
+        return true;
+    }
+
+    public boolean removeOperator(List<AbstractOperator> operatorList) {
+        for (AbstractOperator operator : operatorList) {
+            if (!mOpList.contains(operator) && !mRemovedOps.contains(operator)) {
+                Logger.e(TAG, "Got one op not contained in op list, remove failed.");
+                return false;
+            }
+        }
+
+        Message message = Message.obtain();
+        message.what = MSG_REMOVE_OP_LIST;
+        message.obj = operatorList;
+        mHandler.sendMessage(message);
+
+        Log.e(TAG, "removeOperator: " + operatorList.size());
+
+        return true;
+    }
+
     public List<AbstractOperator> getOpList() {
         return mOpList;
     }
 
     public void save(File target, SaveListener listener) {
         Message message = Message.obtain();
-        message.what = MSG_SAVE;
+        message.what = MSG_SAVE_OP;
         List<Object> params = new ArrayList<>(2);
         params.add(target);
         params.add(listener);
@@ -281,6 +323,37 @@ public class IEWorker extends HandlerThread {
         bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
         captureImage(target, listener);
         bindDefaultFrameBuffer();
+    }
+
+    private void handleRemoveOp(AbstractOperator operator) {
+        if (mOpList.contains(operator)) {
+            mOpList.remove(operator);
+
+            for (AbstractOperator op : mOpList) {
+                handleOperator(op, false);
+            }
+            mWindowSurface.swapBuffers();
+        } else if (mRemovedOps.contains(operator)) {
+            mRemovedOps.remove(operator);
+        }
+    }
+
+    private void handleRemoveOpList(List<AbstractOperator> operatorList) {
+        boolean needDraw = false;
+        for (AbstractOperator op : operatorList) {
+            if (mOpList.contains(op)) {
+                mOpList.remove(op);
+                needDraw = true;
+            } else if (mRemovedOps.contains(op)) {
+                mRemovedOps.remove(op);
+            }
+        }
+        if (needDraw) {
+            for (AbstractOperator op : mOpList) {
+                handleOperator(op, false);
+            }
+            mWindowSurface.swapBuffers();
+        }
     }
 
     private void adjustBaseImage(BaseImageOperator operator) {

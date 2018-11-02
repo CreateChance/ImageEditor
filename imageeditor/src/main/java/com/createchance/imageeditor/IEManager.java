@@ -118,6 +118,39 @@ public class IEManager {
         return true;
     }
 
+    public boolean removeOperator(AbstractOperator operator) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return false;
+        }
+
+        if (operator == null) {
+            Logger.e(TAG, "Operator can not be null!");
+            return false;
+        }
+
+        if (!operator.checkRational()) {
+            Logger.e(TAG, "Operator check rational failed, can not be executed! op: " + operator.getName());
+            return false;
+        }
+
+        return mWorker.removeOperator(operator);
+    }
+
+    public boolean removeOperator(List<AbstractOperator> operatorList) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return false;
+        }
+
+        if (operatorList == null || operatorList.size() == 0) {
+            Logger.e(TAG, "Operator list is null or empty!");
+            return false;
+        }
+
+        return mWorker.removeOperator(operatorList);
+    }
+
     public List<AbstractOperator> getOperatorList() {
         if (mWorker == null) {
             Logger.e(TAG, "Failed, not prepared before!");

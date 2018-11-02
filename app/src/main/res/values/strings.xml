@@ -13,6 +13,19 @@
     <string name="edit_effect_adjust_value">调整值:</string>
 
     <string name="edit_adjust">调整</string>
+    <string name="edit_adjust_brightness">亮度</string>
+    <string name="edit_adjust_contrast">对比度</string>
+    <string name="edit_adjust_saturation">饱和度</string>
+    <string name="edit_adjust_sharpen">锐化</string>
+    <string name="edit_adjust_dark_corner">暗角</string>
+    <string name="edit_adjust_shadow">阴影</string>
+    <string name="edit_adjust_highlight">高光</string>
+    <string name="edit_adjust_color_temp">色温</string>
+    <string name="edit_adjust_tone">色调</string>
+    <string name="edit_adjust_denoise">降噪</string>
+    <string name="edit_adjust_curve">曲线调整</string>
+    <string name="edit_adjust_color_balance">色彩平衡</string>
+
     <string name="edit_cut">裁剪</string>
     <string name="edit_rotate">旋转，翻转</string>
 

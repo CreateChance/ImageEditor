@@ -38,11 +38,14 @@ public class EditFilterPanel extends AbstractPanel implements
 
     private Filter mCurFilter;
     private FilterOperator mCurFilterOp;
+    private boolean mOpAdded;
 
     private SeekBar mFilterAdjustBar;
 
     private TextView mFilterName;
     private TextView mAdjustValue;
+
+    private FilterListAdapter mFilterListAdapter;
 
     public EditFilterPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_EFFECT);
@@ -52,12 +55,13 @@ public class EditFilterPanel extends AbstractPanel implements
         RecyclerView filterListView = mFilterPanel.findViewById(R.id.rcv_filter_list);
         filterListView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         initFilterList();
-        FilterListAdapter adapter = new FilterListAdapter(mContext, mFilterList, this);
-        filterListView.setAdapter(adapter);
+        mFilterListAdapter = new FilterListAdapter(mContext, mFilterList, this);
+        filterListView.setAdapter(mFilterListAdapter);
         mFilterAdjustBar = mFilterPanel.findViewById(R.id.sb_adjust_filter);
         mFilterAdjustBar.setOnSeekBarChangeListener(this);
 
         mFilterPanel.findViewById(R.id.iv_apply).setOnClickListener(this);
+        mFilterPanel.findViewById(R.id.iv_cancel).setOnClickListener(this);
         mFilterName = mFilterPanel.findViewById(R.id.tv_filter_name);
         if (mCurFilter == null) {
             mCurFilter = mFilterList.get(0);
@@ -76,18 +80,17 @@ public class EditFilterPanel extends AbstractPanel implements
     @Override
     public void show(ViewGroup parent, int surfaceWidth, int surfaceHeight) {
         super.show(parent, surfaceWidth, surfaceHeight);
-
-        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.theme_dark));
-        mParent.removeAllViews();
         mParent.addView(mFilterPanel);
     }
 
     @Override
-    public void close() {
-        mParent.setBackgroundColor(mContext.getResources().getColor(R.color.black));
-        mParent.removeAllViews();
-        if (mListener != null) {
-            mListener.onPanelClosed(mType);
+    public void close(boolean discard) {
+        super.close(discard);
+
+        if (discard && mCurFilterOp != null) {
+            mOpAdded = false;
+            IEManager.getInstance().removeOperator(mCurFilterOp);
+            mFilterListAdapter.resetSelect();
         }
     }
 
@@ -111,10 +114,14 @@ public class EditFilterPanel extends AbstractPanel implements
             mCurFilterOp = new FilterOperator.Builder()
                     .filter(mCurFilter.get(mContext))
                     .build();
-            IEManager.getInstance().addOperator(mCurFilterOp);
-        } else {
+        }
+
+        if (mOpAdded) {
             mCurFilterOp.setFilter(mCurFilter.get(mContext));
             IEManager.getInstance().updateOperator(mCurFilterOp);
+        } else {
+            mOpAdded = true;
+            IEManager.getInstance().addOperator(mCurFilterOp);
         }
     }
 
@@ -146,7 +153,10 @@ public class EditFilterPanel extends AbstractPanel implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_apply:
-                close();
+                close(false);
+                break;
+            case R.id.iv_cancel:
+                close(true);
                 break;
             default:
                 break;

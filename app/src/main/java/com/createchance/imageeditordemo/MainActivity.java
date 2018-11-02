@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         if (mCurrentPanel != null) {
-            mCurrentPanel.close();
+            mCurrentPanel.close(false);
         } else {
             super.onBackPressed();
         }

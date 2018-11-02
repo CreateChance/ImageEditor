@@ -58,6 +58,18 @@
             android:paddingStart="10dp"
             android:src="@drawable/icon_apply" />
 
+        <ImageView
+            android:id="@+id/iv_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="50dp"
+            android:background="@drawable/bg_dark_red"
+            android:paddingEnd="10dp"
+            android:paddingStart="10dp"
+            android:src="@drawable/icon_cancel" />
+
     </RelativeLayout>
 
     <FrameLayout
