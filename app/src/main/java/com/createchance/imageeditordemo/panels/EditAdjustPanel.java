@@ -10,8 +10,11 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.createchance.imageeditor.IEManager;
+import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
+import com.createchance.imageeditordemo.model.Filter;
 
 /**
  * ${DESC}
@@ -30,7 +33,11 @@ public class EditAdjustPanel extends AbstractPanel implements
 
     private int mCurType = -1;
 
+    private GPUImageAdjuster mBrightAdj;
+
     private TextView mAdjustName, mAdjustValue;
+
+    private SeekBar mAdjustBar;
 
     public EditAdjustPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_ADJUST);
@@ -38,9 +45,9 @@ public class EditAdjustPanel extends AbstractPanel implements
         mAdjustPanel = LayoutInflater.from(mContext).inflate(R.layout.edit_panel_adjust, mParent, false);
         mAdjustName = mAdjustPanel.findViewById(R.id.tv_adjust_name);
         mAdjustValue = mAdjustPanel.findViewById(R.id.tv_adjust_value);
-        SeekBar adjustBar = mAdjustPanel.findViewById(R.id.sb_adjust_bar);
-        adjustBar.setEnabled(false);
-        adjustBar.setOnSeekBarChangeListener(this);
+        mAdjustBar = mAdjustPanel.findViewById(R.id.sb_adjust_bar);
+        mAdjustBar.setEnabled(false);
+        mAdjustBar.setOnSeekBarChangeListener(this);
         RecyclerView adjustListView = mAdjustPanel.findViewById(R.id.rcv_adjust_list);
         adjustListView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         AdjustListAdapter adjustListAdapter = new AdjustListAdapter(mContext, this);
@@ -68,7 +75,30 @@ public class EditAdjustPanel extends AbstractPanel implements
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (!fromUser) {
+            return;
+        }
 
+        switch (mCurType) {
+            case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
+                if (mBrightAdj == null) {
+                    mBrightAdj = new GPUImageAdjuster();
+                    mBrightAdj.filter = new Filter();
+                    mBrightAdj.filter.mType = Filter.TYPE_GPU_IMAGE_BRIGHTNESS;
+                    mBrightAdj.filter.mAdjust = new float[]{0.5f};
+                    mBrightAdj.operator = new FilterOperator.Builder()
+                            .filter(mBrightAdj.filter.get(mContext))
+                            .build();
+                    IEManager.getInstance().addOperator(mBrightAdj.operator);
+                }
+
+                mAdjustValue.setText(String.valueOf(progress));
+                mBrightAdj.filter.adjust(progress);
+                IEManager.getInstance().updateOperator(mBrightAdj.operator);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -86,6 +116,13 @@ public class EditAdjustPanel extends AbstractPanel implements
         mCurType = adjustItem.mType;
         mAdjustName.setText(adjustItem.mNameStrId);
         mAdjustValue.setText("0");
+        switch (mCurType) {
+            case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
+                mAdjustBar.setEnabled(true);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -100,5 +137,10 @@ public class EditAdjustPanel extends AbstractPanel implements
             default:
                 break;
         }
+    }
+
+    private class GPUImageAdjuster {
+        public FilterOperator operator;
+        public Filter filter;
     }
 }

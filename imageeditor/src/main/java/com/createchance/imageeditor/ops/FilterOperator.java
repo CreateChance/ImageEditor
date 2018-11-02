@@ -62,6 +62,10 @@ public class FilterOperator extends AbstractOperator {
         this.mFilter = filter;
     }
 
+    public GPUImageFilter getFilter() {
+        return mFilter;
+    }
+
     @Override
     public boolean checkRational() {
         return true;

@@ -66,7 +66,8 @@
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:layout_below="@id/vw_adjust_value"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:max="100" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rcv_adjust_list"
