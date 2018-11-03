@@ -298,7 +298,6 @@ public class IEWorker extends HandlerThread {
 
     public void handleUpdateOperator(AbstractOperator operator) {
         for (AbstractOperator op : mOpList) {
-            Log.d(TAG, "handleUpdateOperator: " + op.getName());
             handleOperator(op, false);
         }
         mWindowSurface.swapBuffers();

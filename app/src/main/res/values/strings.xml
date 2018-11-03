@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">ImageEditorDemo</string>
 
+    <string name="main_page_title">作品列表</string>
+    <string name="main_page_take_photo">拍摄</string>
+    <string name="main_page_choose_photo">选取</string>
+    <string name="main_page_work_timestamp_format">时间：%1$s</string>
+    <string name="main_page_work_resolution_format">分辨率：%1$d x %2$d</string>
+    <string name="main_page_work_size">大小：</string>
+    <string name="main_page_work_size_format_byte">%1$d 字节</string>
+    <string name="main_page_work_size_format_k_byte">%1$.2f KB</string>
+    <string name="main_page_work_size_format_m_byte">%1$.2f MB</string>
+
     <string name="goto_work_list">作品列表</string>
     <string name="save_work">保存</string>
     <string name="undo">撤销</string>

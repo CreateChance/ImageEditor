@@ -11,10 +11,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.createchance.imageeditor.IEManager;
+import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
 import com.createchance.imageeditordemo.model.Filter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ${DESC}
@@ -33,7 +37,10 @@ public class EditAdjustPanel extends AbstractPanel implements
 
     private int mCurType = -1;
 
-    private GPUImageAdjuster mBrightAdj;
+    private GPUImageAdjuster mBrightAdj,
+            mContrastAdj,
+            mSaturationAdj,
+            mSharpenAdj, mDarkCornerAdj;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -66,6 +73,31 @@ public class EditAdjustPanel extends AbstractPanel implements
     @Override
     public void close(boolean discard) {
         super.close(discard);
+
+        if (discard) {
+            List<AbstractOperator> operatorList = new ArrayList<>();
+            if (mBrightAdj != null) {
+                operatorList.add(mBrightAdj.operator);
+            }
+            if (mContrastAdj != null) {
+                operatorList.add(mContrastAdj.operator);
+            }
+            if (mSaturationAdj != null) {
+                operatorList.add(mSaturationAdj.operator);
+            }
+            if (mSharpenAdj != null) {
+                operatorList.add(mSharpenAdj.operator);
+            }
+            if (mDarkCornerAdj != null) {
+                operatorList.add(mDarkCornerAdj.operator);
+            }
+            IEManager.getInstance().removeOperator(operatorList);
+            mBrightAdj = null;
+            mContrastAdj = null;
+            mSaturationAdj = null;
+            mSharpenAdj = null;
+            mDarkCornerAdj = null;
+        }
     }
 
     @Override
@@ -96,6 +128,74 @@ public class EditAdjustPanel extends AbstractPanel implements
                 mBrightAdj.filter.adjust(progress);
                 IEManager.getInstance().updateOperator(mBrightAdj.operator);
                 break;
+            case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
+                if (mContrastAdj == null) {
+                    mContrastAdj = new GPUImageAdjuster();
+                    mContrastAdj.filter = new Filter();
+                    mContrastAdj.filter.mType = Filter.TYPE_GPU_IMAGE_CONTRAST;
+                    mContrastAdj.filter.mAdjust = new float[]{2.0f};
+                    mContrastAdj.operator = new FilterOperator.Builder()
+                            .filter(mContrastAdj.filter.get(mContext))
+                            .build();
+                    IEManager.getInstance().addOperator(mContrastAdj.operator);
+                }
+
+                mAdjustValue.setText(String.valueOf(progress));
+                mContrastAdj.filter.adjust(progress);
+                IEManager.getInstance().updateOperator(mContrastAdj.operator);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
+                if (mSaturationAdj == null) {
+                    mSaturationAdj = new GPUImageAdjuster();
+                    mSaturationAdj.filter = new Filter();
+                    mSaturationAdj.filter.mType = Filter.TYPE_GPU_IMAGE_SATURATION;
+                    mSaturationAdj.filter.mAdjust = new float[]{1.0f};
+                    mSaturationAdj.operator = new FilterOperator.Builder()
+                            .filter(mSaturationAdj.filter.get(mContext))
+                            .build();
+                    IEManager.getInstance().addOperator(mSaturationAdj.operator);
+                }
+                mAdjustValue.setText(String.valueOf(progress));
+                mSaturationAdj.filter.adjust(progress);
+                IEManager.getInstance().updateOperator(mSaturationAdj.operator);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
+                if (mSharpenAdj == null) {
+                    mSharpenAdj = new GPUImageAdjuster();
+                    mSharpenAdj.filter = new Filter();
+                    mSharpenAdj.filter.mType = Filter.TYPE_GPU_IMAGE_SHARPEN;
+                    mSharpenAdj.filter.mAdjust = new float[]{2.0f};
+                    mSharpenAdj.operator = new FilterOperator.Builder()
+                            .filter(mSharpenAdj.filter.get(mContext))
+                            .build();
+                    IEManager.getInstance().addOperator(mSharpenAdj.operator);
+                }
+                mAdjustValue.setText(String.valueOf(progress));
+                mSharpenAdj.filter.adjust(progress);
+                IEManager.getInstance().updateOperator(mSharpenAdj.operator);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
+                if (mDarkCornerAdj == null) {
+                    mDarkCornerAdj = new GPUImageAdjuster();
+                    mDarkCornerAdj.filter = new Filter();
+                    mDarkCornerAdj.filter.mType = Filter.TYPE_GPU_IMAGE_VIGNETTE;
+                    mDarkCornerAdj.filter.mAdjust = new float[]{
+                            0.5f,
+                            0.5f,
+                            0.0f,
+                            0.0f,
+                            0.0f,
+                            0.3f,
+                            0.75f};
+                    mDarkCornerAdj.operator = new FilterOperator.Builder()
+                            .filter(mDarkCornerAdj.filter.get(mContext))
+                            .build();
+                    IEManager.getInstance().addOperator(mDarkCornerAdj.operator);
+                }
+                mAdjustValue.setText(String.valueOf(progress));
+                mDarkCornerAdj.filter.adjust(progress);
+                IEManager.getInstance().updateOperator(mDarkCornerAdj.operator);
+                break;
             default:
                 break;
         }
@@ -120,7 +220,20 @@ public class EditAdjustPanel extends AbstractPanel implements
             case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
                 mAdjustBar.setEnabled(true);
                 break;
+            case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
+                mAdjustBar.setEnabled(true);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
+                mAdjustBar.setEnabled(true);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
+                mAdjustBar.setEnabled(true);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
+                mAdjustBar.setEnabled(true);
+                break;
             default:
+                mAdjustBar.setEnabled(false);
                 break;
         }
     }

@@ -1,86 +1,69 @@
 package com.createchance.imageeditordemo;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.SurfaceTexture;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.TextureView;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.createchance.imageeditor.IEManager;
-import com.createchance.imageeditor.SaveListener;
-import com.createchance.imageeditor.ops.BaseImageOperator;
-import com.createchance.imageeditordemo.panels.AbstractPanel;
+import com.createchance.imageeditordemo.model.SimpleModel;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements
-        TextureView.SurfaceTextureListener,
-        View.OnClickListener,
-        AbstractPanel.PanelListener {
+/**
+ * Main page
+ *
+ * @author createchance
+ * @date 2018-11-03
+ */
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
-    private RecyclerView mEditListView;
-    private EditListAdapter mEditListAdapter;
+    private static final int REQUEST_PICK_IMAGE = 1;
+    private static final int REQUEST_TAKE_PHOTO = 2;
 
-    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (mCurrentPanel != null) {
-                mCurrentPanel.onTouchEvent(event);
-            }
+    private RecyclerView mWorkListView;
+    private WorkListAdapter mWorkListAdapter;
+    private List<WorkListAdapter.WorkItem> mWorkList = new ArrayList<>();
 
-            return true;
-        }
-    };
-
-    private ViewGroup mEditPanelContainer;
-
-    private int mTextureWidth, mTextureHeight;
-
-    private AbstractPanel mCurrentPanel;
+    private File mImageFromCamera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mEditPanelContainer = findViewById(R.id.vw_edit_panel_container);
-        findViewById(R.id.tv_undo).setOnClickListener(this);
-        findViewById(R.id.tv_redo).setOnClickListener(this);
-        findViewById(R.id.tv_save).setOnClickListener(this);
-        TextureView textureView = findViewById(R.id.vw_texture);
-        textureView.setSurfaceTextureListener(this);
-        textureView.setOnTouchListener(mTouchListener);
-        mEditListView = findViewById(R.id.rcv_edit_list);
-        mEditListView.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL, false));
-        mEditListAdapter = new EditListAdapter(this, new EditListAdapter.ItemClickListener() {
+        checkBaseDir();
+
+        mWorkListView = findViewById(R.id.rcv_work_list);
+        mWorkListAdapter = new WorkListAdapter(this, mWorkList, new WorkListAdapter.OnWorkSelectListener() {
             @Override
-            public void onItemClicked(EditListAdapter.EditItem editItem) {
-                mCurrentPanel = editItem.editPanel;
-                if (editItem.editPanel != null) {
-                    editItem.editPanel.show(mEditPanelContainer, mTextureWidth, mTextureHeight);
-                } else {
-                    Toast.makeText(MainActivity.this, "Panel not impl!", Toast.LENGTH_SHORT).show();
-                }
+            public void onWorkSelected(WorkListAdapter.WorkItem workItem) {
+
             }
-        }, this);
-        mEditListView.setAdapter(mEditListAdapter);
+        });
+        mWorkListView.setLayoutManager(new LinearLayoutManager(this));
+        mWorkListView.setAdapter(mWorkListAdapter);
+        findViewById(R.id.tv_choose_photo).setOnClickListener(this);
+        findViewById(R.id.tv_take_photo).setOnClickListener(this);
 
         WorkRunner.addTaskToBackground(new Runnable() {
             @Override
@@ -91,68 +74,102 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onBackPressed() {
-        if (mCurrentPanel != null) {
-            mCurrentPanel.close(false);
-        } else {
-            super.onBackPressed();
+    protected void onResume() {
+        super.onResume();
+
+        initWorkList();
+        mWorkListAdapter.refresh(mWorkList);
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        switch (requestCode) {
+            case REQUEST_PICK_IMAGE:
+                if (resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    try {
+                        InputStream inputStream = getContentResolver().openInputStream(uri);
+                        Bitmap image = BitmapFactory.decodeStream(inputStream);
+                        if (image != null) {
+                            SimpleModel.getInstance().putImage(image);
+                            ImageEditActivity.start(MainActivity.this);
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            case REQUEST_TAKE_PHOTO:
+                if (resultCode == RESULT_OK) {
+                    Bitmap image = BitmapFactory.decodeFile(mImageFromCamera.getAbsolutePath());
+                    if (image != null) {
+                        SimpleModel.getInstance().putImage(image);
+                        ImageEditActivity.start(MainActivity.this);
+                    }
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+                break;
         }
     }
 
-    @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        mTextureWidth = width;
-        mTextureHeight = height;
-
-        Surface holdSurface = new Surface(surface);
-        IEManager.getInstance().prepare(holdSurface, width, height);
-
-        BaseImageOperator baseImageOperator = new BaseImageOperator.Builder()
-                .image(BitmapFactory.decodeResource(getResources(), R.drawable.test))
-                .build();
-
-        IEManager.getInstance().addOperator(baseImageOperator);
+    private void checkBaseDir() {
+        if (!Constants.mBaseDir.exists()) {
+            Constants.mBaseDir.mkdir();
+        }
     }
 
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+    private void initWorkList() {
+        if (!Constants.mBaseDir.exists()) {
+            Log.e(TAG, "initWorkList, but base dir not existed!!");
+            return;
+        }
 
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        IEManager.getInstance().stop();
-
-        return true;
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        mWorkList = new ArrayList<>();
+        File[] works = Constants.mBaseDir.listFiles();
+        for (File work : works) {
+            WorkListAdapter.WorkItem workItem = new WorkListAdapter.WorkItem();
+            workItem.mImage = work;
+            workItem.mSize = work.length();
+            workItem.mTimeStamp = work.lastModified();
+            BitmapFactory.decodeFile(work.getAbsolutePath(), options);
+            workItem.mWidth = options.outWidth;
+            workItem.mHeight = options.outHeight;
+            mWorkList.add(workItem);
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.tv_undo:
-                IEManager.getInstance().undo();
+            case R.id.tv_choose_photo:
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, REQUEST_PICK_IMAGE);
                 break;
-            case R.id.tv_redo:
-                IEManager.getInstance().redo();
-                break;
-            case R.id.tv_save:
-                IEManager.getInstance().save(new File(Environment.getExternalStorageDirectory(), "avflow/output.png"),
-                        new SaveListener() {
-                            @Override
-                            public void onSaveFailed() {
-                                Toast.makeText(MainActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onSaved(File target) {
-                                Toast.makeText(MainActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+            case R.id.tv_take_photo:
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                // Ensure that there's a camera activity to handle the intent
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    // Create the File where the photo should go
+                    File photoFile = null;
+                    try {
+                        photoFile = createImageFile();
+                        // Continue only if the File was successfully created
+                        if (photoFile != null) {
+                            Uri photoURI = FileProvider.getUriForFile(this,
+                                    "com.createchance.imageeditordemo.fileprovider",
+                                    photoFile);
+                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                            startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                        }
+                    } catch (IOException ex) {
+                        // Error occurred while creating the File
+                    }
+                }
                 break;
             default:
                 break;
@@ -212,40 +229,18 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onPanelShow(int type) {
-        switch (type) {
-            case AbstractPanel.TYPE_EFFECT:
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
 
-                break;
-            case AbstractPanel.TYPE_ADJUST:
-
-                break;
-            case AbstractPanel.TYPE_CUT:
-
-                break;
-            case AbstractPanel.TYPE_ROTATE:
-
-                break;
-            case AbstractPanel.TYPE_TEXT:
-
-                break;
-            case AbstractPanel.TYPE_FOCUS:
-
-                break;
-            case AbstractPanel.TYPE_STICKER:
-
-                break;
-            case AbstractPanel.TYPE_MOSAIC:
-
-                break;
-            default:
-                break;
-        }
-    }
-
-    @Override
-    public void onPanelClosed(int type) {
-        mCurrentPanel = null;
+        mImageFromCamera = image;
+        return image;
     }
 }
