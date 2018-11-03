@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +37,8 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
         mContext = context;
         mWorkList = workItemList;
         mListener = listener;
+
+        Collections.sort(mWorkList);
     }
 
     @NonNull
@@ -75,6 +78,7 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
 
     public void refresh(List<WorkItem> workItemList) {
         mWorkList.clear();
+        Collections.sort(workItemList);
         mWorkList.addAll(workItemList);
         notifyDataSetChanged();
     }
@@ -111,11 +115,23 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
         }
     }
 
-    public static class WorkItem {
+    public static class WorkItem implements Comparable<WorkItem> {
         public File mImage;
         public long mTimeStamp;
         public int mWidth, mHeight;
         public long mSize;
+
+
+        @Override
+        public int compareTo(@NonNull WorkItem o) {
+            if (o.mTimeStamp > mTimeStamp) {
+                return 1;
+            } else if (o.mTimeStamp < mTimeStamp) {
+                return -1;
+            }
+
+            return 0;
+        }
     }
 
     public interface OnWorkSelectListener {
