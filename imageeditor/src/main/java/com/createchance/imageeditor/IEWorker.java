@@ -382,7 +382,7 @@ public class IEWorker extends HandlerThread {
                 imgWidth = (int) (imgWidth * scale);
             }
         }
-        mBaseImgPosX = 0;
+        mBaseImgPosX = (mSurfaceWidth - imgWidth) / 2;
         mBaseImgPosY = (mSurfaceHeight - imgHeight) / 2;
         mBaseImgShowWidth = imgWidth;
         mBaseImgShowHeight = imgHeight;
