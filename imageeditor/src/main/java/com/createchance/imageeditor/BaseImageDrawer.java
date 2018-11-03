@@ -71,7 +71,7 @@ public class BaseImageDrawer {
 
     private int mProgramId;
 
-    public BaseImageDrawer(float scaleFactor, boolean flipX, boolean flipY) {
+    public BaseImageDrawer(float widthScaleFactor, float heightScaleFactor, boolean flipX, boolean flipY) {
         mProgramId = OpenGlUtils.loadProgram(
                 BASE_VERTEX_SHADER,
                 BASE_FRAGMENT_SHADER
@@ -87,10 +87,10 @@ public class BaseImageDrawer {
 
         vertexPositionBuffer = OpenGlUtils.createFloatBuffer(
                 new float[]{
-                        -1.0f * scaleFactor, 1.0f * scaleFactor,
-                        -1.0f * scaleFactor, -1.0f * scaleFactor,
-                        1.0f * scaleFactor, 1.0f * scaleFactor,
-                        1.0f * scaleFactor, -1.0f * scaleFactor,
+                        -1.0f * widthScaleFactor, 1.0f * heightScaleFactor,
+                        -1.0f * widthScaleFactor, -1.0f * heightScaleFactor,
+                        1.0f * widthScaleFactor, 1.0f * heightScaleFactor,
+                        1.0f * widthScaleFactor, -1.0f * heightScaleFactor,
                 }
         );
         textureCoordinateBuffer = OpenGlUtils.createFloatBuffer(

@@ -236,6 +236,14 @@ public class IEWorker extends HandlerThread {
         return mBaseImgPosX + mBaseImgShowWidth;
     }
 
+    public int getSurfaceWidth() {
+        return mSurfaceWidth;
+    }
+
+    public int getSurfaceHeight() {
+        return mSurfaceHeight;
+    }
+
     private void handleStart(Surface surface, int width, int height) {
         mEglCore = new EglCore();
         mWindowSurface = new WindowSurface(mEglCore, surface, true);
@@ -245,7 +253,7 @@ public class IEWorker extends HandlerThread {
         createOffScreenFrameBuffer();
         createOffScreenTextures();
 
-        mFboReader = new BaseImageDrawer(1.0f, false, false);
+        mFboReader = new BaseImageDrawer(1.0f, 1.0f, false, false);
     }
 
     private void handleStop() {
@@ -262,7 +270,6 @@ public class IEWorker extends HandlerThread {
                 break;
             case AbstractOperator.OP_FILTER:
                 FilterOperator filterOperator = (FilterOperator) operator;
-                filterOperator.setSize(mBaseImgShowWidth, mBaseImgShowHeight);
                 mCurrentTextureIndex = (mCurrentTextureIndex + 1) % mFboTextureIds.length;
                 filterOperator.setInputTexture(mFboTextureIds[(mCurrentTextureIndex + 1) % mFboTextureIds.length]);
                 filterOperator.setOutputTexture(mFboTextureIds[mCurrentTextureIndex]);
@@ -291,6 +298,7 @@ public class IEWorker extends HandlerThread {
 
     public void handleUpdateOperator(AbstractOperator operator) {
         for (AbstractOperator op : mOpList) {
+            Log.d(TAG, "handleUpdateOperator: " + op.getName());
             handleOperator(op, false);
         }
         mWindowSurface.swapBuffers();
@@ -375,13 +383,10 @@ public class IEWorker extends HandlerThread {
                 imgWidth = (int) (imgWidth * scale);
             }
         }
-        operator.setWidth(imgWidth);
-        operator.setHeight(imgHeight);
         mBaseImgPosX = 0;
         mBaseImgPosY = (mSurfaceHeight - imgHeight) / 2;
         mBaseImgShowWidth = imgWidth;
         mBaseImgShowHeight = imgHeight;
-        operator.setPosition(mBaseImgPosX, mBaseImgPosY);
     }
 
     private void captureImage(File target, final SaveListener listener) {

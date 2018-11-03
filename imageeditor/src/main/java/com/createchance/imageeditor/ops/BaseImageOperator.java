@@ -16,10 +16,8 @@ public class BaseImageOperator extends AbstractOperator {
     private static final String TAG = "BaseImageOperator";
 
     private Bitmap mImage;
-    private int mWidth, mHeight;
-    private float mScaleFactor = 1.0f;
+    private float mWidthScaleFactor = 1.0f, mHeightScaleFactor = 1.0f;
     private int mRotation;
-    private int mPosX, mPosY;
     private int mTextureId;
 
     private BaseImageDrawer mDrawer;
@@ -32,9 +30,8 @@ public class BaseImageOperator extends AbstractOperator {
     public boolean checkRational() {
         return mImage != null
                 && !mImage.isRecycled()
-                && mWidth >= 0
-                && mHeight >= 0
-                && mScaleFactor >= 0
+                && mWidthScaleFactor >= 0
+                && mHeightScaleFactor >= 0
                 && mRotation >= 0
                 && mRotation <= 360;
     }
@@ -42,31 +39,20 @@ public class BaseImageOperator extends AbstractOperator {
     @Override
     public void exec() {
         if (mDrawer == null) {
-            mDrawer = new BaseImageDrawer(mScaleFactor, false, true);
+            mWidthScaleFactor = mWorker.getImgShowWidth() * 1.0f / mWorker.getSurfaceWidth();
+            mHeightScaleFactor = mWorker.getImgShowHeight() * 1.0f / mWorker.getSurfaceHeight();
+            mDrawer = new BaseImageDrawer(mWidthScaleFactor, mHeightScaleFactor, false, true);
             mTextureId = OpenGlUtils.loadTexture(mImage, OpenGlUtils.NO_TEXTURE, false);
         }
         mDrawer.draw(mTextureId,
-                mPosX,
-                mPosY,
-                mWidth,
-                mHeight);
+                0,
+                0,
+                mWorker.getSurfaceWidth(),
+                mWorker.getSurfaceHeight());
     }
 
     public Bitmap getImage() {
         return mImage;
-    }
-
-    public void setWidth(int mWidth) {
-        this.mWidth = mWidth;
-    }
-
-    public void setHeight(int mHeight) {
-        this.mHeight = mHeight;
-    }
-
-    public void setPosition(int x, int y) {
-        mPosX = x;
-        mPosY = y;
     }
 
     public static class Builder {
@@ -74,14 +60,13 @@ public class BaseImageOperator extends AbstractOperator {
 
         public Builder image(Bitmap image) {
             operator.mImage = image;
-            operator.mWidth = image.getWidth();
-            operator.mHeight = image.getHeight();
 
             return this;
         }
 
-        public Builder scaleFactor(float scaleFactor) {
-            operator.mScaleFactor = scaleFactor;
+        public Builder scaleFactor(float widthScaleFactor, float heightScaleHeight) {
+            operator.mWidthScaleFactor = widthScaleFactor;
+            operator.mHeightScaleFactor = heightScaleHeight;
 
             return this;
         }

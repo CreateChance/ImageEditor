@@ -23,8 +23,6 @@ public class FilterOperator extends AbstractOperator {
 
     private GPUImageFilter mFilter;
 
-    private int mWidth, mHeight;
-
     private final float CUBE[] = {
             -1.0f, 1.0f,
             -1.0f, -1.0f,
@@ -39,11 +37,6 @@ public class FilterOperator extends AbstractOperator {
 
     private FilterOperator() {
         super(FilterOperator.class.getSimpleName(), OP_FILTER);
-    }
-
-    public void setSize(int width, int height) {
-        mWidth = width;
-        mHeight = height;
     }
 
     public void setInputTexture(int texture) {
@@ -90,13 +83,19 @@ public class FilterOperator extends AbstractOperator {
 
         mFilter.init();
         GLES20.glUseProgram(mFilter.getProgram());
-        mFilter.onOutputSizeChanged(mWidth, mHeight);
-
+        mFilter.onOutputSizeChanged(mWorker.getImgShowWidth(), mWorker.getImgShowHeight());
         if (mFilter instanceof GPUImageFilterGroup) {
             ((GPUImageFilterGroup) mFilter).setOutput(mFrameBufferId, mOutputTextureId);
         }
 
+        GLES20.glViewport(0, 0, mWorker.getSurfaceWidth(), mWorker.getSurfaceHeight());
+        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+        GLES20.glScissor(mWorker.getImgShowLeft(),
+                mWorker.getImgShowBottom(),
+                mWorker.getImgShowWidth(),
+                mWorker.getImgShowHeight());
         mFilter.onDraw(mInputTextureId, mGLCubeBuffer, mGLTextureBuffer);
+        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
     }
 
     public static class Builder {
