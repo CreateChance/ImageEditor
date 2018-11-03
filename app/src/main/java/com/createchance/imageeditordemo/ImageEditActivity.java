@@ -12,6 +12,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.createchance.imageeditor.IEManager;
@@ -19,6 +20,7 @@ import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.ops.BaseImageOperator;
 import com.createchance.imageeditordemo.model.SimpleModel;
 import com.createchance.imageeditordemo.panels.AbstractPanel;
+import com.createchance.imageeditordemo.utils.DensityUtil;
 
 import java.io.File;
 
@@ -86,12 +88,21 @@ public class ImageEditActivity extends AppCompatActivity implements
             }
         }, this);
         mEditListView.setAdapter(mEditListAdapter);
+
+        // compute height by screen height
+        int totalHeight = getWindowManager().getDefaultDisplay().getHeight() - DensityUtil.dip2px(this, 118);
+        RelativeLayout.LayoutParams textureParams = (RelativeLayout.LayoutParams) textureView.getLayoutParams();
+        textureParams.height = (int) (totalHeight * 0.7f);
+        textureView.setLayoutParams(textureParams);
+        RelativeLayout.LayoutParams containerParams = (RelativeLayout.LayoutParams) mEditPanelContainer.getLayoutParams();
+        containerParams.height = (int) (totalHeight * 0.3f);
+        mEditPanelContainer.setLayoutParams(containerParams);
     }
 
     @Override
     public void onBackPressed() {
         if (mCurrentPanel != null) {
-            mCurrentPanel.close(false);
+            mCurrentPanel.close(true);
         } else {
             super.onBackPressed();
         }

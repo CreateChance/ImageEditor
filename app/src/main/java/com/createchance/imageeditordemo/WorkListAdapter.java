@@ -62,7 +62,8 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
             );
         } else {
             holder.size.setText(
-                    String.format(mContext.getString(R.string.main_page_work_size_format_m_byte), workItem.mSize * 1.0f / (1024 * 1024))
+                    String.format(mContext.getString(R.string.main_page_work_size_format_m_byte),
+                            workItem.mSize * 1.0f / (1024 * 1024))
             );
         }
     }
