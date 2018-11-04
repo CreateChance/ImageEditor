@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_sticker_alpha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:text="@string/edit_sticker_alpha" />
+
+        <SeekBar
+            android:id="@+id/sb_sticker_alpha"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="100" />
+
+        <TextView
+            android:id="@+id/tv_sticker_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:text="@string/edit_sticker_size" />
+
+        <SeekBar
+            android:id="@+id/sb_sticker_size"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="50" />
+
+        <TextView
+            android:id="@+id/tv_sticker_red"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:text="@string/edit_sticker_red" />
+
+        <SeekBar
+            android:id="@+id/sb_sticker_red"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="100" />
+
+        <TextView
+            android:id="@+id/tv_sticker_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:text="@string/edit_sticker_green" />
+
+        <SeekBar
+            android:id="@+id/sb_sticker_green"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="100" />
+
+        <TextView
+            android:id="@+id/tv_sticker_blue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:text="@string/edit_sticker_blue" />
+
+        <SeekBar
+            android:id="@+id/sb_sticker_blue"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="100" />
+
+        <TextView
+            android:id="@+id/tv_sticker_rotation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:text="@string/edit_sticker_rotation" />
+
+        <SeekBar
+            android:id="@+id/sb_sticker_rotation"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:max="359"
+            android:progress="0" />
+
+    </LinearLayout>
+
+</ScrollView>

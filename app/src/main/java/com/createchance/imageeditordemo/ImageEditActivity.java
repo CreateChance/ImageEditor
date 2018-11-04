@@ -112,6 +112,8 @@ public class ImageEditActivity extends AppCompatActivity implements
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         mTextureWidth = width;
         mTextureHeight = height;
+        Constants.mSurfaceWidth = width;
+        Constants.mSurfaceHeight = height;
         Surface holdSurface = new Surface(surface);
         IEManager.getInstance().prepare(holdSurface, width, height);
         BaseImageOperator baseImageOperator = new BaseImageOperator.Builder()

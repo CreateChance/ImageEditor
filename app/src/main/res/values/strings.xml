@@ -50,6 +50,16 @@
     <string name="edit_text_panel_change_texture">纹理</string>
 
     <string name="edit_focus">对焦</string>
+
     <string name="edit_sticker">贴纸</string>
+    <string name="edit_sticker_asset">素材</string>
+    <string name="edit_sticker_adjust">调整</string>
+    <string name="edit_sticker_alpha">不透明度</string>
+    <string name="edit_sticker_size">大小</string>
+    <string name="edit_sticker_red">红色</string>
+    <string name="edit_sticker_green">绿色</string>
+    <string name="edit_sticker_blue">蓝色</string>
+    <string name="edit_sticker_rotation">方向</string>
+
     <string name="edit_mosaic">马赛克</string>
 </resources>

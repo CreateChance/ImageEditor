@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.View;
 
 import com.createchance.imageeditordemo.model.SimpleModel;
+import com.createchance.imageeditordemo.model.Sticker;
+import com.createchance.imageeditordemo.utils.AssetsUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,10 +67,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.tv_choose_photo).setOnClickListener(this);
         findViewById(R.id.tv_take_photo).setOnClickListener(this);
 
+        Constants.mScreenWidth = getWindowManager().getDefaultDisplay().getWidth();
+        Constants.mScreenHeight = getWindowManager().getDefaultDisplay().getHeight();
+
         WorkRunner.addTaskToBackground(new Runnable() {
             @Override
             public void run() {
                 tryCopyFontFile();
+                tryCopyStickerFile();
             }
         });
     }
@@ -242,5 +248,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mImageFromCamera = image;
         return image;
+    }
+
+    private void tryCopyStickerFile() {
+        File stickerDir = new File(getFilesDir(), "stickers");
+        if (stickerDir.exists()) {
+            return;
+        }
+        stickerDir.mkdir();
+        InputStream is = null;
+        OutputStream os = null;
+        List<Sticker> stickerList = AssetsUtil.parseJsonToList(this, "stickers/stickers.json", Sticker.class);
+        for (Sticker sticker : stickerList) {
+            try {
+                is = getAssets().open(sticker.mAsset);
+                os = new FileOutputStream(new File(getFilesDir(), sticker.mAsset));
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, length);
+                }
+                is.close();
+                os.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 }

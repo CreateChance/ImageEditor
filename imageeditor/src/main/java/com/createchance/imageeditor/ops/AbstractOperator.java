@@ -13,6 +13,7 @@ public abstract class AbstractOperator {
     public static final int OP_BASE_IMAGE = 0;
     public static final int OP_FILTER = 1;
     public static final int OP_TEXT = 2;
+    public static final int OP_STICKER = 3;
 
     protected final String mName;
 

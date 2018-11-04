@@ -1,0 +1,266 @@
+[
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_5.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_6.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_7.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_8.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_9.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_10.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_11.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_12.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_13.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_14.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_15.png"
+  },
+  {
+    "type": 0,
+    "asset": "stickers/m_stickers_decoration_16.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_1.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_2.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_3.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_4.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_5.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_6.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_7.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_8.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_9.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_10.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_11.png"
+  },
+  {
+    "type": 1,
+    "asset": "stickers/m_stickers_love_12.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_1.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_2.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_3.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_4.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_5.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_6.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_7.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_8.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_9.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_10.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_11.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_12.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_13.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_14.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_15.png"
+  },
+  {
+    "type": 2,
+    "asset": "stickers/m_stickers_party_16.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_1.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_2.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_3.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_4.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_5.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_6.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_7.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_8.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_9.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_10.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_11.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_12.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_13.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_14.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_15.png"
+  },
+  {
+    "type": 3,
+    "asset": "stickers/m_stickers_shape_16.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_1.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_2.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_3.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_4.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_5.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_6.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_7.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_8.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_9.png"
+  },
+  {
+    "type": 4,
+    "asset": "stickers/m_stickers_simple_pics_10.png"
+  }
+]

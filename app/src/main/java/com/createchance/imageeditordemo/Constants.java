@@ -12,5 +12,9 @@ import java.io.File;
  */
 public class Constants {
 
-    public static File mBaseDir = new File(Environment.getExternalStorageDirectory(), "imageeditor");
+    public static final File mBaseDir = new File(Environment.getExternalStorageDirectory(), "imageeditor");
+
+    public static int mScreenWidth, mScreenHeight;
+
+    public static int mSurfaceWidth, mSurfaceHeight;
 }

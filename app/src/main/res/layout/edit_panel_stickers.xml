@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="30dp">
+
+    <RelativeLayout
+        android:id="@+id/vw_title"
+        android:layout_width="match_parent"
+        android:layout_height="30dp">
+
+        <ImageView
+            android:id="@+id/iv_cancel"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="18dp"
+            android:background="@drawable/bg_dark_red"
+            android:src="@drawable/icon_cancel" />
+
+        <TextView
+            android:id="@+id/tv_filter_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:paddingTop="7dp"
+            android:paddingBottom="7dp"
+            android:text="@string/edit_sticker" />
+
+        <ImageView
+            android:id="@+id/iv_apply"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_alignTop="@id/tv_filter_name"
+            android:layout_alignBottom="@id/tv_filter_name"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="18dp"
+            android:background="@drawable/bg_dark_red"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:src="@drawable/icon_apply" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_sticker_asset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/theme_red"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:text="@string/edit_sticker_asset" />
+
+        <TextView
+            android:id="@+id/tv_sticker_adjust"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:text="@string/edit_sticker_adjust" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/vw_sticker_sub_panel_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

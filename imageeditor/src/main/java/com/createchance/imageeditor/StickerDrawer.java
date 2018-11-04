@@ -1,6 +1,5 @@
 package com.createchance.imageeditor;
 
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
@@ -30,6 +29,7 @@ import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.Matrix.multiplyMM;
+import static android.opengl.Matrix.rotateM;
 import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.translateM;
 
@@ -60,17 +60,19 @@ public class StickerDrawer {
                     "\n" +
                     "uniform sampler2D u_TextureUnit;\n" +
                     "uniform float u_AlphaFactor;\n" +
+                    "uniform vec3 u_StickerColor;\n" +
                     "varying vec2 v_TextureCoordinates;\n" +
                     "\n" +
                     "void main() {\n" +
                     "    mediump vec4 sampledColor = texture2D(u_TextureUnit, v_TextureCoordinates);\n" +
-                    "    gl_FragColor = vec4(sampledColor.rgb, sampledColor.a * u_AlphaFactor);\n" +
+                    "    gl_FragColor = vec4(u_StickerColor, u_AlphaFactor) * sampledColor;\n" +
                     "}\n";
 
     // Uniform
     private final String U_MATRIX = "u_Matrix";
     private final String U_TEXTURE_UNIT = "u_TextureUnit";
     private final String U_ALPHA_FACTOR = "u_AlphaFactor";
+    private final String U_STICKER_COLOR = "u_StickerColor";
 
     // Attribute
     private final String A_POSITION = "a_Position";
@@ -79,9 +81,12 @@ public class StickerDrawer {
     private FloatBuffer mVertexPositionBuffer;
     private FloatBuffer mTextureCoordinateBuffer;
 
-    private int mMartixLocation, mTextureUnitLocation, mPositionLocaiton, mTextureCoorLocation, mAlphaFactorLocation;
-
-    private float mAlphaFactor = 1.0f;
+    private int mMartixLocation,
+            mTextureUnitLocation,
+            mPositionLocaiton,
+            mTextureCoorLocation,
+            mAlphaFactorLocation,
+            mStickerColorLocation;
 
     private int mProgramId;
 
@@ -95,11 +100,10 @@ public class StickerDrawer {
         mMartixLocation = glGetUniformLocation(mProgramId, U_MATRIX);
         mTextureUnitLocation = glGetUniformLocation(mProgramId, U_TEXTURE_UNIT);
         mAlphaFactorLocation = glGetUniformLocation(mProgramId, U_ALPHA_FACTOR);
+        mStickerColorLocation = glGetUniformLocation(mProgramId, U_STICKER_COLOR);
         mPositionLocaiton = glGetAttribLocation(mProgramId, A_POSITION);
         mTextureCoorLocation = glGetAttribLocation(mProgramId, A_TEXTURE_COORDINATES);
-    }
 
-    public void setParams(float scaleFactor) {
         glUseProgram(mProgramId);
 
         mTextureCoordinateBuffer = OpenGlUtils.createFloatBuffer(
@@ -112,12 +116,25 @@ public class StickerDrawer {
         );
         mVertexPositionBuffer = OpenGlUtils.createFloatBuffer(
                 new float[]{
-                        -1.0f * scaleFactor, 1.0f * scaleFactor,
-                        -1.0f * scaleFactor, -1.0f * scaleFactor,
-                        1.0f * scaleFactor, 1.0f * scaleFactor,
-                        1.0f * scaleFactor, -1.0f * scaleFactor,
+                        -1.0f, 1.0f,
+                        -1.0f, -1.0f,
+                        1.0f, 1.0f,
+                        1.0f, -1.0f,
                 }
         );
+    }
+
+    public void draw(int textureId,
+                     int posX,
+                     int posY,
+                     int width,
+                     int height,
+                     float red,
+                     float green,
+                     float blue,
+                     float alphaFactor,
+                     float rotation) {
+        glUseProgram(mProgramId);
 
         // set matrix
         // set uniform vars
@@ -138,7 +155,7 @@ public class StickerDrawer {
 
         setIdentityM(modelMatrix, 0);
         translateM(modelMatrix, 0, 0f, 0f, -2.5f);
-//        rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);
+        rotateM(modelMatrix, 0, rotation, 0f, 0f, 1f);
 
         final float[] temp = new float[16];
         multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
@@ -151,12 +168,7 @@ public class StickerDrawer {
                 false,
                 projectionMatrix,
                 0);
-    }
 
-    public void draw(Bitmap image, int posX, int posY, int width, int height) {
-        int textureId = OpenGlUtils.loadTexture(image, OpenGlUtils.NO_TEXTURE, true);
-
-        glUseProgram(mProgramId);
         glViewport(posX, posY, width, height);
 
         GLES20.glClearColor(0, 0, 0, 0);
@@ -168,7 +180,8 @@ public class StickerDrawer {
         glBindTexture(GL_TEXTURE_2D, textureId);
         glUniform1i(mTextureUnitLocation, 0);
 
-        GLES20.glUniform1f(mAlphaFactorLocation, mAlphaFactor);
+        GLES20.glUniform1f(mAlphaFactorLocation, alphaFactor);
+        GLES20.glUniform3f(mStickerColorLocation, red, green, blue);
 
         glEnableVertexAttribArray(mPositionLocaiton);
         mVertexPositionBuffer.position(0);
