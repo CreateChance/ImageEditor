@@ -110,6 +110,12 @@ public class EditStickerPanel extends AbstractPanel implements
     @Override
     public void close(boolean discard) {
         super.close(discard);
+
+        if (discard && mCurOp != null) {
+            IEManager.getInstance().removeOperator(mCurOp);
+            mCurOp = null;
+            mCurSticker = null;
+        }
     }
 
     private void initStickerList() {
@@ -152,6 +158,12 @@ public class EditStickerPanel extends AbstractPanel implements
             case R.id.tv_sticker_adjust:
                 mSubPanelContainer.removeAllViews();
                 mSubPanelContainer.addView(mStickerAdjustPanel);
+                break;
+            case R.id.iv_cancel:
+                close(true);
+                break;
+            case R.id.iv_apply:
+                close(false);
                 break;
             default:
                 break;
@@ -204,6 +216,8 @@ public class EditStickerPanel extends AbstractPanel implements
         mSubPanelContainer = mStickerPanel.findViewById(R.id.vw_sticker_sub_panel_container);
         mStickerPanel.findViewById(R.id.tv_sticker_asset).setOnClickListener(this);
         mStickerPanel.findViewById(R.id.tv_sticker_adjust).setOnClickListener(this);
+        mStickerPanel.findViewById(R.id.iv_cancel).setOnClickListener(this);
+        mStickerPanel.findViewById(R.id.iv_apply).setOnClickListener(this);
     }
 
     private void initAssetPanel() {
