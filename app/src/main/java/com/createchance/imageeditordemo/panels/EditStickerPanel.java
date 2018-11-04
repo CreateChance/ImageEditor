@@ -147,15 +147,18 @@ public class EditStickerPanel extends AbstractPanel implements
 
     @Override
     public void onClick(View v) {
-        mStickerPanel.findViewById(R.id.tv_sticker_asset).setBackgroundResource(R.color.theme_dark);
-        mStickerPanel.findViewById(R.id.tv_sticker_adjust).setBackgroundResource(R.color.theme_dark);
-        v.setBackgroundResource(R.color.theme_red);
         switch (v.getId()) {
             case R.id.tv_sticker_asset:
+                mStickerPanel.findViewById(R.id.tv_sticker_asset).setBackgroundResource(R.color.theme_dark);
+                mStickerPanel.findViewById(R.id.tv_sticker_adjust).setBackgroundResource(R.color.theme_dark);
+                v.setBackgroundResource(R.color.theme_red);
                 mSubPanelContainer.removeAllViews();
                 mSubPanelContainer.addView(mStickerAssetPanel);
                 break;
             case R.id.tv_sticker_adjust:
+                mStickerPanel.findViewById(R.id.tv_sticker_asset).setBackgroundResource(R.color.theme_dark);
+                mStickerPanel.findViewById(R.id.tv_sticker_adjust).setBackgroundResource(R.color.theme_dark);
+                v.setBackgroundResource(R.color.theme_red);
                 mSubPanelContainer.removeAllViews();
                 mSubPanelContainer.addView(mStickerAdjustPanel);
                 break;
