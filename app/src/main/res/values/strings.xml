@@ -37,7 +37,16 @@
     <string name="edit_adjust_color_balance">色彩平衡</string>
 
     <string name="edit_cut">裁剪</string>
-    <string name="edit_rotate">旋转，翻转</string>
+
+    <string name="edit_transform">空间变换</string>
+    <string name="edit_transform_rotate">旋转</string>
+    <string name="edit_rotate_x">X轴: %1$d 度</string>
+    <string name="edit_rotate_y">Y轴: %1$d 度</string>
+    <string name="edit_rotate_z">Z轴: %1$d 度</string>
+    <string name="edit_transform_translate">移动</string>
+    <string name="edit_translate_x">X轴: %1$d</string>
+    <string name="edit_translate_y">Y轴: %1$d</string>
+    <string name="edit_translate_z">Z轴: %1$.2f</string>
 
     <string name="edit_text">文字</string>
     <string name="edit_text_panel_add_dialog_content">请输入文字</string>

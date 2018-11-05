@@ -253,7 +253,7 @@ public class IEWorker extends HandlerThread {
         createOffScreenFrameBuffer();
         createOffScreenTextures();
 
-        mFboReader = new BaseImageDrawer(1.0f, 1.0f, false, false);
+        mFboReader = new BaseImageDrawer(1.0f, 1.0f);
     }
 
     private void handleStop() {
@@ -287,10 +287,29 @@ public class IEWorker extends HandlerThread {
             bindDefaultFrameBuffer();
         } else {
             bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
+            if (operator.getType() == AbstractOperator.OP_BASE_IMAGE) {
+                GLES20.glViewport(0, 0, mSurfaceWidth, mSurfaceHeight);
+                GLES20.glClearColor(0, 0, 0, 1f);
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+            }
             operator.exec();
             bindDefaultFrameBuffer();
         }
-        mFboReader.draw(mFboTextureIds[mCurrentTextureIndex], 0, 0, mSurfaceWidth, mSurfaceHeight);
+        mFboReader.draw(mFboTextureIds[mCurrentTextureIndex],
+                0,
+                0,
+                mSurfaceWidth,
+                mSurfaceHeight,
+                45,
+                mSurfaceWidth * 1.0f / mSurfaceHeight,
+                1.0f,
+                10.0f,
+                0,
+                0,
+                1.01f,
+                0,
+                0,
+                0);
         if (swap) {
             mWindowSurface.swapBuffers();
         }

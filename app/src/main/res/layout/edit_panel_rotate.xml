@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="30dp">
+
+    <RelativeLayout
+        android:id="@+id/vw_title"
+        android:layout_width="match_parent"
+        android:layout_height="30dp">
+
+        <ImageView
+            android:id="@+id/iv_cancel"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="18dp"
+            android:background="@drawable/bg_dark_red"
+            android:src="@drawable/icon_cancel" />
+
+        <TextView
+            android:id="@+id/tv_filter_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:paddingTop="7dp"
+            android:paddingBottom="7dp"
+            android:text="@string/edit_transform" />
+
+        <ImageView
+            android:id="@+id/iv_apply"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_alignTop="@id/tv_filter_name"
+            android:layout_alignBottom="@id/tv_filter_name"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="18dp"
+            android:background="@drawable/bg_dark_red"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:src="@drawable/icon_apply" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vw_title">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_transform_rotate"
+                android:textColor="@color/font_white"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/tv_rotate_x"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                tools:text="X轴: 30.25 度" />
+
+            <SeekBar
+                android:id="@+id/sb_rotate_x"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="10dp"
+                android:max="360"
+                android:progress="180" />
+
+            <TextView
+                android:id="@+id/tv_rotate_y"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                tools:text="Y轴: 30.25 度" />
+
+            <SeekBar
+                android:id="@+id/sb_rotate_y"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="10dp"
+                android:max="360" />
+
+            <TextView
+                android:id="@+id/tv_rotate_z"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                tools:text="Z轴: 30.25 度" />
+
+            <SeekBar
+                android:id="@+id/sb_rotate_z"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:max="360" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_transform_translate"
+                android:textColor="@color/font_white"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/tv_translate_x"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                tools:text="X轴: 30" />
+
+            <SeekBar
+                android:id="@+id/sb_translate_x"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:max="360" />
+
+            <TextView
+                android:id="@+id/tv_translate_y"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                tools:text="Y轴: 30" />
+
+            <SeekBar
+                android:id="@+id/sb_translate_y"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:max="360" />
+
+            <TextView
+                android:id="@+id/tv_translate_z"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                tools:text="Z轴: 30" />
+
+            <SeekBar
+                android:id="@+id/sb_translate_z"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:max="360" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

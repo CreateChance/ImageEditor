@@ -121,6 +121,7 @@ public class ImageEditActivity extends AppCompatActivity implements
                 .build();
 
         IEManager.getInstance().addOperator(baseImageOperator);
+        Constants.mOpList.add(baseImageOperator);
     }
 
     @Override
@@ -131,6 +132,7 @@ public class ImageEditActivity extends AppCompatActivity implements
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         IEManager.getInstance().stop();
+        Constants.mOpList.clear();
 
         return true;
     }

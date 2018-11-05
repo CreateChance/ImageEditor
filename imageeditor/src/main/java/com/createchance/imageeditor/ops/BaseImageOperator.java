@@ -1,6 +1,7 @@
 package com.createchance.imageeditor.ops;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.createchance.imageeditor.BaseImageDrawer;
 import com.createchance.imageeditor.filters.OpenGlUtils;
@@ -17,7 +18,8 @@ public class BaseImageOperator extends AbstractOperator {
 
     private Bitmap mImage;
     private float mWidthScaleFactor = 1.0f, mHeightScaleFactor = 1.0f;
-    private int mRotation;
+    private float mFov = 45, mNear = 1, mFar = 10, mTranslateX, mTranslateY, mTranslateZ = 2.5f;
+    private float mFlipX = 180, mFlipY = 0, mFlipZ = 0;
     private int mTextureId;
 
     private BaseImageDrawer mDrawer;
@@ -31,9 +33,7 @@ public class BaseImageOperator extends AbstractOperator {
         return mImage != null
                 && !mImage.isRecycled()
                 && mWidthScaleFactor >= 0
-                && mHeightScaleFactor >= 0
-                && mRotation >= 0
-                && mRotation <= 360;
+                && mHeightScaleFactor >= 0;
     }
 
     @Override
@@ -41,18 +41,73 @@ public class BaseImageOperator extends AbstractOperator {
         if (mDrawer == null) {
             mWidthScaleFactor = mWorker.getImgShowWidth() * 1.0f / mWorker.getSurfaceWidth();
             mHeightScaleFactor = mWorker.getImgShowHeight() * 1.0f / mWorker.getSurfaceHeight();
-            mDrawer = new BaseImageDrawer(mWidthScaleFactor, mHeightScaleFactor, false, true);
+            mDrawer = new BaseImageDrawer(mWidthScaleFactor, mHeightScaleFactor);
             mTextureId = OpenGlUtils.loadTexture(mImage, OpenGlUtils.NO_TEXTURE, false);
         }
+        Log.d(TAG, "exec: " + mWorker.getImgShowWidth() * 1.0f / mWorker.getImgShowHeight());
         mDrawer.draw(mTextureId,
                 0,
                 0,
                 mWorker.getSurfaceWidth(),
-                mWorker.getSurfaceHeight());
+                mWorker.getSurfaceHeight(),
+                mFov,
+                mWorker.getImgShowHeight() * 1.0f / mWorker.getImgShowWidth(),
+                mNear,
+                mFar,
+                mTranslateX,
+                mTranslateY,
+                mTranslateZ,
+                mFlipX,
+                mFlipY,
+                mFlipZ);
     }
 
     public Bitmap getImage() {
         return mImage;
+    }
+
+    public void setFlipX(float flipX) {
+        this.mFlipX = flipX;
+    }
+
+    public void setFlipY(float flipY) {
+        this.mFlipY = flipY;
+    }
+
+    public void setFlipZ(float flipZ) {
+        this.mFlipZ = flipZ;
+    }
+
+    public void setFov(float mFov) {
+        this.mFov = mFov;
+    }
+
+    public void setNear(float mNear) {
+        this.mNear = mNear;
+    }
+
+    public float getNear() {
+        return mNear;
+    }
+
+    public float getFar() {
+        return mFar;
+    }
+
+    public void setFar(float mFar) {
+        this.mFar = mFar;
+    }
+
+    public void setTranslateX(float mTranslateX) {
+        this.mTranslateX = mTranslateX;
+    }
+
+    public void setTranslateY(float mTranslateY) {
+        this.mTranslateY = mTranslateY;
+    }
+
+    public void setTranslateZ(float mTranslateZ) {
+        this.mTranslateZ = mTranslateZ;
     }
 
     public static class Builder {
@@ -71,8 +126,10 @@ public class BaseImageOperator extends AbstractOperator {
             return this;
         }
 
-        public Builder rotation(int rotation) {
-            operator.mRotation = rotation;
+        public Builder flip(float flipX, float flipY, float flipZ) {
+            operator.mFlipX = flipX;
+            operator.mFlipY = flipY;
+            operator.mFlipZ = flipZ;
 
             return this;
         }

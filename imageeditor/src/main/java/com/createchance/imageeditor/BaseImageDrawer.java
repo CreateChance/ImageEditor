@@ -22,6 +22,7 @@ import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.Matrix.multiplyMM;
+import static android.opengl.Matrix.rotateM;
 import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.translateM;
 
@@ -71,7 +72,7 @@ public class BaseImageDrawer {
 
     private int mProgramId;
 
-    public BaseImageDrawer(float widthScaleFactor, float heightScaleFactor, boolean flipX, boolean flipY) {
+    public BaseImageDrawer(float widthScaleFactor, float heightScaleFactor) {
         mProgramId = OpenGlUtils.loadProgram(
                 BASE_VERTEX_SHADER,
                 BASE_FRAGMENT_SHADER
@@ -101,13 +102,30 @@ public class BaseImageDrawer {
                         1.0f, 1.0f,
                 }
         );
+    }
+
+    public void draw(int inputTexture,
+                     int posX,
+                     int posY,
+                     int width,
+                     int height,
+                     float fov,
+                     float aspectRatio,
+                     float near,
+                     float far,
+                     float translateX,
+                     float translateY,
+                     float translateZ,
+                     float flipX,
+                     float flipY,
+                     float flipZ) {
+        glUseProgram(mProgramId);
 
         // set matrix
         // set uniform vars
         float[] projectionMatrix = new float[16];
         float[] modelMatrix = new float[16];
-//        perspectiveM(projectionMatrix,45, (float) surfaceWidth
-//                / (float) surfaceHeight, 1f, 10f);
+//        perspectiveM(projectionMatrix, fov, aspectRatio, near, far);
         Matrix.orthoM(
                 projectionMatrix,
                 0,
@@ -120,8 +138,10 @@ public class BaseImageDrawer {
         );
 
         setIdentityM(modelMatrix, 0);
-        translateM(modelMatrix, 0, 0f, 0f, -2.5f);
-//        rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);
+        translateM(modelMatrix, 0, translateX, translateY, -translateZ);
+        rotateM(modelMatrix, 0, flipX, 1f, 0f, 0f);
+        rotateM(modelMatrix, 0, flipY, 0f, 1f, 0f);
+        rotateM(modelMatrix, 0, flipZ, 0f, 0f, 1f);
 
         final float[] temp = new float[16];
         multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
@@ -131,12 +151,9 @@ public class BaseImageDrawer {
                 mMartixLocation,
                 1,
                 false,
-                OpenGlUtils.flip(projectionMatrix, flipX, flipY),
+                projectionMatrix,
                 0);
-    }
 
-    public void draw(int inputTexture, int posX, int posY, int width, int height) {
-        glUseProgram(mProgramId);
         glViewport(posX, posY, width, height);
 
         GLES20.glClearColor(0, 0, 0, 0);
@@ -167,5 +184,31 @@ public class BaseImageDrawer {
         glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         glDisableVertexAttribArray(mPositionLocaiton);
         glDisableVertexAttribArray(mTextureCoorLocation);
+    }
+
+    private void perspectiveM(float[] m, float yFovInDegrees, float aspect,
+                              float n, float f) {
+        final float angleInRadians = (float) (yFovInDegrees * Math.PI / 180.0);
+
+        final float a = (float) (1.0 / Math.tan(angleInRadians / 2.0));
+        m[0] = a / aspect;
+        m[1] = 0f;
+        m[2] = 0f;
+        m[3] = 0f;
+
+        m[4] = 0f;
+        m[5] = a;
+        m[6] = 0f;
+        m[7] = 0f;
+
+        m[8] = 0f;
+        m[9] = 0f;
+        m[10] = -((f + n) / (f - n));
+        m[11] = -1f;
+
+        m[12] = 0f;
+        m[13] = 0f;
+        m[14] = -((2f * f * n) / (f - n));
+        m[15] = 0f;
     }
 }
