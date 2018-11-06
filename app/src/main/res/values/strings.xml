@@ -39,6 +39,10 @@
     <string name="edit_cut">裁剪</string>
 
     <string name="edit_transform">空间变换</string>
+    <string name="edit_transform_rotate_left">左转动</string>
+    <string name="edit_transform_rotate_right">右转动</string>
+    <string name="edit_transform_flip_x">水平镜像</string>
+    <string name="edit_transform_flip_y">垂直镜像</string>
     <string name="edit_transform_rotate">旋转</string>
     <string name="edit_rotate_x">X轴: %1$d 度</string>
     <string name="edit_rotate_y">Y轴: %1$d 度</string>

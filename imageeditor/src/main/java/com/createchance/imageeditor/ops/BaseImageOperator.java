@@ -1,7 +1,6 @@
 package com.createchance.imageeditor.ops;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import com.createchance.imageeditor.BaseImageDrawer;
 import com.createchance.imageeditor.filters.OpenGlUtils;
@@ -18,7 +17,7 @@ public class BaseImageOperator extends AbstractOperator {
 
     private Bitmap mImage;
     private float mWidthScaleFactor = 1.0f, mHeightScaleFactor = 1.0f;
-    private float mFov = 45, mNear = 1, mFar = 10, mTranslateX, mTranslateY, mTranslateZ = 2.5f;
+    private float mFov = 45, mNear = 0.1f, mFar = 100, mTranslateX, mTranslateY, mTranslateZ = 2.5f;
     private float mFlipX = 180, mFlipY = 0, mFlipZ = 0;
     private int mTextureId;
 
@@ -44,14 +43,13 @@ public class BaseImageOperator extends AbstractOperator {
             mDrawer = new BaseImageDrawer(mWidthScaleFactor, mHeightScaleFactor);
             mTextureId = OpenGlUtils.loadTexture(mImage, OpenGlUtils.NO_TEXTURE, false);
         }
-        Log.d(TAG, "exec: " + mWorker.getImgShowWidth() * 1.0f / mWorker.getImgShowHeight());
         mDrawer.draw(mTextureId,
                 0,
                 0,
                 mWorker.getSurfaceWidth(),
                 mWorker.getSurfaceHeight(),
                 mFov,
-                mWorker.getImgShowHeight() * 1.0f / mWorker.getImgShowWidth(),
+                mWorker.getSurfaceWidth() * 1.0f / mWorker.getSurfaceHeight(),
                 mNear,
                 mFar,
                 mTranslateX,

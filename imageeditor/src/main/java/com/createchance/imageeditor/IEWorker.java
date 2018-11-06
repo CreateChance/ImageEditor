@@ -287,11 +287,6 @@ public class IEWorker extends HandlerThread {
             bindDefaultFrameBuffer();
         } else {
             bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
-            if (operator.getType() == AbstractOperator.OP_BASE_IMAGE) {
-                GLES20.glViewport(0, 0, mSurfaceWidth, mSurfaceHeight);
-                GLES20.glClearColor(0, 0, 0, 1f);
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-            }
             operator.exec();
             bindDefaultFrameBuffer();
         }
