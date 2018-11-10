@@ -64,6 +64,7 @@ public class ModelViewDrawer extends AbstractDrawer {
                          float rotateX,
                          float rotateY,
                          float rotateZ) {
+        Matrix.setIdentityM(mModelMatrix, 0);
         Matrix.translateM(mModelMatrix, 0, translateX, translateY, translateZ);
         Matrix.rotateM(mModelMatrix, 0, rotateX, 1, 0, 0);
         Matrix.rotateM(mModelMatrix, 0, rotateY, 0, 1, 0);
@@ -95,11 +96,11 @@ public class ModelViewDrawer extends AbstractDrawer {
 
         GLES20.glViewport(posX, posY, width, height);
 
+        mVertexShader.setAPosition(mVertexPositionBuffer);
+        mVertexShader.setATextureCoordinates(mTextureCoordinateBuffer);
         mVertexShader.setUModelMatrix(mModelMatrix);
         mVertexShader.setUViewMatrix(mViewMatrix);
         mVertexShader.setUProjectionMatrix(mProjectionMatrix);
-        mVertexShader.setAPosition(mVertexPositionBuffer);
-        mVertexShader.setATextureCoordinates(mTextureCoordinateBuffer);
         mFragmentShader.setUInputTexture(GLES20.GL_TEXTURE0, inputTexture);
 
         // draw it.

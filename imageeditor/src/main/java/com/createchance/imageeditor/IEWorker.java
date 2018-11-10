@@ -455,7 +455,6 @@ public class IEWorker extends HandlerThread {
                 }
             });
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             UiThreadUtil.post(new Runnable() {
                 @Override
@@ -466,7 +465,6 @@ public class IEWorker extends HandlerThread {
                 }
             });
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             UiThreadUtil.post(new Runnable() {
                 @Override

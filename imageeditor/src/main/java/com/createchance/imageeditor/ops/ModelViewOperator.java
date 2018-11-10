@@ -21,7 +21,7 @@ public class ModelViewOperator extends AbstractOperator {
             mTranslateX,
             mTranslateY,
             mTranslateZ = (float) (1 / Math.tan(Math.toRadians(mFov / 2)));
-    private float mRotateX = 180, mRotateY = 0, mRotateZ = 0;
+    private float mRotateX = 0, mRotateY = 0, mRotateZ = 0;
 
     private ModelViewOperator() {
         super(ModelViewOperator.class.getSimpleName(), OP_TRANSFORM);
