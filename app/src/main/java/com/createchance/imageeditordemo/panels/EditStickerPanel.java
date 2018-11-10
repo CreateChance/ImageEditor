@@ -195,7 +195,7 @@ public class EditStickerPanel extends AbstractPanel implements
                 mCurOp.setBlue(progress * 1.0f / seekBar.getMax());
                 break;
             case R.id.sb_sticker_rotation:
-                mCurOp.setRotation(progress);
+                mCurOp.setRotationZ(progress);
                 break;
             default:
                 break;

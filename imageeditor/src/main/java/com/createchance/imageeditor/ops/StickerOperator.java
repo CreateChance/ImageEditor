@@ -2,7 +2,7 @@ package com.createchance.imageeditor.ops;
 
 import android.graphics.Bitmap;
 
-import com.createchance.imageeditor.StickerDrawer;
+import com.createchance.imageeditor.drawers.StickerDrawer;
 import com.createchance.imageeditor.filters.OpenGlUtils;
 
 /**
@@ -25,7 +25,7 @@ public class StickerOperator extends AbstractOperator {
     private int mTextureId;
     private float mAlphaFactor = 1.0f;
     private float mRed = 1.0f, mGreen = 1.0f, mBlue = 1.0f;
-    private float mRotation;
+    private float mRotateX, mRotateY, mRotateZ;
 
     private StickerOperator() {
         super(StickerOperator.class.getSimpleName(), OP_STICKER);
@@ -99,8 +99,8 @@ public class StickerOperator extends AbstractOperator {
         this.mBlue = blue;
     }
 
-    public void setRotation(float rotation) {
-        this.mRotation = rotation;
+    public void setRotationZ(float rotationZ) {
+        this.mRotateZ = rotationZ;
     }
 
     @Override
@@ -124,16 +124,14 @@ public class StickerOperator extends AbstractOperator {
             mTextureId = OpenGlUtils.loadTexture(mSticker, OpenGlUtils.NO_TEXTURE);
         }
 
+        mDrawer.setColor(mRed, mGreen, mBlue);
+        mDrawer.setAlphaFactor(mAlphaFactor);
+        mDrawer.setRotate(mRotateX, mRotateY, mRotateZ);
         mDrawer.draw(mTextureId,
                 mPosX,
                 mPosY,
                 (int) (mWidth * mScaleFactor),
-                (int) (mHeight * mScaleFactor),
-                mRed,
-                mGreen,
-                mBlue,
-                mAlphaFactor,
-                mRotation);
+                (int) (mHeight * mScaleFactor));
     }
 
     public static class Builder {
@@ -175,7 +173,7 @@ public class StickerOperator extends AbstractOperator {
         }
 
         public Builder rotation(float rotation) {
-            operator.mRotation = rotation;
+            operator.mRotateZ = rotation;
 
             return this;
         }

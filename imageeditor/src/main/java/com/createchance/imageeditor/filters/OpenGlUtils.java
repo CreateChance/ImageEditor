@@ -65,7 +65,7 @@ public class OpenGlUtils {
         return loadTexture(img, usedTexId, true);
     }
 
-    public static int loadTexture(final Bitmap img, final int usedTexId, final boolean recycle) {
+    public static int loadTexture(Bitmap img, final int usedTexId, final boolean recycle) {
         int textures[] = new int[1];
         if (usedTexId == NO_TEXTURE) {
             GLES20.glGenTextures(1, textures, 0);

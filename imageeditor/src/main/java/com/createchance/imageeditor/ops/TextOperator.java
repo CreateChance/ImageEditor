@@ -3,7 +3,7 @@ package com.createchance.imageeditor.ops;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.createchance.imageeditor.TextDrawer;
+import com.createchance.imageeditor.drawers.TextDrawer;
 
 /**
  * Text operator.
@@ -15,6 +15,7 @@ public class TextOperator extends AbstractOperator {
 
     private static final String TAG = "TextOperator";
 
+    private boolean mReloadText = true;
     private String mText;
 
     private String mFontPath;
@@ -26,12 +27,11 @@ public class TextOperator extends AbstractOperator {
     private float mRed = 1.0f, mGreen = 1.0f, mBlue = 1.0f;
 
     private Bitmap mBackground;
+    private boolean mReloadBackground;
 
     private float mAlpha = 1.0f;
 
     private TextDrawer mDrawer;
-
-    private boolean mNeedReload = true;
 
     private TextOperator() {
         super(TextOperator.class.getSimpleName(), OP_TEXT);
@@ -55,8 +55,9 @@ public class TextOperator extends AbstractOperator {
         if (mDrawer == null) {
             mDrawer = new TextDrawer();
         }
-        if (mNeedReload) {
-            mNeedReload = false;
+
+        if (mReloadText) {
+            mReloadText = false;
             mDrawer.setText(mFontPath, mText, mSize);
         }
 
@@ -72,8 +73,16 @@ public class TextOperator extends AbstractOperator {
             mPosY = mWorker.getImgShowBottom();
         }
 
-        mDrawer.setParams(mPosX, mPosY, mRed, mGreen, mBlue, mAlpha, mBackground);
-        mDrawer.draw();
+        mDrawer.setTextAlpha(mAlpha);
+        if (mBackground != null) {
+            if (mReloadBackground) {
+                mReloadBackground = false;
+                mDrawer.setTextBackground(mBackground);
+            }
+        } else {
+            mDrawer.setTextColor(mRed, mGreen, mBlue);
+        }
+        mDrawer.draw(mPosX, mPosY);
     }
 
     public String getText() {
@@ -81,11 +90,12 @@ public class TextOperator extends AbstractOperator {
     }
 
     public void setText(String text) {
-        if (!TextUtils.equals(mText, text)) {
-            mNeedReload = true;
+        if (TextUtils.equals(mText, text)) {
+            return;
         }
 
         this.mText = text;
+        this.mReloadText = true;
     }
 
     public String getFontPath() {
@@ -93,11 +103,12 @@ public class TextOperator extends AbstractOperator {
     }
 
     public void setFontPath(String fontPath) {
-        if (!TextUtils.equals(mFontPath, fontPath)) {
-            mNeedReload = true;
+        if (TextUtils.equals(mFontPath, fontPath)) {
+            return;
         }
 
-        this.mFontPath = fontPath;
+        mFontPath = fontPath;
+        mReloadText = true;
     }
 
     public int getPosX() {
@@ -121,38 +132,54 @@ public class TextOperator extends AbstractOperator {
     }
 
     public void setSize(int size) {
-        if (mSize != size) {
-            mNeedReload = true;
+        if (mSize == size) {
+            return;
         }
 
-        this.mSize = size;
+        mSize = size;
+        mReloadText = true;
     }
 
     public float getRed() {
         return mRed;
     }
 
-    public void setRed(float mRed) {
-        this.mRed = mRed;
+    public void setRed(float red) {
+        if (mRed == red) {
+            return;
+        }
+
+        this.mRed = red;
         mBackground = null;
+        mReloadBackground = false;
     }
 
     public float getGreen() {
         return mGreen;
     }
 
-    public void setGreen(float mGreen) {
-        this.mGreen = mGreen;
+    public void setGreen(float green) {
+        if (mGreen == green) {
+            return;
+        }
+
+        this.mGreen = green;
         mBackground = null;
+        mReloadBackground = false;
     }
 
     public float getBlue() {
         return mBlue;
     }
 
-    public void setBlue(float mBlue) {
-        this.mBlue = mBlue;
+    public void setBlue(float blue) {
+        if (mBlue == blue) {
+            return;
+        }
+
+        this.mBlue = blue;
         mBackground = null;
+        mReloadBackground = false;
     }
 
     public Bitmap getBackground() {
@@ -161,6 +188,7 @@ public class TextOperator extends AbstractOperator {
 
     public void setBackground(Bitmap mBackground) {
         this.mBackground = mBackground;
+        this.mReloadBackground = true;
     }
 
     public float getAlpha() {

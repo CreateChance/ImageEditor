@@ -1,5 +1,6 @@
 package com.createchance.imageeditor;
 
+import android.content.Context;
 import android.view.Surface;
 
 import com.createchance.imageeditor.freetype.FreeType;
@@ -21,6 +22,8 @@ public class IEManager {
 
     private IEWorker mWorker;
 
+    private Context mAppContext;
+
     private IEManager() {
         // init freetype
         FreeType.init();
@@ -28,6 +31,10 @@ public class IEManager {
 
     public static IEManager getInstance() {
         return Holder.sInstance;
+    }
+
+    public void init(Context context) {
+        mAppContext = context.getApplicationContext();
     }
 
     public void prepare(Surface surface, int width, int height) {
@@ -236,6 +243,10 @@ public class IEManager {
         }
 
         return mWorker.getImgShowRight();
+    }
+
+    public Context getContext() {
+        return mAppContext;
     }
 
     private static class Holder {

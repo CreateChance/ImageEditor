@@ -8,6 +8,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
 
+import com.createchance.imageeditor.drawers.BaseImageDrawer;
 import com.createchance.imageeditor.gles.EglCore;
 import com.createchance.imageeditor.gles.WindowSurface;
 import com.createchance.imageeditor.ops.AbstractOperator;
@@ -240,6 +241,14 @@ public class IEWorker extends HandlerThread {
         return mSurfaceWidth;
     }
 
+    public int getInputTexture() {
+        return mFboTextureIds[mCurrentTextureIndex];
+    }
+
+    public void post(Runnable task) {
+        mHandler.post(task);
+    }
+
     public int getSurfaceHeight() {
         return mSurfaceHeight;
     }
@@ -253,7 +262,7 @@ public class IEWorker extends HandlerThread {
         createOffScreenFrameBuffer();
         createOffScreenTextures();
 
-        mFboReader = new BaseImageDrawer(1.0f, 1.0f);
+        mFboReader = new BaseImageDrawer(1.0f, 1.0f, true);
     }
 
     private void handleStop() {
@@ -281,30 +290,16 @@ public class IEWorker extends HandlerThread {
                 break;
         }
 
-        if (operator.getType() == AbstractOperator.OP_FILTER) {
-            bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
-            operator.exec();
-            bindDefaultFrameBuffer();
-        } else {
-            bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
-            operator.exec();
-            bindDefaultFrameBuffer();
-        }
+        bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
+        operator.exec();
+        bindDefaultFrameBuffer();
+
         mFboReader.draw(mFboTextureIds[mCurrentTextureIndex],
                 0,
                 0,
                 mSurfaceWidth,
-                mSurfaceHeight,
-                45,
-                mSurfaceWidth * 1.0f / mSurfaceHeight,
-                1.0f,
-                10.0f,
-                0,
-                0,
-                1.01f,
-                0,
-                0,
-                0);
+                mSurfaceHeight);
+
         if (swap) {
             mWindowSurface.swapBuffers();
         }
