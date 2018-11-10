@@ -1,6 +1,7 @@
 package com.createchance.imageeditordemo.panels;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,12 +12,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.createchance.imageeditor.IEManager;
-import com.createchance.imageeditor.ops.FilterOperator;
+import com.createchance.imageeditor.ops.LookupFilterOperator;
 import com.createchance.imageeditordemo.FilterListAdapter;
 import com.createchance.imageeditordemo.R;
 import com.createchance.imageeditordemo.model.Filter;
 import com.createchance.imageeditordemo.utils.AssetsUtil;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -37,7 +39,6 @@ public class EditFilterPanel extends AbstractPanel implements
     private List<Filter> mFilterList;
 
     private Filter mCurFilter;
-    private FilterOperator mCurFilterOp;
     private boolean mOpAdded;
 
     private SeekBar mFilterAdjustBar;
@@ -46,6 +47,8 @@ public class EditFilterPanel extends AbstractPanel implements
     private TextView mAdjustValue;
 
     private FilterListAdapter mFilterListAdapter;
+
+    private LookupFilterOperator mCurOp;
 
     public EditFilterPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_EFFECT);
@@ -87,9 +90,9 @@ public class EditFilterPanel extends AbstractPanel implements
     public void close(boolean discard) {
         super.close(discard);
 
-        if (discard && mCurFilterOp != null) {
+        if (discard && mCurOp != null) {
             mOpAdded = false;
-            IEManager.getInstance().removeOperator(mCurFilterOp);
+            IEManager.getInstance().removeOperator(mCurOp);
             mFilterListAdapter.resetSelect();
         }
     }
@@ -100,9 +103,7 @@ public class EditFilterPanel extends AbstractPanel implements
             return;
         }
 
-        // init gpu image filter.
-        filter.get(mContext);
-        if (filter.canAdjust()) {
+        if (mFilterList.indexOf(filter) != 0) {
             mFilterAdjustBar.setEnabled(true);
         } else {
             mFilterAdjustBar.setEnabled(false);
@@ -110,18 +111,39 @@ public class EditFilterPanel extends AbstractPanel implements
 
         mCurFilter = filter;
         mFilterName.setText(mCurFilter.mName);
-        if (mCurFilterOp == null) {
-            mCurFilterOp = new FilterOperator.Builder()
-                    .filter(mCurFilter.get(mContext))
-                    .build();
-        }
-
-        if (mOpAdded) {
-            mCurFilterOp.setFilter(mCurFilter.get(mContext));
-            IEManager.getInstance().updateOperator(mCurFilterOp);
+        mAdjustValue.setText(String.valueOf(mCurFilter.mAdjust[0]));
+        mFilterAdjustBar.setProgress((int) (mCurFilter.mAdjust[0] * mFilterAdjustBar.getMax()));
+        if (mFilterList.indexOf(mCurFilter) == 0) {
+            mFilterAdjustBar.setEnabled(false);
+            IEManager.getInstance().removeOperator(mCurOp);
+            mOpAdded = false;
         } else {
-            mOpAdded = true;
-            IEManager.getInstance().addOperator(mCurFilterOp);
+            if (mCurOp == null) {
+                try {
+                    mCurOp = new LookupFilterOperator.Builder()
+                            .intensity(mCurFilter.mAdjust[0])
+                            .lookup(BitmapFactory.decodeStream(mContext.getAssets().open(mCurFilter.mAssetPath)))
+                            .build();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            } else {
+                try {
+                    mCurOp.setLookup(BitmapFactory.decodeStream(mContext.getAssets().open(mCurFilter.mAssetPath)));
+                    mCurOp.setIntensity(mCurFilter.mAdjust[0]);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+
+            if (mOpAdded) {
+                IEManager.getInstance().updateOperator(mCurOp);
+            } else {
+                mOpAdded = true;
+                IEManager.getInstance().addOperator(mCurOp);
+            }
         }
     }
 
@@ -132,10 +154,9 @@ public class EditFilterPanel extends AbstractPanel implements
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser && mCurFilter != null) {
-            mCurFilter.adjust(progress);
-            mCurFilterOp.setFilter(mCurFilter.get(mContext));
-            IEManager.getInstance().updateOperator(mCurFilterOp);
-            mAdjustValue.setText(String.valueOf(progress));
+            mCurOp.setIntensity(progress * 1.0f / seekBar.getMax());
+            IEManager.getInstance().updateOperator(mCurOp);
+            mAdjustValue.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
         }
     }
 

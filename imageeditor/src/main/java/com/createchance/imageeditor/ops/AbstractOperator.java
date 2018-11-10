@@ -15,6 +15,7 @@ public abstract class AbstractOperator {
     public static final int OP_TEXT = 2;
     public static final int OP_STICKER = 3;
     public static final int OP_TRANSFORM = 4;
+    public static final int OP_LOOKUP_FILTER = 5;
 
     protected final String mName;
 

@@ -13,7 +13,6 @@ import com.createchance.imageeditor.gles.EglCore;
 import com.createchance.imageeditor.gles.WindowSurface;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BaseImageOperator;
-import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditor.utils.UiThreadUtil;
 
@@ -57,8 +56,7 @@ public class IEWorker extends HandlerThread {
     private int mImgOriginWidth, mImgOriginHeight;
     private int mBaseImgPosX, mBaseImgPosY;
     private int[] mFboBuffer = new int[1];
-    private int[] mFboTextureIds = new int[2];
-    private int mCurrentTextureIndex = 0;
+    private int[] mFboTextureIds = new int[1];
     private BaseImageDrawer mFboReader;
 
     // operator list
@@ -242,7 +240,7 @@ public class IEWorker extends HandlerThread {
     }
 
     public int getInputTexture() {
-        return mFboTextureIds[mCurrentTextureIndex];
+        return mFboTextureIds[0];
     }
 
     public void post(Runnable task) {
@@ -278,11 +276,6 @@ public class IEWorker extends HandlerThread {
                 adjustBaseImage((BaseImageOperator) operator);
                 break;
             case AbstractOperator.OP_FILTER:
-                FilterOperator filterOperator = (FilterOperator) operator;
-                mCurrentTextureIndex = (mCurrentTextureIndex + 1) % mFboTextureIds.length;
-                filterOperator.setInputTexture(mFboTextureIds[(mCurrentTextureIndex + 1) % mFboTextureIds.length]);
-                filterOperator.setOutputTexture(mFboTextureIds[mCurrentTextureIndex]);
-                filterOperator.setFrameBuffer(mFboBuffer[0]);
                 break;
             case AbstractOperator.OP_TEXT:
                 break;
@@ -290,11 +283,11 @@ public class IEWorker extends HandlerThread {
                 break;
         }
 
-        bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
+        bindOffScreenFrameBuffer(mFboTextureIds[0]);
         operator.exec();
         bindDefaultFrameBuffer();
 
-        mFboReader.draw(mFboTextureIds[mCurrentTextureIndex],
+        mFboReader.draw(mFboTextureIds[0],
                 0,
                 0,
                 mSurfaceWidth,
@@ -336,7 +329,7 @@ public class IEWorker extends HandlerThread {
     }
 
     private void handleSave(File target, SaveListener listener) {
-        bindOffScreenFrameBuffer(mFboTextureIds[mCurrentTextureIndex]);
+        bindOffScreenFrameBuffer(mFboTextureIds[0]);
         captureImage(target, listener);
         bindDefaultFrameBuffer();
     }
