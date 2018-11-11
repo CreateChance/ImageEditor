@@ -8,6 +8,12 @@ Any contribution is welcome!
 Part filter shader is from gpuimage: https://github.com/BradLarson/GPUImage
 
 They did a great job!
+
+ImageEditor library use FreeType 2.9.1 to render text to opengl texture, freetype site: https://www.freetype.org
+
+Demo's icon is from: https://icons8.com , it is a good place to find beautiful icons for android and iOS.
+
+Demo's font(chinese and english) is from: https://www.freechinesefont.com/, and they are free!
 # How to use?
 It's easy to use, you just send operators to IEManager instance, and all is done!
 
