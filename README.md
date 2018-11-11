@@ -22,3 +22,5 @@ For more details, see demo application :)
 Documents is coming soon.
 # How to build?
 To build this library, you need android sdk, ndk and gradle.
+# Quick start
+You can download [prebuilt apk](https://github.com/CreateChance/ImageEditor/blob/master/bin/ImageEditorDemo.apk) to quick start.
