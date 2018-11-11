@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
+import com.createchance.imageeditor.ops.ContrastAdjustOperator;
 import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
@@ -39,11 +40,11 @@ public class EditAdjustPanel extends AbstractPanel implements
     private int mCurType = -1;
 
     private GPUImageAdjuster
-            mContrastAdj,
             mSaturationAdj,
             mSharpenAdj, mDarkCornerAdj;
 
     private BrightnessAdjustOperator mBrightnessOp;
+    private ContrastAdjustOperator mContrastOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -82,8 +83,8 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mBrightnessOp != null) {
                 operatorList.add(mBrightnessOp);
             }
-            if (mContrastAdj != null) {
-                operatorList.add(mContrastAdj.operator);
+            if (mContrastOp != null) {
+                operatorList.add(mContrastOp);
             }
             if (mSaturationAdj != null) {
                 operatorList.add(mSaturationAdj.operator);
@@ -96,7 +97,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
-            mContrastAdj = null;
+            mContrastOp = null;
             mSaturationAdj = null;
             mSharpenAdj = null;
             mDarkCornerAdj = null;
@@ -126,20 +127,14 @@ public class EditAdjustPanel extends AbstractPanel implements
                 IEManager.getInstance().updateOperator(mBrightnessOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
-                if (mContrastAdj == null) {
-                    mContrastAdj = new GPUImageAdjuster();
-                    mContrastAdj.filter = new Filter();
-                    mContrastAdj.filter.mType = Filter.TYPE_GPU_IMAGE_CONTRAST;
-                    mContrastAdj.filter.mAdjust = new float[]{2.0f};
-                    mContrastAdj.operator = new FilterOperator.Builder()
-                            .filter(mContrastAdj.filter.get(mContext))
-                            .build();
-                    IEManager.getInstance().addOperator(mContrastAdj.operator);
+                if (mContrastOp == null) {
+                    mContrastOp = new ContrastAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mContrastOp);
                 }
 
-                mAdjustValue.setText(String.valueOf(progress));
-                mContrastAdj.filter.adjust(progress);
-                IEManager.getInstance().updateOperator(mContrastAdj.operator);
+                mAdjustValue.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
+                mContrastOp.setContrast(progress * 2.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mContrastOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
                 if (mSaturationAdj == null) {
@@ -217,14 +212,23 @@ public class EditAdjustPanel extends AbstractPanel implements
             case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
                 mAdjustBar.setEnabled(true);
                 if (mBrightnessOp == null) {
+                    mAdjustValue.setText(String.valueOf(0.0f));
                     mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
                 } else {
+                    mAdjustValue.setText(String.valueOf(mBrightnessOp.getBrightness()));
                     mAdjustBar.setProgress(
                             (int) (mBrightnessOp.getBrightness() * mAdjustBar.getMax() / 2 + mAdjustBar.getMax() / 2));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
                 mAdjustBar.setEnabled(true);
+                if (mContrastOp == null) {
+                    mAdjustValue.setText(String.valueOf(1.0f));
+                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                } else {
+                    mAdjustValue.setText(String.valueOf(mContrastOp.getContrast()));
+                    mAdjustBar.setProgress((int) (mContrastOp.getContrast() * 0.5f * mAdjustBar.getMax()));
+                }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
                 mAdjustBar.setEnabled(true);

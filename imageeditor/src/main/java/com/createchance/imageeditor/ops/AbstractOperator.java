@@ -17,6 +17,7 @@ public abstract class AbstractOperator {
     public static final int OP_TRANSFORM = 4;
     public static final int OP_LOOKUP_FILTER = 5;
     public static final int OP_BRIGHTNESS_ADJUST = 6;
+    public static final int OP_CONTRAST_ADJUST = 7;
 
     protected final String mName;
 
