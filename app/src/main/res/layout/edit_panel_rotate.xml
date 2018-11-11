@@ -54,6 +54,30 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rb_perspective"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:gravity="center"
+                    android:text="@string/edit_transform_perspective" />
+
+                <RadioButton
+                    android:id="@+id/rb_orthographic"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/edit_transform_orthographic" />
+
+            </RadioGroup>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -129,8 +153,8 @@
                 android:layout_height="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:max="200"
-                android:progress="100" />
+                android:max="2000"
+                android:progress="1000" />
 
             <TextView
                 android:id="@+id/tv_translate_y"
@@ -146,8 +170,8 @@
                 android:layout_height="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:max="200"
-                android:progress="100" />
+                android:max="2000"
+                android:progress="1000" />
 
             <TextView
                 android:id="@+id/tv_translate_z"

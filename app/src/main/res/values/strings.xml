@@ -39,6 +39,8 @@
     <string name="edit_cut">裁剪</string>
 
     <string name="edit_transform">空间变换</string>
+    <string name="edit_transform_perspective">透视变换</string>
+    <string name="edit_transform_orthographic">正射变换</string>
     <string name="edit_transform_rotate_left">左转动</string>
     <string name="edit_transform_rotate_right">右转动</string>
     <string name="edit_transform_flip_x">水平镜像</string>

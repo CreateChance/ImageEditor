@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -13,14 +15,17 @@ import com.createchance.imageeditor.ops.ModelViewOperator;
 import com.createchance.imageeditordemo.R;
 
 /**
- * Rotate edit panel.
+ * Space transform edit panel.
  *
  * @author gaochao1-iri
  * @date 2018/11/5
  */
-public class EditRotatePanel extends AbstractPanel implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+public class EditTransformPanel extends AbstractPanel implements
+        View.OnClickListener,
+        SeekBar.OnSeekBarChangeListener,
+        RadioButton.OnCheckedChangeListener {
 
-    private static final String TAG = "EditRotatePanel";
+    private static final String TAG = "EditTransformPanel";
 
     private View mRotatePanel;
 
@@ -28,7 +33,7 @@ public class EditRotatePanel extends AbstractPanel implements View.OnClickListen
 
     private ModelViewOperator mCurOp;
 
-    public EditRotatePanel(Context context, PanelListener listener) {
+    public EditTransformPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_ROTATE);
 
         mRotatePanel = LayoutInflater.from(mContext).inflate(R.layout.edit_panel_rotate, mParent, false);
@@ -51,6 +56,8 @@ public class EditRotatePanel extends AbstractPanel implements View.OnClickListen
         mTvRotateZ.setText(String.format(mContext.getString(R.string.edit_rotate_z), 0));
         mTranslateX.setText(String.format(mContext.getString(R.string.edit_translate_x), 0f));
         mTranslateY.setText(String.format(mContext.getString(R.string.edit_translate_y), 0f));
+        ((RadioButton) mRotatePanel.findViewById(R.id.rb_perspective)).setOnCheckedChangeListener(this);
+        ((RadioButton) mRotatePanel.findViewById(R.id.rb_orthographic)).setOnCheckedChangeListener(this);
     }
 
     @Override
@@ -144,5 +151,28 @@ public class EditRotatePanel extends AbstractPanel implements View.OnClickListen
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
 
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (!isChecked) {
+            return;
+        }
+        if (mCurOp == null) {
+            mCurOp = new ModelViewOperator.Builder()
+                    .build();
+            IEManager.getInstance().addOperator(mCurOp);
+        }
+        switch (buttonView.getId()) {
+            case R.id.rb_perspective:
+                mCurOp.setPerspective(true);
+                break;
+            case R.id.rb_orthographic:
+                mCurOp.setPerspective(false);
+                break;
+            default:
+                break;
+        }
+        IEManager.getInstance().updateOperator(mCurOp);
     }
 }

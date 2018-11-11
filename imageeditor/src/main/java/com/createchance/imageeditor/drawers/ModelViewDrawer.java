@@ -75,6 +75,7 @@ public class ModelViewDrawer extends AbstractDrawer {
                                          float aspectRatio,
                                          float near,
                                          float far) {
+        Matrix.setIdentityM(mProjectionMatrix, 0);
         Matrix.perspectiveM(mProjectionMatrix, 0, fov, aspectRatio, near, far);
     }
 
@@ -84,6 +85,7 @@ public class ModelViewDrawer extends AbstractDrawer {
                                           float top,
                                           float near,
                                           float far) {
+        Matrix.setIdentityM(mProjectionMatrix, 0);
         Matrix.orthoM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }
 

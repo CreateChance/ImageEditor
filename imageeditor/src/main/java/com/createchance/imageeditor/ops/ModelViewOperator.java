@@ -15,13 +15,15 @@ public class ModelViewOperator extends AbstractOperator {
     private ModelViewDrawer mDrawer;
 
     private float mLeft = -1f, mRight = 1f, mBottom = -1f, mTop = 1f;
-    private float mFov = 45,
-            mNear = 1f,
+    private float mFov = 45;
+    private final float JUST_FIT_TRANS_Z = (float) (1 / Math.tan(Math.toRadians(mFov / 2)));
+    private float mNear = 1f,
             mFar = 100f,
             mTranslateX,
             mTranslateY,
-            mTranslateZ = (float) (1 / Math.tan(Math.toRadians(mFov / 2)));
+            mTranslateZ = JUST_FIT_TRANS_Z;
     private float mRotateX = 180, mRotateY = 0, mRotateZ = 0;
+    private boolean mIsPerspective = true;
 
     private ModelViewOperator() {
         super(ModelViewOperator.class.getSimpleName(), OP_TRANSFORM);
@@ -41,6 +43,9 @@ public class ModelViewOperator extends AbstractOperator {
     }
 
     public void setTranslateZ(float translateZ) {
+        if (mTranslateZ == translateZ) {
+            return;
+        }
         this.mTranslateZ = translateZ;
     }
 
@@ -52,8 +57,8 @@ public class ModelViewOperator extends AbstractOperator {
         this.mRotateY = mRotateY;
     }
 
-    public void setRotateZ(float mRotateZ) {
-        this.mRotateZ = mRotateZ;
+    public void setRotateZ(float rotateZ) {
+        this.mRotateZ = rotateZ;
     }
 
     public float getLeft() {
@@ -84,18 +89,34 @@ public class ModelViewOperator extends AbstractOperator {
         return mFar;
     }
 
+    public boolean isPerspective() {
+        return mIsPerspective;
+    }
+
+    public void setPerspective(boolean isPerspective) {
+        if (mIsPerspective == isPerspective) {
+            return;
+        }
+        this.mIsPerspective = isPerspective;
+    }
+
     @Override
     public void exec() {
         mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
         if (mDrawer == null) {
             mDrawer = new ModelViewDrawer();
         }
+
+        if (mIsPerspective) {
+            mDrawer.setPerspectiveProjection(mFov,
+                    1f,
+                    mNear,
+                    mFar);
+        } else {
+            mDrawer.setOrthographicProjection(mLeft, mRight, mBottom, mTop, mNear, mFar);
+        }
         mDrawer.setModel(mTranslateX, mTranslateY, mTranslateZ, mRotateX, mRotateY, mRotateZ);
-        mDrawer.setPerspectiveProjection(mFov,
-                mWorker.getSurfaceWidth() * 1.0f / mWorker.getSurfaceHeight(),
-                mNear,
-                mFar);
-//        mDrawer.setOrthographicProjection(mLeft, mRight, mBottom, mTop, mNear, mFar);
+        // do transform.
         mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
                 0,
                 0,
