@@ -14,12 +14,11 @@ import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
 import com.createchance.imageeditor.ops.ContrastAdjustOperator;
-import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditor.ops.SaturationAdjustOperator;
 import com.createchance.imageeditor.ops.SharpenAdjustOperator;
+import com.createchance.imageeditor.ops.VignetteOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
-import com.createchance.imageeditordemo.model.Filter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +40,11 @@ public class EditAdjustPanel extends AbstractPanel implements
 
     private int mCurType = -1;
 
-    private GPUImageAdjuster mDarkCornerAdj;
-
     private BrightnessAdjustOperator mBrightnessOp;
     private ContrastAdjustOperator mContrastOp;
     private SaturationAdjustOperator mSaturationOp;
     private SharpenAdjustOperator mSharpenOp;
+    private VignetteOperator mVignetteOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -94,15 +92,15 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mSharpenOp != null) {
                 operatorList.add(mSharpenOp);
             }
-            if (mDarkCornerAdj != null) {
-                operatorList.add(mDarkCornerAdj.operator);
+            if (mVignetteOp != null) {
+                operatorList.add(mVignetteOp);
             }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
             mContrastOp = null;
             mSaturationOp = null;
             mSharpenOp = null;
-            mDarkCornerAdj = null;
+            mVignetteOp = null;
         }
     }
 
@@ -157,26 +155,13 @@ public class EditAdjustPanel extends AbstractPanel implements
                 IEManager.getInstance().updateOperator(mSharpenOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
-                if (mDarkCornerAdj == null) {
-                    mDarkCornerAdj = new GPUImageAdjuster();
-                    mDarkCornerAdj.filter = new Filter();
-                    mDarkCornerAdj.filter.mType = Filter.TYPE_GPU_IMAGE_VIGNETTE;
-                    mDarkCornerAdj.filter.mAdjust = new float[]{
-                            0.5f,
-                            0.5f,
-                            0.0f,
-                            0.0f,
-                            0.0f,
-                            0.3f,
-                            0.75f};
-                    mDarkCornerAdj.operator = new FilterOperator.Builder()
-                            .filter(mDarkCornerAdj.filter.get(mContext))
-                            .build();
-                    IEManager.getInstance().addOperator(mDarkCornerAdj.operator);
+                if (mVignetteOp == null) {
+                    mVignetteOp = new VignetteOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mVignetteOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress));
-                mDarkCornerAdj.filter.adjust(progress);
-                IEManager.getInstance().updateOperator(mDarkCornerAdj.operator);
+                mAdjustValue.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                mVignetteOp.setStart(progress * 1.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mVignetteOp);
                 break;
             default:
                 break;
@@ -197,7 +182,6 @@ public class EditAdjustPanel extends AbstractPanel implements
     public void onAdjustSelected(AdjustListAdapter.AdjustItem adjustItem) {
         mCurType = adjustItem.mType;
         mAdjustName.setText(adjustItem.mNameStrId);
-        mAdjustValue.setText("0");
         switch (mCurType) {
             case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
                 mAdjustBar.setEnabled(true);
@@ -242,8 +226,16 @@ public class EditAdjustPanel extends AbstractPanel implements
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
                 mAdjustBar.setEnabled(true);
+                if (mVignetteOp == null) {
+                    mAdjustValue.setText(String.valueOf(0.3f));
+                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                } else {
+                    mAdjustValue.setText(String.valueOf(mVignetteOp.getStart()));
+                    mAdjustBar.setProgress((int) (mVignetteOp.getStart() * mAdjustBar.getMax()));
+                }
                 break;
             default:
+                mAdjustValue.setText("0");
                 mAdjustBar.setEnabled(false);
                 break;
         }
@@ -261,10 +253,5 @@ public class EditAdjustPanel extends AbstractPanel implements
             default:
                 break;
         }
-    }
-
-    private class GPUImageAdjuster {
-        public FilterOperator operator;
-        public Filter filter;
     }
 }
