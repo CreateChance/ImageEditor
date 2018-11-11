@@ -15,6 +15,7 @@ import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
 import com.createchance.imageeditor.ops.ContrastAdjustOperator;
 import com.createchance.imageeditor.ops.FilterOperator;
+import com.createchance.imageeditor.ops.SaturationAdjustOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
 import com.createchance.imageeditordemo.model.Filter;
@@ -40,11 +41,11 @@ public class EditAdjustPanel extends AbstractPanel implements
     private int mCurType = -1;
 
     private GPUImageAdjuster
-            mSaturationAdj,
             mSharpenAdj, mDarkCornerAdj;
 
     private BrightnessAdjustOperator mBrightnessOp;
     private ContrastAdjustOperator mContrastOp;
+    private SaturationAdjustOperator mSaturationOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -86,8 +87,8 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mContrastOp != null) {
                 operatorList.add(mContrastOp);
             }
-            if (mSaturationAdj != null) {
-                operatorList.add(mSaturationAdj.operator);
+            if (mSaturationOp != null) {
+                operatorList.add(mSaturationOp);
             }
             if (mSharpenAdj != null) {
                 operatorList.add(mSharpenAdj.operator);
@@ -98,7 +99,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
             mContrastOp = null;
-            mSaturationAdj = null;
+            mSaturationOp = null;
             mSharpenAdj = null;
             mDarkCornerAdj = null;
         }
@@ -137,19 +138,13 @@ public class EditAdjustPanel extends AbstractPanel implements
                 IEManager.getInstance().updateOperator(mContrastOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
-                if (mSaturationAdj == null) {
-                    mSaturationAdj = new GPUImageAdjuster();
-                    mSaturationAdj.filter = new Filter();
-                    mSaturationAdj.filter.mType = Filter.TYPE_GPU_IMAGE_SATURATION;
-                    mSaturationAdj.filter.mAdjust = new float[]{1.0f};
-                    mSaturationAdj.operator = new FilterOperator.Builder()
-                            .filter(mSaturationAdj.filter.get(mContext))
-                            .build();
-                    IEManager.getInstance().addOperator(mSaturationAdj.operator);
+                if (mSaturationOp == null) {
+                    mSaturationOp = new SaturationAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mSaturationOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress));
-                mSaturationAdj.filter.adjust(progress);
-                IEManager.getInstance().updateOperator(mSaturationAdj.operator);
+                mAdjustValue.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
+                mSaturationOp.setSaturation(progress * 2.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mSaturationOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
                 if (mSharpenAdj == null) {
@@ -232,6 +227,13 @@ public class EditAdjustPanel extends AbstractPanel implements
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
                 mAdjustBar.setEnabled(true);
+                if (mSaturationOp == null) {
+                    mAdjustValue.setText(String.valueOf(1.0f));
+                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                } else {
+                    mAdjustValue.setText(String.valueOf(mSaturationOp.getSaturation()));
+                    mAdjustBar.setProgress((int) (mSaturationOp.getSaturation() * 0.5f * mAdjustBar.getMax()));
+                }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
                 mAdjustBar.setEnabled(true);
