@@ -1,5 +1,6 @@
 # ImageEditor
 Image edit library on android platform, based on opengl es 2.0.
+[Demo prebuilt apk](https://github.com/CreateChance/ImageEditor/blob/master/bin/ImageEditorDemo.apk)
 # Note
 This library is still developing, so do not use it on you product! 
 
@@ -22,5 +23,3 @@ For more details, see demo application :)
 Documents is coming soon.
 # How to build?
 To build this library, you need android sdk, ndk and gradle.
-# Quick start
-You can download [prebuilt apk](https://github.com/CreateChance/ImageEditor/blob/master/bin/ImageEditorDemo.apk) to quick start.
