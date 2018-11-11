@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 
 import com.createchance.imageeditor.filters.util.TextureRotationUtil;
+import com.createchance.imageeditor.utils.OpenGlUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

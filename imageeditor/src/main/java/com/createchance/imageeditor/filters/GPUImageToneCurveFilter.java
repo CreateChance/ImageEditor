@@ -20,6 +20,8 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+import com.createchance.imageeditor.utils.OpenGlUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;

@@ -11,7 +11,7 @@ import java.nio.FloatBuffer;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/10/29
  */
 public class BaseImageDrawer extends AbstractDrawer {

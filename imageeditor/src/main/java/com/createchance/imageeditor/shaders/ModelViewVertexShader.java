@@ -7,7 +7,7 @@ import java.nio.FloatBuffer;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/10
  */
 public class ModelViewVertexShader extends AbstractShader {

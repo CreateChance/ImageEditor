@@ -9,7 +9,7 @@ import com.createchance.imageeditordemo.R;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/10/31
  */
 public abstract class AbstractPanel {

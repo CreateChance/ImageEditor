@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/10
  */
 public class LookupFragmentShader extends AbstractShader {

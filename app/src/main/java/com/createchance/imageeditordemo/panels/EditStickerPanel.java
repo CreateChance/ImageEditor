@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Sticker edit panel
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/4
  */
 public class EditStickerPanel extends AbstractPanel implements

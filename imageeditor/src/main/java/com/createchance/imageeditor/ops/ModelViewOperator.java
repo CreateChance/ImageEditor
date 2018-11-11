@@ -5,7 +5,7 @@ import com.createchance.imageeditor.drawers.ModelViewDrawer;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/9
  */
 public class ModelViewOperator extends AbstractOperator {

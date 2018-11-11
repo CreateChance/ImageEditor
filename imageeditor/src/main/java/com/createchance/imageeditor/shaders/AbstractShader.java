@@ -13,7 +13,7 @@ import java.nio.charset.Charset;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/9
  */
 public abstract class AbstractShader {

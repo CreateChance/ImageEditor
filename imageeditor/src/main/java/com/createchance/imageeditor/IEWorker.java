@@ -29,7 +29,7 @@ import java.util.concurrent.Semaphore;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/10/29
  */
 public class IEWorker extends HandlerThread {

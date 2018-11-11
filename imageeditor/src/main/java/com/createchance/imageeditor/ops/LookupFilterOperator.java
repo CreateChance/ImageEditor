@@ -8,7 +8,7 @@ import com.createchance.imageeditor.drawers.LookupFilterDrawer;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/10
  */
 public class LookupFilterOperator extends AbstractOperator {

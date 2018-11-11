@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Sticker list adapter.
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/4
  */
 public class StickerListAdapter extends RecyclerView.Adapter<StickerListAdapter.ViewHolder> {

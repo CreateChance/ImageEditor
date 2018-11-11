@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.createchance.imageeditor.filters;
+package com.createchance.imageeditor.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -24,8 +24,6 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
-
-import com.createchance.imageeditor.utils.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -40,6 +38,11 @@ import static android.opengl.GLES20.glGetProgramiv;
 import static android.opengl.GLES20.glTexParameterf;
 import static android.opengl.GLES20.glValidateProgram;
 
+/**
+ * Opengl utils.
+ * <p>
+ * Copied from GPUImage android.
+ */
 public class OpenGlUtils {
     public static final int NO_TEXTURE = -1;
 

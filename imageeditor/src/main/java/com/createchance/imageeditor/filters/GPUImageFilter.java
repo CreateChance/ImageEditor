@@ -21,6 +21,8 @@ import android.content.res.AssetManager;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+import com.createchance.imageeditor.utils.OpenGlUtils;
+
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.LinkedList;

@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/3
  */
 public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHolder> {

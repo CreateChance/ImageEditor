@@ -5,7 +5,7 @@ import com.createchance.imageeditor.IEWorker;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/10/28
  */
 public abstract class AbstractOperator {
@@ -16,6 +16,7 @@ public abstract class AbstractOperator {
     public static final int OP_STICKER = 3;
     public static final int OP_TRANSFORM = 4;
     public static final int OP_LOOKUP_FILTER = 5;
+    public static final int OP_BRIGHTNESS_ADJUST = 6;
 
     protected final String mName;
 

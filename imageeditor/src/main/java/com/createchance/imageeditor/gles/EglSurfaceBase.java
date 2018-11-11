@@ -22,7 +22,7 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.createchance.imageeditor.filters.OpenGlUtils;
+import com.createchance.imageeditor.utils.OpenGlUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.AbstractOperator;
+import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
 import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
@@ -23,7 +24,7 @@ import java.util.List;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/2
  */
 public class EditAdjustPanel extends AbstractPanel implements
@@ -37,10 +38,12 @@ public class EditAdjustPanel extends AbstractPanel implements
 
     private int mCurType = -1;
 
-    private GPUImageAdjuster mBrightAdj,
+    private GPUImageAdjuster
             mContrastAdj,
             mSaturationAdj,
             mSharpenAdj, mDarkCornerAdj;
+
+    private BrightnessAdjustOperator mBrightnessOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -76,8 +79,8 @@ public class EditAdjustPanel extends AbstractPanel implements
 
         if (discard) {
             List<AbstractOperator> operatorList = new ArrayList<>();
-            if (mBrightAdj != null) {
-                operatorList.add(mBrightAdj.operator);
+            if (mBrightnessOp != null) {
+                operatorList.add(mBrightnessOp);
             }
             if (mContrastAdj != null) {
                 operatorList.add(mContrastAdj.operator);
@@ -92,7 +95,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                 operatorList.add(mDarkCornerAdj.operator);
             }
             IEManager.getInstance().removeOperator(operatorList);
-            mBrightAdj = null;
+            mBrightnessOp = null;
             mContrastAdj = null;
             mSaturationAdj = null;
             mSharpenAdj = null;
@@ -113,20 +116,14 @@ public class EditAdjustPanel extends AbstractPanel implements
 
         switch (mCurType) {
             case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
-                if (mBrightAdj == null) {
-                    mBrightAdj = new GPUImageAdjuster();
-                    mBrightAdj.filter = new Filter();
-                    mBrightAdj.filter.mType = Filter.TYPE_GPU_IMAGE_BRIGHTNESS;
-                    mBrightAdj.filter.mAdjust = new float[]{0.5f};
-                    mBrightAdj.operator = new FilterOperator.Builder()
-                            .filter(mBrightAdj.filter.get(mContext))
-                            .build();
-                    IEManager.getInstance().addOperator(mBrightAdj.operator);
+                if (mBrightnessOp == null) {
+                    mBrightnessOp = new BrightnessAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mBrightnessOp);
                 }
 
-                mAdjustValue.setText(String.valueOf(progress));
-                mBrightAdj.filter.adjust(progress);
-                IEManager.getInstance().updateOperator(mBrightAdj.operator);
+                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax()));
+                mBrightnessOp.setBrightness(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mBrightnessOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
                 if (mContrastAdj == null) {
@@ -219,6 +216,12 @@ public class EditAdjustPanel extends AbstractPanel implements
         switch (mCurType) {
             case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
                 mAdjustBar.setEnabled(true);
+                if (mBrightnessOp == null) {
+                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                } else {
+                    mAdjustBar.setProgress(
+                            (int) (mBrightnessOp.getBrightness() * mAdjustBar.getMax() / 2 + mAdjustBar.getMax() / 2));
+                }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
                 mAdjustBar.setEnabled(true);

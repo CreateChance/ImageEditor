@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/2
  */
 public class FilterListAdapter extends RecyclerView.Adapter<FilterListAdapter.ViewHolder> {

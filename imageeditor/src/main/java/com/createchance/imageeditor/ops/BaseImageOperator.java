@@ -3,7 +3,7 @@ package com.createchance.imageeditor.ops;
 import android.graphics.Bitmap;
 
 import com.createchance.imageeditor.drawers.BaseImageDrawer;
-import com.createchance.imageeditor.filters.OpenGlUtils;
+import com.createchance.imageeditor.utils.OpenGlUtils;
 
 /**
  * Base image operator.

@@ -14,7 +14,7 @@ import java.nio.FloatBuffer;
 /**
  * Filter operator.
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/10/28
  */
 public class FilterOperator extends AbstractOperator {

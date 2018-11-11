@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Constant class
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/3
  */
 public class Constants {

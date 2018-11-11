@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/2
  */
 public class AdjustListAdapter extends RecyclerView.Adapter<AdjustListAdapter.ViewHolder> {

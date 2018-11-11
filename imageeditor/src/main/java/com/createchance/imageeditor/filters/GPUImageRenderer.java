@@ -27,6 +27,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 
 import com.createchance.imageeditor.filters.util.TextureRotationUtil;
+import com.createchance.imageeditor.utils.OpenGlUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

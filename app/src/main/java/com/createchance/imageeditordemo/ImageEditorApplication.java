@@ -7,7 +7,7 @@ import com.createchance.imageeditor.IEManager;
 /**
  * Custom application class, init image editor library here.
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/10
  */
 public class ImageEditorApplication extends Application {

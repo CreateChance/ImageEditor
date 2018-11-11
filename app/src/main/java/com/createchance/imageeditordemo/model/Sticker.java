@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Sticker model class.
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/4
  */
 public class Sticker {

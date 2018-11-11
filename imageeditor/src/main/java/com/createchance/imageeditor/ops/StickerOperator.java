@@ -3,12 +3,12 @@ package com.createchance.imageeditor.ops;
 import android.graphics.Bitmap;
 
 import com.createchance.imageeditor.drawers.StickerDrawer;
-import com.createchance.imageeditor.filters.OpenGlUtils;
+import com.createchance.imageeditor.utils.OpenGlUtils;
 
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/4
  */
 public class StickerOperator extends AbstractOperator {

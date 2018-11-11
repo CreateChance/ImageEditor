@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/10/31
  */
 public class TextFontAdapter extends RecyclerView.Adapter<TextFontAdapter.ViewHolder> {

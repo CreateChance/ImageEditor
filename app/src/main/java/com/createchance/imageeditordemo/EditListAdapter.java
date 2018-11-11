@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/10/30
  */
 public class EditListAdapter extends RecyclerView.Adapter<EditListAdapter.ViewHolder> {

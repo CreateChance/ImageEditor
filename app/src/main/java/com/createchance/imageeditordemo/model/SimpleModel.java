@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 /**
  * ${DESC}
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/3
  */
 public class SimpleModel {

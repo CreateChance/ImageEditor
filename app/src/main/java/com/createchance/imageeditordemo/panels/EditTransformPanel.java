@@ -17,7 +17,7 @@ import com.createchance.imageeditordemo.R;
 /**
  * Space transform edit panel.
  *
- * @author gaochao1-iri
+ * @author createchance
  * @date 2018/11/5
  */
 public class EditTransformPanel extends AbstractPanel implements
