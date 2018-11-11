@@ -20,3 +20,5 @@ It's easy to use, you just send operators to IEManager instance, and all is done
 For more details, see demo application :) 
 
 Documents is coming soon.
+# How to build?
+To build this library, you need android sdk, ndk and gradle.
