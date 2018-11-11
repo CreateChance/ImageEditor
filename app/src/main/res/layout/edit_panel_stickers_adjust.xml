@@ -95,6 +95,7 @@
             android:layout_width="match_parent"
             android:layout_height="25dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
             android:max="359"
             android:progress="0" />
 

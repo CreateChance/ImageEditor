@@ -269,7 +269,7 @@ public class EditTextPanel extends AbstractPanel implements
             @Override
             public void fontSelected(int position) {
                 TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
-                textOperator.setText(new File(mContext.getFilesDir(), mFontList.get(position).fontPath).getAbsolutePath());
+                textOperator.setFontPath(new File(mContext.getFilesDir(), mFontList.get(position).fontPath).getAbsolutePath());
                 IEManager.getInstance().updateOperator(textOperator);
             }
         });

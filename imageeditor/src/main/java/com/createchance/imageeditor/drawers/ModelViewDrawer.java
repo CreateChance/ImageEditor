@@ -65,7 +65,7 @@ public class ModelViewDrawer extends AbstractDrawer {
                          float rotateY,
                          float rotateZ) {
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, translateX, translateY, translateZ);
+        Matrix.translateM(mModelMatrix, 0, translateX, translateY, -translateZ);
         Matrix.rotateM(mModelMatrix, 0, rotateX, 1, 0, 0);
         Matrix.rotateM(mModelMatrix, 0, rotateY, 0, 1, 0);
         Matrix.rotateM(mModelMatrix, 0, rotateZ, 0, 0, 1);
@@ -95,6 +95,8 @@ public class ModelViewDrawer extends AbstractDrawer {
         GLES20.glUseProgram(mProgramId);
 
         GLES20.glViewport(posX, posY, width, height);
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         mVertexShader.setAPosition(mVertexPositionBuffer);
         mVertexShader.setATextureCoordinates(mTextureCoordinateBuffer);

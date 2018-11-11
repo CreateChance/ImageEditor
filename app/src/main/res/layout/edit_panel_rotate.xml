@@ -121,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="18dp"
                 android:layout_marginTop="10dp"
-                tools:text="X轴: 30" />
+                tools:text="X轴: 0.00" />
 
             <SeekBar
                 android:id="@+id/sb_translate_x"
@@ -129,7 +129,8 @@
                 android:layout_height="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:max="360" />
+                android:max="200"
+                android:progress="100" />
 
             <TextView
                 android:id="@+id/tv_translate_y"
@@ -137,7 +138,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="18dp"
                 android:layout_marginTop="10dp"
-                tools:text="Y轴: 30" />
+                tools:text="Y轴: 0.00" />
 
             <SeekBar
                 android:id="@+id/sb_translate_y"
@@ -145,7 +146,8 @@
                 android:layout_height="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:max="360" />
+                android:max="200"
+                android:progress="100" />
 
             <TextView
                 android:id="@+id/tv_translate_z"
@@ -153,15 +155,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="18dp"
                 android:layout_marginTop="10dp"
-                tools:text="Z轴: 30" />
+                tools:text="Z轴: 0.00" />
 
             <SeekBar
                 android:id="@+id/sb_translate_z"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:max="360" />
+                android:layout_marginBottom="20dp"
+                android:max="100" />
 
         </LinearLayout>
 

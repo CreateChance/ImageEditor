@@ -16,12 +16,12 @@ public class ModelViewOperator extends AbstractOperator {
 
     private float mLeft = -1f, mRight = 1f, mBottom = -1f, mTop = 1f;
     private float mFov = 45,
-            mNear = 0.1f,
-            mFar = 100,
+            mNear = 1f,
+            mFar = 100f,
             mTranslateX,
             mTranslateY,
             mTranslateZ = (float) (1 / Math.tan(Math.toRadians(mFov / 2)));
-    private float mRotateX = 0, mRotateY = 0, mRotateZ = 0;
+    private float mRotateX = 180, mRotateY = 0, mRotateZ = 0;
 
     private ModelViewOperator() {
         super(ModelViewOperator.class.getSimpleName(), OP_TRANSFORM);
@@ -32,16 +32,16 @@ public class ModelViewOperator extends AbstractOperator {
         return true;
     }
 
-    public void setTranslateX(float mTranslateX) {
-        this.mTranslateX = mTranslateX;
+    public void setTranslateX(float translateX) {
+        this.mTranslateX = translateX;
     }
 
-    public void setTranslateY(float mTranslateY) {
-        this.mTranslateY = mTranslateY;
+    public void setTranslateY(float translateY) {
+        this.mTranslateY = translateY;
     }
 
-    public void setTranslateZ(float mTranslateZ) {
-        this.mTranslateZ = mTranslateZ;
+    public void setTranslateZ(float translateZ) {
+        this.mTranslateZ = translateZ;
     }
 
     public void setRotateX(float mRotateX) {
@@ -56,21 +56,53 @@ public class ModelViewOperator extends AbstractOperator {
         this.mRotateZ = mRotateZ;
     }
 
+    public float getLeft() {
+        return mLeft;
+    }
+
+    public float getRight() {
+        return mRight;
+    }
+
+    public float getBottom() {
+        return mBottom;
+    }
+
+    public float getTop() {
+        return mTop;
+    }
+
+    public float getFov() {
+        return mFov;
+    }
+
+    public float getNear() {
+        return mNear;
+    }
+
+    public float getFar() {
+        return mFar;
+    }
+
     @Override
     public void exec() {
+        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
         if (mDrawer == null) {
             mDrawer = new ModelViewDrawer();
         }
         mDrawer.setModel(mTranslateX, mTranslateY, mTranslateZ, mRotateX, mRotateY, mRotateZ);
         mDrawer.setPerspectiveProjection(mFov,
-                mWorker.getSurfaceWidth() / mWorker.getSurfaceHeight(),
+                mWorker.getSurfaceWidth() * 1.0f / mWorker.getSurfaceHeight(),
                 mNear,
                 mFar);
-        mDrawer.draw(mWorker.getInputTexture(),
+//        mDrawer.setOrthographicProjection(mLeft, mRight, mBottom, mTop, mNear, mFar);
+        mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
                 0,
                 0,
                 mWorker.getSurfaceWidth(),
                 mWorker.getSurfaceHeight());
+        mWorker.bindDefaultFrameBuffer();
+        mWorker.swapTexture();
     }
 
     public static class Builder {

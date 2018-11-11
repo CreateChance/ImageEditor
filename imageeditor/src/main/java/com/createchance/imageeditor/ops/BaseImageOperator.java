@@ -35,6 +35,7 @@ public class BaseImageOperator extends AbstractOperator {
 
     @Override
     public void exec() {
+        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getInputTextureIndex()]);
         if (mDrawer == null) {
             mWidthScaleFactor = mWorker.getImgShowWidth() * 1.0f / mWorker.getSurfaceWidth();
             mHeightScaleFactor = mWorker.getImgShowHeight() * 1.0f / mWorker.getSurfaceHeight();
@@ -46,6 +47,7 @@ public class BaseImageOperator extends AbstractOperator {
                 0,
                 mWorker.getSurfaceWidth(),
                 mWorker.getSurfaceHeight());
+        mWorker.bindDefaultFrameBuffer();
     }
 
     public Bitmap getImage() {

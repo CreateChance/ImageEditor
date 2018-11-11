@@ -32,6 +32,7 @@ public class LookupFilterOperator extends AbstractOperator {
 
     @Override
     public void exec() {
+        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
         if (mDrawer == null) {
             mDrawer = new LookupFilterDrawer();
         }
@@ -46,12 +47,14 @@ public class LookupFilterOperator extends AbstractOperator {
                 mWorker.getImgShowBottom(),
                 mWorker.getImgShowWidth(),
                 mWorker.getImgShowHeight());
-        mDrawer.draw(mWorker.getInputTexture(),
+        mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
                 0,
                 0,
                 mWorker.getSurfaceWidth(),
                 mWorker.getSurfaceHeight());
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+        mWorker.bindDefaultFrameBuffer();
+        mWorker.swapTexture();
     }
 
     public void setIntensity(float intensity) {

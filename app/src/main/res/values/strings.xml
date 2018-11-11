@@ -48,8 +48,8 @@
     <string name="edit_rotate_y">Y轴: %1$d 度</string>
     <string name="edit_rotate_z">Z轴: %1$d 度</string>
     <string name="edit_transform_translate">移动</string>
-    <string name="edit_translate_x">X轴: %1$d</string>
-    <string name="edit_translate_y">Y轴: %1$d</string>
+    <string name="edit_translate_x">X轴: %1$.2f</string>
+    <string name="edit_translate_y">Y轴: %1$.2f</string>
     <string name="edit_translate_z">Z轴: %1$.2f</string>
 
     <string name="edit_text">文字</string>

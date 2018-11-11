@@ -115,6 +115,7 @@ public class StickerOperator extends AbstractOperator {
 
     @Override
     public void exec() {
+        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getInputTextureIndex()]);
         if (mDrawer == null) {
             mDrawer = new StickerDrawer();
         }
@@ -132,6 +133,7 @@ public class StickerOperator extends AbstractOperator {
                 mPosY,
                 (int) (mWidth * mScaleFactor),
                 (int) (mHeight * mScaleFactor));
+        mWorker.bindDefaultFrameBuffer();
     }
 
     public static class Builder {

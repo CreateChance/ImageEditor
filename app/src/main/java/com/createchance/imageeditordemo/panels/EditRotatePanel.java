@@ -24,7 +24,7 @@ public class EditRotatePanel extends AbstractPanel implements View.OnClickListen
 
     private View mRotatePanel;
 
-    private TextView mTvFlipX, mTvFlipY, mTvFlipZ, mTranslateX, mTranslateY, mTranslateZ;
+    private TextView mTvRotateX, mTvRotateY, mTvRotateZ, mTranslateX, mTranslateY, mTranslateZ;
 
     private ModelViewOperator mCurOp;
 
@@ -40,15 +40,17 @@ public class EditRotatePanel extends AbstractPanel implements View.OnClickListen
         ((SeekBar) mRotatePanel.findViewById(R.id.sb_translate_x)).setOnSeekBarChangeListener(this);
         ((SeekBar) mRotatePanel.findViewById(R.id.sb_translate_y)).setOnSeekBarChangeListener(this);
         ((SeekBar) mRotatePanel.findViewById(R.id.sb_translate_z)).setOnSeekBarChangeListener(this);
-        mTvFlipX = mRotatePanel.findViewById(R.id.tv_rotate_x);
-        mTvFlipY = mRotatePanel.findViewById(R.id.tv_rotate_y);
-        mTvFlipZ = mRotatePanel.findViewById(R.id.tv_rotate_z);
+        mTvRotateX = mRotatePanel.findViewById(R.id.tv_rotate_x);
+        mTvRotateY = mRotatePanel.findViewById(R.id.tv_rotate_y);
+        mTvRotateZ = mRotatePanel.findViewById(R.id.tv_rotate_z);
         mTranslateX = mRotatePanel.findViewById(R.id.tv_translate_x);
         mTranslateY = mRotatePanel.findViewById(R.id.tv_translate_y);
         mTranslateZ = mRotatePanel.findViewById(R.id.tv_translate_z);
-        mTvFlipX.setText(String.format(mContext.getString(R.string.edit_rotate_x), 180));
-        mTvFlipY.setText(String.format(mContext.getString(R.string.edit_rotate_y), 0));
-        mTvFlipZ.setText(String.format(mContext.getString(R.string.edit_rotate_z), 0));
+        mTvRotateX.setText(String.format(mContext.getString(R.string.edit_rotate_x), 180));
+        mTvRotateY.setText(String.format(mContext.getString(R.string.edit_rotate_y), 0));
+        mTvRotateZ.setText(String.format(mContext.getString(R.string.edit_rotate_z), 0));
+        mTranslateX.setText(String.format(mContext.getString(R.string.edit_translate_x), 0f));
+        mTranslateY.setText(String.format(mContext.getString(R.string.edit_translate_y), 0f));
     }
 
     @Override
@@ -66,6 +68,11 @@ public class EditRotatePanel extends AbstractPanel implements View.OnClickListen
     @Override
     public void close(boolean discard) {
         super.close(discard);
+
+        if (discard && mCurOp != null) {
+            IEManager.getInstance().removeOperator(mCurOp);
+            mCurOp = null;
+        }
     }
 
     @Override
@@ -96,28 +103,32 @@ public class EditRotatePanel extends AbstractPanel implements View.OnClickListen
         }
         switch (seekBar.getId()) {
             case R.id.sb_rotate_x:
-                mTvFlipX.setText(String.format(mContext.getString(R.string.edit_rotate_x), progress));
+                mTvRotateX.setText(String.format(mContext.getString(R.string.edit_rotate_x), progress));
                 mCurOp.setRotateX(progress);
                 break;
             case R.id.sb_rotate_y:
-                mTvFlipY.setText(String.format(mContext.getString(R.string.edit_rotate_y), progress));
+                mTvRotateY.setText(String.format(mContext.getString(R.string.edit_rotate_y), progress));
                 mCurOp.setRotateY(progress);
                 break;
             case R.id.sb_rotate_z:
-                mTvFlipZ.setText(String.format(mContext.getString(R.string.edit_rotate_z), progress));
+                mTvRotateZ.setText(String.format(mContext.getString(R.string.edit_rotate_z), progress));
                 mCurOp.setRotateZ(progress);
                 break;
             case R.id.sb_translate_x:
-                mTranslateX.setText(String.format(mContext.getString(R.string.edit_translate_x), progress));
+                mTranslateX.setText(String.format(mContext.getString(R.string.edit_translate_x),
+                        ((progress - seekBar.getMax() / 2.0f) * 4.0f) / seekBar.getMax()));
+                mCurOp.setTranslateX(((progress - seekBar.getMax() / 2.0f) * 4.0f) / seekBar.getMax());
                 break;
             case R.id.sb_translate_y:
-                mTranslateY.setText(String.format(mContext.getString(R.string.edit_translate_y), progress));
+                mTranslateY.setText(String.format(mContext.getString(R.string.edit_translate_y),
+                        ((progress - seekBar.getMax() / 2.0f) * 4.0f) / seekBar.getMax()));
+                mCurOp.setTranslateY(((progress - seekBar.getMax() / 2.0f) * 4.0f) / seekBar.getMax());
                 break;
             case R.id.sb_translate_z:
-//                float transZ = baseImageOperator.getNear() +
-//                        (progress * (baseImageOperator.getFar() - baseImageOperator.getNear()) / seekBar.getMax());
-//                mTranslateZ.setText(String.format(mContext.getString(R.string.edit_translate_z), transZ));
-//                baseImageOperator.setTranslateZ(transZ);
+                float transZ = mCurOp.getNear() +
+                        (progress * (mCurOp.getFar() - mCurOp.getNear()) / seekBar.getMax());
+                mTranslateZ.setText(String.format(mContext.getString(R.string.edit_translate_z), transZ));
+                mCurOp.setTranslateZ(transZ);
                 break;
             default:
                 break;

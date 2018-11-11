@@ -56,7 +56,8 @@ public class IEWorker extends HandlerThread {
     private int mImgOriginWidth, mImgOriginHeight;
     private int mBaseImgPosX, mBaseImgPosY;
     private int[] mFboBuffer = new int[1];
-    private int[] mFboTextureIds = new int[1];
+    private int[] mFboTextureIds = new int[2];
+    private int mInputTextureIndex = 0, mOutputTextureIndex = 1;
     private BaseImageDrawer mFboReader;
 
     // operator list
@@ -239,8 +240,33 @@ public class IEWorker extends HandlerThread {
         return mSurfaceWidth;
     }
 
-    public int getInputTexture() {
-        return mFboTextureIds[0];
+    public int[] getTextures() {
+        return mFboTextureIds;
+    }
+
+    public void setInputTextureIndex(int index) {
+        mInputTextureIndex = index;
+    }
+
+    public int getInputTextureIndex() {
+        return mInputTextureIndex;
+    }
+
+    public void setOutputTextureIndex(int index) {
+        mOutputTextureIndex = index;
+    }
+
+    public int getOutputTextureIndex() {
+        return mOutputTextureIndex;
+    }
+
+    /**
+     * make input texture output, and output texture input
+     */
+    public void swapTexture() {
+        int tmp = mInputTextureIndex;
+        mInputTextureIndex = mOutputTextureIndex;
+        mOutputTextureIndex = tmp;
     }
 
     public void post(Runnable task) {
@@ -283,11 +309,9 @@ public class IEWorker extends HandlerThread {
                 break;
         }
 
-        bindOffScreenFrameBuffer(mFboTextureIds[0]);
         operator.exec();
-        bindDefaultFrameBuffer();
 
-        mFboReader.draw(mFboTextureIds[0],
+        mFboReader.draw(mFboTextureIds[mInputTextureIndex],
                 0,
                 0,
                 mSurfaceWidth,
@@ -329,7 +353,7 @@ public class IEWorker extends HandlerThread {
     }
 
     private void handleSave(File target, SaveListener listener) {
-        bindOffScreenFrameBuffer(mFboTextureIds[0]);
+        bindOffScreenFrameBuffer(mFboTextureIds[mInputTextureIndex]);
         captureImage(target, listener);
         bindDefaultFrameBuffer();
     }
@@ -494,13 +518,13 @@ public class IEWorker extends HandlerThread {
         GLES20.glGenFramebuffers(mFboBuffer.length, mFboBuffer, 0);
     }
 
-    private void bindOffScreenFrameBuffer(int textureId) {
+    public void bindOffScreenFrameBuffer(int textureId) {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFboBuffer[0]);
         GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
                 GLES20.GL_TEXTURE_2D, textureId, 0);
     }
 
-    private void bindDefaultFrameBuffer() {
+    public void bindDefaultFrameBuffer() {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
     }
 

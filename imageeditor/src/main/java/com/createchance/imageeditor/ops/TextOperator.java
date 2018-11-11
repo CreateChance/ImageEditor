@@ -52,6 +52,7 @@ public class TextOperator extends AbstractOperator {
 
     @Override
     public void exec() {
+        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getInputTextureIndex()]);
         if (mDrawer == null) {
             mDrawer = new TextDrawer();
         }
@@ -83,6 +84,7 @@ public class TextOperator extends AbstractOperator {
             mDrawer.setTextColor(mRed, mGreen, mBlue);
         }
         mDrawer.draw(mPosX, mPosY);
+        mWorker.bindDefaultFrameBuffer();
     }
 
     public String getText() {
