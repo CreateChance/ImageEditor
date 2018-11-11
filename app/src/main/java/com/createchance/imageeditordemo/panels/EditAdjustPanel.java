@@ -16,6 +16,7 @@ import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
 import com.createchance.imageeditor.ops.ContrastAdjustOperator;
 import com.createchance.imageeditor.ops.FilterOperator;
 import com.createchance.imageeditor.ops.SaturationAdjustOperator;
+import com.createchance.imageeditor.ops.SharpenAdjustOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
 import com.createchance.imageeditordemo.model.Filter;
@@ -40,12 +41,12 @@ public class EditAdjustPanel extends AbstractPanel implements
 
     private int mCurType = -1;
 
-    private GPUImageAdjuster
-            mSharpenAdj, mDarkCornerAdj;
+    private GPUImageAdjuster mDarkCornerAdj;
 
     private BrightnessAdjustOperator mBrightnessOp;
     private ContrastAdjustOperator mContrastOp;
     private SaturationAdjustOperator mSaturationOp;
+    private SharpenAdjustOperator mSharpenOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -90,8 +91,8 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mSaturationOp != null) {
                 operatorList.add(mSaturationOp);
             }
-            if (mSharpenAdj != null) {
-                operatorList.add(mSharpenAdj.operator);
+            if (mSharpenOp != null) {
+                operatorList.add(mSharpenOp);
             }
             if (mDarkCornerAdj != null) {
                 operatorList.add(mDarkCornerAdj.operator);
@@ -100,7 +101,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             mBrightnessOp = null;
             mContrastOp = null;
             mSaturationOp = null;
-            mSharpenAdj = null;
+            mSharpenOp = null;
             mDarkCornerAdj = null;
         }
     }
@@ -147,19 +148,13 @@ public class EditAdjustPanel extends AbstractPanel implements
                 IEManager.getInstance().updateOperator(mSaturationOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
-                if (mSharpenAdj == null) {
-                    mSharpenAdj = new GPUImageAdjuster();
-                    mSharpenAdj.filter = new Filter();
-                    mSharpenAdj.filter.mType = Filter.TYPE_GPU_IMAGE_SHARPEN;
-                    mSharpenAdj.filter.mAdjust = new float[]{2.0f};
-                    mSharpenAdj.operator = new FilterOperator.Builder()
-                            .filter(mSharpenAdj.filter.get(mContext))
-                            .build();
-                    IEManager.getInstance().addOperator(mSharpenAdj.operator);
+                if (mSharpenOp == null) {
+                    mSharpenOp = new SharpenAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mSharpenOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress));
-                mSharpenAdj.filter.adjust(progress);
-                IEManager.getInstance().updateOperator(mSharpenAdj.operator);
+                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax()));
+                mSharpenOp.setSharpness(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mSharpenOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
                 if (mDarkCornerAdj == null) {
@@ -237,6 +232,13 @@ public class EditAdjustPanel extends AbstractPanel implements
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
                 mAdjustBar.setEnabled(true);
+                if (mSharpenOp == null) {
+                    mAdjustValue.setText(String.valueOf(0.0f));
+                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                } else {
+                    mAdjustValue.setText(String.valueOf(mSharpenOp.getSharpness()));
+                    mAdjustBar.setProgress((int) ((mSharpenOp.getSharpness() + 4) * 0.125f * mAdjustBar.getMax()));
+                }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
                 mAdjustBar.setEnabled(true);

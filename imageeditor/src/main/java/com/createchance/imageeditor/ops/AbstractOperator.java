@@ -19,6 +19,7 @@ public abstract class AbstractOperator {
     public static final int OP_BRIGHTNESS_ADJUST = 6;
     public static final int OP_CONTRAST_ADJUST = 7;
     public static final int OP_SATURATION_ADJUST = 8;
+    public static final int OP_SHARPNESS_ADJUST = 9;
 
     protected final String mName;
 
