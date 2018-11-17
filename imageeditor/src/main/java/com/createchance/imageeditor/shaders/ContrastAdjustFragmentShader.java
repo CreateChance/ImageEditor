@@ -3,7 +3,7 @@ package com.createchance.imageeditor.shaders;
 import android.opengl.GLES20;
 
 /**
- * ${DESC}
+ * Contrast adjust fragment shader.
  *
  * @author createchance
  * @date 2018/11/11
@@ -11,7 +11,7 @@ import android.opengl.GLES20;
 public class ContrastAdjustFragmentShader extends AbstractShader {
     private static final String TAG = "ContrastAdjustFragmentS";
 
-    private final String FRAGMEN_SHADER = "ContrastAdjustFragmentShader.glsl";
+    private final String FRAGMENT_SHADER = "ContrastAdjustFragmentShader.glsl";
 
     private final String U_INPUT_TEXTURE = "u_InputTexture";
     private final String U_CONTRAST = "u_Contrast";
@@ -19,7 +19,7 @@ public class ContrastAdjustFragmentShader extends AbstractShader {
     private int mUInputTexture, mUContrast;
 
     public ContrastAdjustFragmentShader() {
-        initShader(FRAGMEN_SHADER, GLES20.GL_FRAGMENT_SHADER);
+        initShader(FRAGMENT_SHADER, GLES20.GL_FRAGMENT_SHADER);
     }
 
     @Override

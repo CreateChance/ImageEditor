@@ -14,6 +14,7 @@ import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
 import com.createchance.imageeditor.ops.ContrastAdjustOperator;
+import com.createchance.imageeditor.ops.HighlightAdjustOperator;
 import com.createchance.imageeditor.ops.SaturationAdjustOperator;
 import com.createchance.imageeditor.ops.ShadowAdjustOperator;
 import com.createchance.imageeditor.ops.SharpenAdjustOperator;
@@ -47,6 +48,7 @@ public class EditAdjustPanel extends AbstractPanel implements
     private SharpenAdjustOperator mSharpenOp;
     private VignetteOperator mVignetteOp;
     private ShadowAdjustOperator mShadowOp;
+    private HighlightAdjustOperator mHighlightOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -100,6 +102,9 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mShadowOp != null) {
                 operatorList.add(mShadowOp);
             }
+            if (mHighlightOp != null) {
+                operatorList.add(mHighlightOp);
+            }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
             mContrastOp = null;
@@ -107,6 +112,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             mSharpenOp = null;
             mVignetteOp = null;
             mShadowOp = null;
+            mHighlightOp = null;
         }
     }
 
@@ -177,6 +183,15 @@ public class EditAdjustPanel extends AbstractPanel implements
                 mAdjustValue.setText(String.valueOf(progress * 1.0f * 100 / seekBar.getMax()));
                 mShadowOp.setShadow(progress * 1.0f * 100 / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mShadowOp);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_HIGHLIGHT:
+                if (mHighlightOp == null) {
+                    mHighlightOp = new HighlightAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mHighlightOp);
+                }
+                mAdjustValue.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                mHighlightOp.setHighlight(progress * 1.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mHighlightOp);
                 break;
             default:
                 break;
@@ -257,6 +272,16 @@ public class EditAdjustPanel extends AbstractPanel implements
                 } else {
                     mAdjustValue.setText(String.valueOf(mShadowOp.getShadow()));
                     mAdjustBar.setProgress((int) (mShadowOp.getShadow() * mAdjustBar.getMax() / 100f));
+                }
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_HIGHLIGHT:
+                mAdjustBar.setEnabled(true);
+                if (mHighlightOp == null) {
+                    mAdjustValue.setText(String.valueOf(0));
+                    mAdjustBar.setProgress(0);
+                } else {
+                    mAdjustValue.setText(String.valueOf(mHighlightOp.getHighlight()));
+                    mAdjustBar.setProgress((int) (mHighlightOp.getHighlight() * mAdjustBar.getMax()));
                 }
                 break;
             default:
