@@ -19,6 +19,7 @@ import com.createchance.imageeditor.ops.SaturationAdjustOperator;
 import com.createchance.imageeditor.ops.ShadowAdjustOperator;
 import com.createchance.imageeditor.ops.SharpenAdjustOperator;
 import com.createchance.imageeditor.ops.TempAdjustOperator;
+import com.createchance.imageeditor.ops.TintAdjustOperator;
 import com.createchance.imageeditor.ops.VignetteOperator;
 import com.createchance.imageeditordemo.AdjustListAdapter;
 import com.createchance.imageeditordemo.R;
@@ -51,6 +52,7 @@ public class EditAdjustPanel extends AbstractPanel implements
     private ShadowAdjustOperator mShadowOp;
     private HighlightAdjustOperator mHighlightOp;
     private TempAdjustOperator mTempOp;
+    private TintAdjustOperator mTintOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -110,6 +112,9 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mTempOp != null) {
                 operatorList.add(mTempOp);
             }
+            if (mTintOp != null) {
+                operatorList.add(mTintOp);
+            }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
             mContrastOp = null;
@@ -119,6 +124,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             mShadowOp = null;
             mHighlightOp = null;
             mTempOp = null;
+            mTintOp = null;
         }
     }
 
@@ -207,6 +213,15 @@ public class EditAdjustPanel extends AbstractPanel implements
                 mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mTempOp.setTemperature(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mTempOp);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_TONE:
+                if (mTintOp == null) {
+                    mTintOp = new TintAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mTintOp);
+                }
+                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
+                mTintOp.setTint(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mTintOp);
                 break;
             default:
                 break;
@@ -302,11 +317,21 @@ public class EditAdjustPanel extends AbstractPanel implements
             case AdjustListAdapter.AdjustItem.TYPE_COLOR_TEMP:
                 mAdjustBar.setEnabled(true);
                 if (mTempOp == null) {
-                    mAdjustValue.setText(String.valueOf(1.0));
+                    mAdjustValue.setText(String.valueOf(0.0));
                     mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
                 } else {
                     mAdjustValue.setText(String.valueOf(mTempOp.getTemperature()));
                     mAdjustBar.setProgress((int) ((mTempOp.getTemperature() + 2) * 0.25f * mAdjustBar.getMax()));
+                }
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_TONE:
+                mAdjustBar.setEnabled(true);
+                if (mTintOp == null) {
+                    mAdjustValue.setText(String.valueOf(0.0));
+                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                } else {
+                    mAdjustValue.setText(String.valueOf(mTintOp.getTint()));
+                    mAdjustBar.setProgress((int) ((mTintOp.getTint() + 2) * 0.25f * mAdjustBar.getMax()));
                 }
                 break;
             default:

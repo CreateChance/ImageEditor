@@ -3,28 +3,29 @@ package com.createchance.imageeditor.drawers;
 import android.opengl.GLES20;
 
 import com.createchance.imageeditor.shaders.BaseVertexShader;
-import com.createchance.imageeditor.shaders.TempAdjustFragmentShader;
+import com.createchance.imageeditor.shaders.TintAdjustFragmentShader;
 
 import java.nio.FloatBuffer;
 
 /**
- * Temperature adjust drawer.
+ * Tint adjust drawer.
  *
  * @author createchance
  * @date 2018/11/17
  */
-public class TempAdjustDrawer extends AbstractDrawer {
-    private static final String TAG = "TempAdjustDrawer";
+public class TintAdjustDrawer extends AbstractDrawer {
+
+    private static final String TAG = "TintAdjustDrawer";
 
     private FloatBuffer mVertexPositionBuffer;
     private FloatBuffer mInputCoordinateBuffer;
 
     private BaseVertexShader mVertexShader;
-    private TempAdjustFragmentShader mFragmentShader;
+    private TintAdjustFragmentShader mFragmentShader;
 
-    public TempAdjustDrawer() {
+    public TintAdjustDrawer() {
         mVertexShader = new BaseVertexShader();
-        mFragmentShader = new TempAdjustFragmentShader();
+        mFragmentShader = new TintAdjustFragmentShader();
         loadProgram(mVertexShader.getShaderId(), mFragmentShader.getShaderId());
         mVertexShader.initLocation(mProgramId);
         mFragmentShader.initLocation(mProgramId);
@@ -47,9 +48,9 @@ public class TempAdjustDrawer extends AbstractDrawer {
         );
     }
 
-    public void setTemperature(float temperature) {
+    public void setTint(float tint) {
         GLES20.glUseProgram(mProgramId);
-        mFragmentShader.setUTemperature(temperature);
+        mFragmentShader.setUTint(tint);
     }
 
     public void draw(int textureId,

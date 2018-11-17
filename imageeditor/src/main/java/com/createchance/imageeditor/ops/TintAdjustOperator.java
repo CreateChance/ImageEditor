@@ -2,41 +2,41 @@ package com.createchance.imageeditor.ops;
 
 import android.opengl.GLES20;
 
-import com.createchance.imageeditor.drawers.TempAdjustDrawer;
+import com.createchance.imageeditor.drawers.TintAdjustDrawer;
 
 /**
- * Temperature adjust operator.
+ * Tint adjust operator.
  *
  * @author createchance
  * @date 2018/11/17
  */
-public class TempAdjustOperator extends AbstractOperator {
+public class TintAdjustOperator extends AbstractOperator {
 
-    private static final String TAG = "TempAdjustOperator";
+    private static final String TAG = "TintAdjustOperator";
 
-    private final float MAX_TEMP = 2.0f;
-    private final float MIN_TEMP = -2.0f;
+    private final float MIN_TINT = -2.0f;
+    private final float MAX_TINT = 2.0f;
 
-    private float mTemperature = 0.0f;
+    private float mTint = 0.0f;
 
-    private TempAdjustDrawer mDrawer;
+    private TintAdjustDrawer mDrawer;
 
-    private TempAdjustOperator() {
-        super(TempAdjustOperator.class.getSimpleName(), OP_TEMPERATURE);
+    private TintAdjustOperator() {
+        super(TintAdjustOperator.class.getSimpleName(), OP_TINT);
     }
 
     @Override
     public boolean checkRational() {
-        return mTemperature >= MIN_TEMP && mTemperature <= MAX_TEMP;
+        return mTint >= MIN_TINT && mTint <= MAX_TINT;
     }
 
     @Override
     public void exec() {
         mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
         if (mDrawer == null) {
-            mDrawer = new TempAdjustDrawer();
+            mDrawer = new TintAdjustDrawer();
         }
-        mDrawer.setTemperature(mTemperature);
+        mDrawer.setTint(mTint);
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
         GLES20.glScissor(mWorker.getImgShowLeft(),
                 mWorker.getImgShowBottom(),
@@ -52,26 +52,25 @@ public class TempAdjustOperator extends AbstractOperator {
         mWorker.swapTexture();
     }
 
-    public float getTemperature() {
-        return mTemperature;
+    public float getTint() {
+        return mTint;
     }
 
-    public void setTemperature(float temperature) {
-        this.mTemperature = temperature;
+    public void setTint(float tint) {
+        this.mTint = tint;
     }
 
     public static class Builder {
-        private TempAdjustOperator operator = new TempAdjustOperator();
+        private TintAdjustOperator operator = new TintAdjustOperator();
 
-        public Builder temperature(float temp) {
-            operator.mTemperature = temp;
+        public Builder tint(float tint) {
+            operator.mTint = tint;
 
             return this;
         }
 
-        public TempAdjustOperator build() {
+        public TintAdjustOperator build() {
             return operator;
         }
     }
-
 }

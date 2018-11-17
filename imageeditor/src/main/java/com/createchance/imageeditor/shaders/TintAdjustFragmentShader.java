@@ -3,30 +3,30 @@ package com.createchance.imageeditor.shaders;
 import android.opengl.GLES20;
 
 /**
- * Temperature adjust fragment shader.
+ * Tint adjust fragment shader.
  *
  * @author createchance
  * @date 2018/11/17
  */
-public class TempAdjustFragmentShader extends AbstractShader {
+public class TintAdjustFragmentShader extends AbstractShader {
 
-    private static final String TAG = "TempAdjustFragmentShade";
+    private static final String TAG = "TintAdjustFragmentShade";
 
-    private final String FRAGMENT_SHADER = "TempAdjustFragmentShader.glsl";
+    private final String FRAGMENT_SHADER = "TintAdjustFragmentShader.glsl";
 
     private final String U_INPUT_TEXTURE = "u_InputTexture";
-    private final String U_TEMPERATURE = "u_Temperature";
+    private final String U_TINT = "u_Tint";
 
-    private int mUInputTexture, mUTemperature;
+    private int mUInputTexture, mUTint;
 
-    public TempAdjustFragmentShader() {
+    public TintAdjustFragmentShader() {
         initShader(FRAGMENT_SHADER, GLES20.GL_FRAGMENT_SHADER);
     }
 
     @Override
     public void initLocation(int programId) {
         mUInputTexture = GLES20.glGetUniformLocation(programId, U_INPUT_TEXTURE);
-        mUTemperature = GLES20.glGetUniformLocation(programId, U_TEMPERATURE);
+        mUTint = GLES20.glGetUniformLocation(programId, U_TINT);
     }
 
     public void setUInputTexture(int textureTarget, int textureId) {
@@ -36,7 +36,7 @@ public class TempAdjustFragmentShader extends AbstractShader {
         GLES20.glUniform1i(mUInputTexture, textureTarget - GLES20.GL_TEXTURE0);
     }
 
-    public void setUTemperature(float temperature) {
-        GLES20.glUniform1f(mUTemperature, temperature);
+    public void setUTint(float tint) {
+        GLES20.glUniform1f(mUTint, tint);
     }
 }
