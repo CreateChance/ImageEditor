@@ -64,6 +64,12 @@ public class AdjustListAdapter extends RecyclerView.Adapter<AdjustListAdapter.Vi
         mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_BRIGHTNESS,
                 R.drawable.icon_adjust_brightness,
                 R.string.edit_adjust_brightness));
+        mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_EXPOSURE,
+                R.drawable.icon_adjust_exposure,
+                R.string.edit_adjust_exposure));
+        mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_GAMMA,
+                R.drawable.icon_adjust_gamma,
+                R.string.edit_adjust_gamma));
         mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_CONTRAST,
                 R.drawable.icon_adjust_contrast,
                 R.string.edit_adjust_contrast));
@@ -141,6 +147,8 @@ public class AdjustListAdapter extends RecyclerView.Adapter<AdjustListAdapter.Vi
         public static final int TYPE_DENOISE = 9;
         public static final int TYPE_CURVE = 10;
         public static final int TYPE_COLOR_BALANCE = 11;
+        public static final int TYPE_EXPOSURE = 12;
+        public static final int TYPE_GAMMA = 13;
 
         public int mType;
         public int mIconResId;

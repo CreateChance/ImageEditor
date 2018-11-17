@@ -24,6 +24,8 @@
 
     <string name="edit_adjust">调整</string>
     <string name="edit_adjust_brightness">亮度</string>
+    <string name="edit_adjust_exposure">曝光</string>
+    <string name="edit_adjust_gamma">伽马</string>
     <string name="edit_adjust_contrast">对比度</string>
     <string name="edit_adjust_saturation">饱和度</string>
     <string name="edit_adjust_sharpen">锐化</string>

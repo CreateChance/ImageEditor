@@ -14,6 +14,7 @@ import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
 import com.createchance.imageeditor.ops.ContrastAdjustOperator;
+import com.createchance.imageeditor.ops.ExposureAdjustOperator;
 import com.createchance.imageeditor.ops.HighlightAdjustOperator;
 import com.createchance.imageeditor.ops.SaturationAdjustOperator;
 import com.createchance.imageeditor.ops.ShadowAdjustOperator;
@@ -45,6 +46,7 @@ public class EditAdjustPanel extends AbstractPanel implements
     private int mCurType = -1;
 
     private BrightnessAdjustOperator mBrightnessOp;
+    private ExposureAdjustOperator mExposureOp;
     private ContrastAdjustOperator mContrastOp;
     private SaturationAdjustOperator mSaturationOp;
     private SharpenAdjustOperator mSharpenOp;
@@ -91,6 +93,9 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mBrightnessOp != null) {
                 operatorList.add(mBrightnessOp);
             }
+            if (mExposureOp != null) {
+                operatorList.add(mExposureOp);
+            }
             if (mContrastOp != null) {
                 operatorList.add(mContrastOp);
             }
@@ -117,6 +122,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
+            mExposureOp = null;
             mContrastOp = null;
             mSaturationOp = null;
             mSharpenOp = null;
@@ -149,6 +155,16 @@ public class EditAdjustPanel extends AbstractPanel implements
                 mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax()));
                 mBrightnessOp.setBrightness(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mBrightnessOp);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_EXPOSURE:
+                if (mExposureOp == null) {
+                    mExposureOp = new ExposureAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mExposureOp);
+                }
+
+                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
+                mExposureOp.setExposure(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mExposureOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
                 if (mContrastOp == null) {
@@ -252,6 +268,16 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mAdjustValue.setText(String.valueOf(mBrightnessOp.getBrightness()));
                     mAdjustBar.setProgress(
                             (int) (mBrightnessOp.getBrightness() * mAdjustBar.getMax() / 2 + mAdjustBar.getMax() / 2));
+                }
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_EXPOSURE:
+                mAdjustBar.setEnabled(true);
+                if (mExposureOp == null) {
+                    mAdjustValue.setText(String.valueOf(0.0));
+                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                } else {
+                    mAdjustValue.setText(String.valueOf(mExposureOp.getExposure()));
+                    mAdjustBar.setProgress((int) ((mExposureOp.getExposure() + 2) * 0.25f * mAdjustBar.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
