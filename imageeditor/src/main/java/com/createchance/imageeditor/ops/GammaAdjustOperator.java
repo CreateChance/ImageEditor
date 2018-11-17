@@ -2,41 +2,41 @@ package com.createchance.imageeditor.ops;
 
 import android.opengl.GLES20;
 
-import com.createchance.imageeditor.drawers.ExposureAdjustDrawer;
+import com.createchance.imageeditor.drawers.GammaAdjustDrawer;
 
 /**
- * Exposure adjust operator.
+ * Gamma adjust operator.
  *
  * @author createchance
  * @date 2018/11/17
  */
-public class ExposureAdjustOperator extends AbstractOperator {
+public class GammaAdjustOperator extends AbstractOperator {
 
-    private static final String TAG = "ExposureAdjustOperator";
+    private static final String TAG = "GammaAdjustOperator";
 
-    private final float MIN_EXPOSURE = -2f;
-    private final float MAX_EXPOSURE = 2f;
+    private final float MIN_GAMMA = 0f;
+    private final float MAX_GAMMA = 4f;
 
-    private float mExposure = 0.0f;
+    private float mGamma = 0.0f;
 
-    private ExposureAdjustDrawer mDrawer;
+    private GammaAdjustDrawer mDrawer;
 
-    private ExposureAdjustOperator() {
-        super(ExposureAdjustOperator.class.getSimpleName(), OP_EXPOSURE);
+    private GammaAdjustOperator() {
+        super(GammaAdjustOperator.class.getSimpleName(), OP_GAMMA);
     }
 
     @Override
     public boolean checkRational() {
-        return mExposure >= MIN_EXPOSURE && mExposure <= MAX_EXPOSURE;
+        return mGamma >= MIN_GAMMA && mGamma <= MAX_GAMMA;
     }
 
     @Override
     public void exec() {
         mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
         if (mDrawer == null) {
-            mDrawer = new ExposureAdjustDrawer();
+            mDrawer = new GammaAdjustDrawer();
         }
-        mDrawer.setExposure(mExposure);
+        mDrawer.setGamma(mGamma);
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
         GLES20.glScissor(mWorker.getImgShowLeft(),
                 mWorker.getImgShowBottom(),
@@ -52,24 +52,24 @@ public class ExposureAdjustOperator extends AbstractOperator {
         mWorker.swapTexture();
     }
 
-    public float getExposure() {
-        return mExposure;
+    public float getGamma() {
+        return mGamma;
     }
 
-    public void setExposure(float exposure) {
-        this.mExposure = exposure;
+    public void setGamma(float gamma) {
+        this.mGamma = gamma;
     }
 
     public static class Builder {
-        private ExposureAdjustOperator operator = new ExposureAdjustOperator();
+        private GammaAdjustOperator operator = new GammaAdjustOperator();
 
-        public Builder exposure(float exposure) {
-            operator.mExposure = exposure;
+        public Builder gamma(float gamma) {
+            operator.mGamma = gamma;
 
             return this;
         }
 
-        public ExposureAdjustOperator build() {
+        public GammaAdjustOperator build() {
             return operator;
         }
     }
