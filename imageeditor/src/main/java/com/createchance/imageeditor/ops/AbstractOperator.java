@@ -23,6 +23,7 @@ public abstract class AbstractOperator {
     public static final int OP_VIGNETTE = 10;
     public static final int OP_SHADOW = 11;
     public static final int OP_HIGHLIGHT = 12;
+    public static final int OP_TEMPERATURE = 13;
 
     protected final String mName;
 
