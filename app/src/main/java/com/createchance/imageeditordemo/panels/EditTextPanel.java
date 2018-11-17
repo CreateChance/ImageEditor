@@ -245,6 +245,9 @@ public class EditTextPanel extends AbstractPanel implements
     }
 
     public void moveText(int deltaX, int deltaY) {
+        if (mTextOpList.size() == 0) {
+            return;
+        }
         TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
         int curX = textOperator.getPosX() + deltaX;
         int curY = textOperator.getPosY() - deltaY;
