@@ -21,6 +21,7 @@ public abstract class AbstractOperator {
     public static final int OP_SATURATION_ADJUST = 8;
     public static final int OP_SHARPNESS_ADJUST = 9;
     public static final int OP_VIGNETTE = 10;
+    public static final int OP_SHADOW = 11;
 
     protected final String mName;
 
