@@ -27,6 +27,7 @@ public abstract class AbstractOperator {
     public static final int OP_TINT = 14;
     public static final int OP_EXPOSURE = 15;
     public static final int OP_GAMMA = 16;
+    public static final int OP_DENOISE = 17;
 
     protected final String mName;
 

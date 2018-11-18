@@ -14,6 +14,7 @@ import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
 import com.createchance.imageeditor.ops.ContrastAdjustOperator;
+import com.createchance.imageeditor.ops.DenoiseOperator;
 import com.createchance.imageeditor.ops.ExposureAdjustOperator;
 import com.createchance.imageeditor.ops.GammaAdjustOperator;
 import com.createchance.imageeditor.ops.HighlightAdjustOperator;
@@ -57,6 +58,7 @@ public class EditAdjustPanel extends AbstractPanel implements
     private HighlightAdjustOperator mHighlightOp;
     private TempAdjustOperator mTempOp;
     private TintAdjustOperator mTintOp;
+    private DenoiseOperator mDenoiseOp;
 
     private TextView mAdjustName, mAdjustValue;
 
@@ -125,6 +127,9 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mTintOp != null) {
                 operatorList.add(mTintOp);
             }
+            if (mDenoiseOp != null) {
+                operatorList.add(mDenoiseOp);
+            }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
             mExposureOp = null;
@@ -137,6 +142,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             mHighlightOp = null;
             mTempOp = null;
             mTintOp = null;
+            mDenoiseOp = null;
         }
     }
 
@@ -254,6 +260,12 @@ public class EditAdjustPanel extends AbstractPanel implements
                 mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mTintOp.setTint(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mTintOp);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_DENOISE:
+                if (mDenoiseOp == null) {
+                    mDenoiseOp = new DenoiseOperator();
+                    IEManager.getInstance().addOperator(mDenoiseOp);
+                }
                 break;
             default:
                 break;
@@ -384,6 +396,12 @@ public class EditAdjustPanel extends AbstractPanel implements
                 } else {
                     mAdjustValue.setText(String.valueOf(mTintOp.getTint()));
                     mAdjustBar.setProgress((int) ((mTintOp.getTint() + 2) * 0.25f * mAdjustBar.getMax()));
+                }
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_DENOISE:
+                if (mDenoiseOp == null) {
+                    mDenoiseOp = new DenoiseOperator();
+                    IEManager.getInstance().addOperator(mDenoiseOp);
                 }
                 break;
             default:
