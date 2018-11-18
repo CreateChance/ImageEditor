@@ -13,9 +13,10 @@ import android.widget.TextView;
 import com.createchance.imageeditordemo.panels.AbstractPanel;
 import com.createchance.imageeditordemo.panels.EditAdjustPanel;
 import com.createchance.imageeditordemo.panels.EditFilterPanel;
-import com.createchance.imageeditordemo.panels.EditTransformPanel;
+import com.createchance.imageeditordemo.panels.EditMosaicPanel;
 import com.createchance.imageeditordemo.panels.EditStickerPanel;
 import com.createchance.imageeditordemo.panels.EditTextPanel;
+import com.createchance.imageeditordemo.panels.EditTransformPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,8 @@ public class EditListAdapter extends RecyclerView.Adapter<EditListAdapter.ViewHo
         mEditList.add(new EditItem(R.drawable.icon_focus, R.string.edit_focus, AbstractPanel.TYPE_FOCUS, null));
         mEditList.add(new EditItem(R.drawable.icon_sticker, R.string.edit_sticker, AbstractPanel.TYPE_STICKER,
                 new EditStickerPanel(mContext, panelListener)));
-        mEditList.add(new EditItem(R.drawable.icon_mosaic, R.string.edit_mosaic, AbstractPanel.TYPE_MOSAIC, null));
+        mEditList.add(new EditItem(R.drawable.icon_mosaic, R.string.edit_mosaic, AbstractPanel.TYPE_MOSAIC,
+                new EditMosaicPanel(mContext, panelListener)));
     }
 
     @NonNull

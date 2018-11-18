@@ -79,4 +79,8 @@
     <string name="edit_sticker_rotation">方向</string>
 
     <string name="edit_mosaic">马赛克</string>
+    <string name="edit_mosaic_size">大小</string>
+    <string name="edit_mosaic_strength">强度</string>
+    <string name="edit_mosaic_brush">画笔</string>
+    <string name="edit_mosaic_erase">橡皮擦</string>
 </resources>

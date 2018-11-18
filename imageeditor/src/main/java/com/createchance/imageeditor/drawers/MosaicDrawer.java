@@ -3,29 +3,28 @@ package com.createchance.imageeditor.drawers;
 import android.opengl.GLES20;
 
 import com.createchance.imageeditor.shaders.BaseVertexShader;
-import com.createchance.imageeditor.shaders.DenoiseFragmentShader;
+import com.createchance.imageeditor.shaders.MosaicFragmentShader;
 
 import java.nio.FloatBuffer;
 
 /**
- * ${DESC}
+ * Mosaic drawer.
  *
  * @author gaochao02
- * @date 2018/11/17
+ * @date 2018/11/18
  */
-public class DenoiseDrawer extends AbstractDrawer {
-
-    private static final String TAG = "DenoiseDrawer";
+public class MosaicDrawer extends AbstractDrawer {
+    private static final String TAG = "MosaicDrawer";
 
     private FloatBuffer mVertexPositionBuffer;
     private FloatBuffer mInputCoordinateBuffer;
 
     private BaseVertexShader mVertexShader;
-    private DenoiseFragmentShader mFragmentShader;
+    private MosaicFragmentShader mFragmentShader;
 
-    public DenoiseDrawer() {
+    public MosaicDrawer() {
         mVertexShader = new BaseVertexShader();
-        mFragmentShader = new DenoiseFragmentShader();
+        mFragmentShader = new MosaicFragmentShader();
         loadProgram(mVertexShader.getShaderId(), mFragmentShader.getShaderId());
         mVertexShader.initLocation(mProgramId);
         mFragmentShader.initLocation(mProgramId);
@@ -48,9 +47,14 @@ public class DenoiseDrawer extends AbstractDrawer {
         );
     }
 
-    public void setSketchSize(float width, float height) {
+    public void setImageSize(int width, int height) {
         GLES20.glUseProgram(mProgramId);
-        mFragmentShader.setUSketchSize(width, height);
+        mFragmentShader.setUImageSize(width, height);
+    }
+
+    public void setMosaicSize(float width, float height) {
+        GLES20.glUseProgram(mProgramId);
+        mFragmentShader.setUMosaicSize(width, height);
     }
 
     public void draw(int textureId,
