@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 /**
  * ${DESC}
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/17
  */
 public class DenoiseFragmentShader extends AbstractShader {
@@ -14,9 +14,11 @@ public class DenoiseFragmentShader extends AbstractShader {
     private final String FRAGMENT_SHADER = "DenoiseFragmentShader.glsl";
 
     private final String U_INPUT_TEXTURE = "u_InputTexture";
-    private final String U_SKETCH_SIZE = "u_Resolution";
+    private final String U_RESOLUTION = "u_Resolution";
+    private final String U_EXPONENT = "u_Exponent";
+    private final String U_STRENGTH = "u_Strength";
 
-    private int mUInputTexture, mUSketchSize;
+    private int mUInputTexture, mUResolution, mUExponent, mUStrength;
 
     public DenoiseFragmentShader() {
         initShader(FRAGMENT_SHADER, GLES20.GL_FRAGMENT_SHADER);
@@ -25,7 +27,9 @@ public class DenoiseFragmentShader extends AbstractShader {
     @Override
     public void initLocation(int programId) {
         mUInputTexture = GLES20.glGetUniformLocation(programId, U_INPUT_TEXTURE);
-        mUSketchSize = GLES20.glGetUniformLocation(programId, U_SKETCH_SIZE);
+        mUResolution = GLES20.glGetUniformLocation(programId, U_RESOLUTION);
+        mUExponent = GLES20.glGetUniformLocation(programId, U_EXPONENT);
+        mUStrength = GLES20.glGetUniformLocation(programId, U_STRENGTH);
     }
 
     public void setUInputTexture(int textureTarget, int textureId) {
@@ -35,8 +39,16 @@ public class DenoiseFragmentShader extends AbstractShader {
         GLES20.glUniform1i(mUInputTexture, textureTarget - GLES20.GL_TEXTURE0);
     }
 
-    public void setUSketchSize(float width, float height) {
+    public void setUResolution(float width, float height) {
         float[] vec = new float[]{width, height};
-        GLES20.glUniform2fv(mUSketchSize, 1, vec, 0);
+        GLES20.glUniform2fv(mUResolution, 1, vec, 0);
+    }
+
+    public void setUExponent(float exponent) {
+        GLES20.glUniform1f(mUExponent, exponent);
+    }
+
+    public void setUStrength(float strength) {
+        GLES20.glUniform1f(mUStrength, strength);
     }
 }

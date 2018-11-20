@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Mosaic operator.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/18
  */
 public class MosaicOperator extends AbstractOperator {

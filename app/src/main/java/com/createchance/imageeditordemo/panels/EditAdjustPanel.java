@@ -266,6 +266,9 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mDenoiseOp = new DenoiseOperator();
                     IEManager.getInstance().addOperator(mDenoiseOp);
                 }
+                mAdjustValue.setText(String.valueOf(progress * 100.0f / seekBar.getMax()));
+                mDenoiseOp.setExponent(progress * 100.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mDenoiseOp);
                 break;
             default:
                 break;
@@ -399,9 +402,13 @@ public class EditAdjustPanel extends AbstractPanel implements
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DENOISE:
+                mAdjustBar.setEnabled(true);
                 if (mDenoiseOp == null) {
-                    mDenoiseOp = new DenoiseOperator();
-                    IEManager.getInstance().addOperator(mDenoiseOp);
+                    mAdjustValue.setText(String.valueOf(5.0));
+                    mAdjustBar.setProgress((int) (mAdjustBar.getMax() * 0.05f));
+                } else {
+                    mAdjustValue.setText(String.valueOf(mDenoiseOp.getExponent()));
+                    mAdjustBar.setProgress((int) (mAdjustBar.getMax() * mDenoiseOp.getExponent() / 100f));
                 }
                 break;
             default:

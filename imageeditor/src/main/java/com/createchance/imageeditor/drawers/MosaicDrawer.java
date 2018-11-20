@@ -10,7 +10,7 @@ import java.nio.FloatBuffer;
 /**
  * Mosaic drawer.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/18
  */
 public class MosaicDrawer extends AbstractDrawer {

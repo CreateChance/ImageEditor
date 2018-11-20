@@ -10,7 +10,7 @@ import java.nio.FloatBuffer;
 /**
  * ${DESC}
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/17
  */
 public class DenoiseDrawer extends AbstractDrawer {
@@ -48,9 +48,14 @@ public class DenoiseDrawer extends AbstractDrawer {
         );
     }
 
-    public void setSketchSize(float width, float height) {
+    public void setResolution(float width, float height) {
         GLES20.glUseProgram(mProgramId);
-        mFragmentShader.setUSketchSize(width, height);
+        mFragmentShader.setUResolution(width, height);
+    }
+
+    public void setExponent(float exponent) {
+        GLES20.glUseProgram(mProgramId);
+        mFragmentShader.setUExponent(exponent);
     }
 
     public void draw(int textureId,

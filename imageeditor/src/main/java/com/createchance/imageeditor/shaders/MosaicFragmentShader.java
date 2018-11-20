@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 /**
  * Mosaic fragment shader.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/18
  */
 public class MosaicFragmentShader extends AbstractShader {

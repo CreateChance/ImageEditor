@@ -7,7 +7,7 @@ import com.createchance.imageeditor.drawers.DenoiseDrawer;
 /**
  * ${DESC}
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/17
  */
 public class DenoiseOperator extends AbstractOperator {
@@ -15,6 +15,8 @@ public class DenoiseOperator extends AbstractOperator {
     private static final String TAG = "DenoiseOperator";
 
     private int mWidth, mHeight;
+
+    private float mExponent = 5.0f;
 
     private DenoiseDrawer mDrawer;
 
@@ -33,7 +35,8 @@ public class DenoiseOperator extends AbstractOperator {
         if (mDrawer == null) {
             mDrawer = new DenoiseDrawer();
         }
-        mDrawer.setSketchSize(mWorker.getImgShowWidth(), mWorker.getImgShowHeight());
+        mDrawer.setResolution(mWorker.getImgShowWidth(), mWorker.getImgShowHeight());
+        mDrawer.setExponent(mExponent);
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
         GLES20.glScissor(mWorker.getImgShowLeft(),
                 mWorker.getImgShowBottom(),
@@ -47,5 +50,13 @@ public class DenoiseOperator extends AbstractOperator {
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
         mWorker.bindDefaultFrameBuffer();
         mWorker.swapTexture();
+    }
+
+    public float getExponent() {
+        return mExponent;
+    }
+
+    public void setExponent(float exponent) {
+        this.mExponent = exponent;
     }
 }

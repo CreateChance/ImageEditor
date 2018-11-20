@@ -14,7 +14,7 @@ import com.createchance.imageeditordemo.R;
 /**
  * Mosaic edit panel.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/18
  */
 public class EditMosaicPanel extends AbstractPanel implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
