@@ -35,7 +35,7 @@ public class DenoiseOperator extends AbstractOperator {
         if (mDrawer == null) {
             mDrawer = new DenoiseDrawer();
         }
-        mDrawer.setResolution(mWorker.getImgShowWidth(), mWorker.getImgShowHeight());
+        mDrawer.setResolution(mWorker.getSurfaceWidth(), mWorker.getSurfaceHeight());
         mDrawer.setExponent(mExponent);
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
         GLES20.glScissor(mWorker.getImgShowLeft(),

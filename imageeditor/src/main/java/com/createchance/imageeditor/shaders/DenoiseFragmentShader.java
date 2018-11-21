@@ -1,6 +1,7 @@
 package com.createchance.imageeditor.shaders;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 /**
  * ${DESC}
@@ -28,8 +29,8 @@ public class DenoiseFragmentShader extends AbstractShader {
     public void initLocation(int programId) {
         mUInputTexture = GLES20.glGetUniformLocation(programId, U_INPUT_TEXTURE);
         mUResolution = GLES20.glGetUniformLocation(programId, U_RESOLUTION);
-        mUExponent = GLES20.glGetUniformLocation(programId, U_EXPONENT);
-        mUStrength = GLES20.glGetUniformLocation(programId, U_STRENGTH);
+//        mUExponent = GLES20.glGetUniformLocation(programId, U_EXPONENT);
+//        mUStrength = GLES20.glGetUniformLocation(programId, U_STRENGTH);
     }
 
     public void setUInputTexture(int textureTarget, int textureId) {
@@ -41,11 +42,12 @@ public class DenoiseFragmentShader extends AbstractShader {
 
     public void setUResolution(float width, float height) {
         float[] vec = new float[]{width, height};
+        Log.d(TAG, "setUResolution: " + width + ", height: " + height);
         GLES20.glUniform2fv(mUResolution, 1, vec, 0);
     }
 
     public void setUExponent(float exponent) {
-        GLES20.glUniform1f(mUExponent, exponent);
+//        GLES20.glUniform1f(mUExponent, exponent);
     }
 
     public void setUStrength(float strength) {
