@@ -465,7 +465,7 @@ public class IEWorker extends HandlerThread {
     private static void saveBitmap(Bitmap bitmap, final File picFile, final SaveListener listener) {
         try {
             FileOutputStream out = new FileOutputStream(picFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
             UiThreadUtil.post(new Runnable() {
