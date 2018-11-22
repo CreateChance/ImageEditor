@@ -120,8 +120,8 @@ public class ModelViewOperator extends AbstractOperator {
         mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
                 0,
                 0,
-                mWorker.getSurfaceWidth(),
-                mWorker.getSurfaceHeight());
+                mWorker.getImgOriginWidth(),
+                mWorker.getImgOriginHeight());
         mWorker.bindDefaultFrameBuffer();
         mWorker.swapTexture();
     }

@@ -74,6 +74,7 @@ public class TextDrawer extends AbstractDrawer {
         Matrix.setIdentityM(mModelMatrix, 0);
         Matrix.setIdentityM(mViewMatrix, 0);
         Matrix.setIdentityM(mProjectionMatrix, 0);
+        Matrix.rotateM(mModelMatrix, 0, 180, 1, 0, 0);
     }
 
     public void setText(String fontPath, String text, int textSize) {

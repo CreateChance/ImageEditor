@@ -1,7 +1,5 @@
 package com.createchance.imageeditor.ops;
 
-import android.opengl.GLES20;
-
 import com.createchance.imageeditor.drawers.ContrastAdjustDrawer;
 
 /**
@@ -36,17 +34,11 @@ public class ContrastAdjustOperator extends AbstractOperator {
             mDrawer = new ContrastAdjustDrawer();
         }
         mDrawer.setContrast(mContrast);
-        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-        GLES20.glScissor(mWorker.getImgShowLeft(),
-                mWorker.getImgShowBottom(),
-                mWorker.getImgShowWidth(),
-                mWorker.getImgShowHeight());
         mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
                 0,
                 0,
-                mWorker.getSurfaceWidth(),
-                mWorker.getSurfaceHeight());
-        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+                mWorker.getImgOriginWidth(),
+                mWorker.getImgOriginHeight());
         mWorker.bindDefaultFrameBuffer();
         mWorker.swapTexture();
     }

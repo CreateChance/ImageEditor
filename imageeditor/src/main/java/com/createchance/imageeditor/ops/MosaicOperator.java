@@ -59,13 +59,13 @@ public class MosaicOperator extends AbstractOperator {
                         area.y,
                         area.width,
                         area.height);
-                mDrawer.setImageSize(mWorker.getImgShowWidth(), mWorker.getImgShowHeight());
+                mDrawer.setImageSize(mWorker.getImgOriginWidth(), mWorker.getImgOriginHeight());
                 mDrawer.setMosaicSize(mMosaicWidth, mMosaicHeight);
                 mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
                         0,
                         0,
-                        mWorker.getSurfaceWidth(),
-                        mWorker.getSurfaceHeight());
+                        mWorker.getImgOriginWidth(),
+                        mWorker.getImgOriginHeight());
             }
         }
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);

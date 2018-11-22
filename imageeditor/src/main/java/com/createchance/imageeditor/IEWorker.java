@@ -8,7 +8,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
 
-import com.createchance.imageeditor.drawers.BaseImageDrawer;
+import com.createchance.imageeditor.drawers.FboDrawer;
 import com.createchance.imageeditor.gles.EglCore;
 import com.createchance.imageeditor.gles.WindowSurface;
 import com.createchance.imageeditor.ops.AbstractOperator;
@@ -54,11 +54,12 @@ public class IEWorker extends HandlerThread {
     private int mSurfaceWidth, mSurfaceHeight;
     private int mBaseImgShowWidth, mBaseImgShowHeight;
     private int mImgOriginWidth, mImgOriginHeight;
+    private float mImgScaleFactor = 1.0f;
     private int mBaseImgPosX, mBaseImgPosY;
     private int[] mFboBuffer = new int[1];
     private int[] mFboTextureIds = new int[2];
     private int mInputTextureIndex = 0, mOutputTextureIndex = 1;
-    private BaseImageDrawer mFboReader;
+    private FboDrawer mFboReader;
 
     // operator list
     private Stack<AbstractOperator> mOpList;
@@ -220,6 +221,18 @@ public class IEWorker extends HandlerThread {
         return mBaseImgShowHeight;
     }
 
+    public float getImgScaleFactor() {
+        return mImgScaleFactor;
+    }
+
+    public int getImgOriginWidth() {
+        return mImgOriginWidth;
+    }
+
+    public int getImgOriginHeight() {
+        return mImgOriginHeight;
+    }
+
     public int getImgShowTop() {
         return mBaseImgPosY + mBaseImgShowHeight;
     }
@@ -284,9 +297,6 @@ public class IEWorker extends HandlerThread {
         mSurfaceWidth = width;
         mSurfaceHeight = height;
         createOffScreenFrameBuffer();
-        createOffScreenTextures();
-
-        mFboReader = new BaseImageDrawer(1.0f, 1.0f, true);
     }
 
     private void handleStop() {
@@ -394,53 +404,49 @@ public class IEWorker extends HandlerThread {
         mImgOriginHeight = operator.getImage().getHeight();
         int imgWidth = mImgOriginWidth;
         int imgHeight = mImgOriginHeight;
-        float scale = 1.0f;
         if (imgWidth > imgHeight) {
             if (imgWidth > mSurfaceWidth) {
-                scale = mSurfaceWidth * 1.0f / imgWidth;
+                mImgScaleFactor = mSurfaceWidth * 1.0f / imgWidth;
                 imgWidth = mSurfaceWidth;
-                imgHeight = (int) (imgHeight * scale);
+                imgHeight = (int) (imgHeight * mImgScaleFactor);
             }
         } else if (imgWidth == imgHeight) {
             if (imgWidth > mSurfaceWidth) {
+                mImgScaleFactor = mSurfaceWidth * 1.0f / imgWidth;
                 imgWidth = mSurfaceWidth;
                 imgHeight = imgWidth;
             }
         } else {
             if (imgHeight > mSurfaceHeight) {
-                scale = mSurfaceHeight * 1.0f / imgHeight;
+                mImgScaleFactor = mSurfaceHeight * 1.0f / imgHeight;
                 imgHeight = mSurfaceHeight;
-                imgWidth = (int) (imgWidth * scale);
+                imgWidth = (int) (imgWidth * mImgScaleFactor);
             }
         }
         mBaseImgPosX = (mSurfaceWidth - imgWidth) / 2;
         mBaseImgPosY = (mSurfaceHeight - imgHeight) / 2;
         mBaseImgShowWidth = imgWidth;
         mBaseImgShowHeight = imgHeight;
+
+        mFboReader = new FboDrawer(mBaseImgShowWidth * 1.0f / mSurfaceWidth,
+                mBaseImgShowHeight * 1.0f / mSurfaceHeight);
+        createOffScreenTextures();
     }
 
     private void captureImage(File target, final SaveListener listener) {
         final Semaphore waiter = new Semaphore(0);
 
         // Take picture on OpenGL thread
-        final int[] pixelMirroredArray = new int[mBaseImgShowWidth * mBaseImgShowHeight];
-        final IntBuffer pixelBuffer = IntBuffer.allocate(mBaseImgShowWidth * mBaseImgShowHeight);
-        GLES20.glReadPixels(mBaseImgPosX,
-                mBaseImgPosY,
-                mBaseImgShowWidth,
-                mBaseImgShowHeight,
+        final IntBuffer pixelBuffer = IntBuffer.allocate(mImgOriginWidth * mImgOriginHeight);
+        GLES20.glReadPixels(0,
+                0,
+                mImgOriginWidth,
+                mImgOriginHeight,
                 GLES20.GL_RGBA,
                 GLES20.GL_UNSIGNED_BYTE,
                 pixelBuffer);
         int[] pixelArray = pixelBuffer.array();
 
-        // Convert upside down mirror-reversed image to right-side up normal image.
-        for (int i = 0; i < mBaseImgShowHeight; i++) {
-            for (int j = 0; j < mBaseImgShowWidth; j++) {
-                pixelMirroredArray[(mBaseImgShowHeight - i - 1) * mBaseImgShowWidth + j] =
-                        pixelArray[i * mBaseImgShowWidth + j];
-            }
-        }
         waiter.release();
         try {
             waiter.acquire();
@@ -457,8 +463,8 @@ public class IEWorker extends HandlerThread {
             return;
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(mBaseImgShowWidth, mBaseImgShowHeight, Bitmap.Config.ARGB_8888);
-        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(pixelMirroredArray));
+        Bitmap bitmap = Bitmap.createBitmap(mImgOriginWidth, mImgOriginHeight, Bitmap.Config.ARGB_8888);
+        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(pixelArray));
         saveBitmap(bitmap, target, listener);
     }
 
@@ -504,7 +510,7 @@ public class IEWorker extends HandlerThread {
         for (int mTextureId : mFboTextureIds) {
             // bind to fbo texture cause we are going to do setting.
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId);
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, mSurfaceWidth, mSurfaceHeight,
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, mImgOriginWidth, mImgOriginHeight,
                     0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
             // 设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
             GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
