@@ -41,13 +41,10 @@ public class TextOperator extends AbstractOperator {
     public boolean checkRational() {
         return !TextUtils.isEmpty(mText)
                 && !TextUtils.isEmpty(mFontPath)
-                && mPosX >= 0
-                && mPosY >= 0
                 && mSize >= 0
                 && mRed >= 0.0f
                 && mGreen >= 0.0f
                 && mBlue >= 0.0f;
-
     }
 
     @Override
@@ -63,15 +60,15 @@ public class TextOperator extends AbstractOperator {
         }
 
         // adjust position
-        if (mPosX > mWorker.getImgShowRight() - mDrawer.getWidth()) {
-            mPosX = mWorker.getImgShowRight() - mDrawer.getWidth();
-        } else if (mPosX < mWorker.getImgShowLeft()) {
-            mPosX = mWorker.getImgShowLeft();
+        if (mPosX > mWorker.getImgOriginWidth() - mDrawer.getWidth()) {
+            mPosX = mWorker.getImgOriginWidth() - mDrawer.getWidth();
+        } else if (mPosX < 0) {
+            mPosX = 0;
         }
-        if (mPosY > mWorker.getImgShowTop() - mDrawer.getHeight()) {
-            mPosY = mWorker.getImgShowTop() - mDrawer.getHeight();
-        } else if (mPosY < mWorker.getImgShowBottom()) {
-            mPosY = mWorker.getImgShowBottom();
+        if (mPosY > mWorker.getImgOriginHeight()) {
+            mPosY = mWorker.getImgOriginHeight();
+        } else if (mPosY < mDrawer.getHeight()) {
+            mPosY = mDrawer.getHeight();
         }
 
         mDrawer.setTextAlpha(mAlpha);
@@ -83,7 +80,7 @@ public class TextOperator extends AbstractOperator {
         } else {
             mDrawer.setTextColor(mRed, mGreen, mBlue);
         }
-        mDrawer.draw(mPosX, mPosY);
+        mDrawer.draw(mPosX, mWorker.getImgOriginHeight() - mPosY);
         mWorker.bindDefaultFrameBuffer();
     }
 
@@ -117,16 +114,16 @@ public class TextOperator extends AbstractOperator {
         return mPosX;
     }
 
-    public void setPosX(int mPosX) {
-        this.mPosX = mPosX;
+    public void moveByX(int deltaX) {
+        mPosX += deltaX;
     }
 
     public int getPosY() {
         return mPosY;
     }
 
-    public void setPosY(int mPosY) {
-        this.mPosY = mPosY;
+    public void moveByY(int deltaY) {
+        mPosY -= deltaY;
     }
 
     public int getSize() {

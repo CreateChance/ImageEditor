@@ -244,22 +244,15 @@ public class EditTextPanel extends AbstractPanel implements
         mGestureDetector.onTouchEvent(event);
     }
 
-    public void moveText(int deltaX, int deltaY) {
+    private void moveText(int deltaX, int deltaY) {
         if (mTextOpList.size() == 0) {
             return;
         }
         TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
-        int curX = textOperator.getPosX() + deltaX;
-        int curY = textOperator.getPosY() - deltaY;
-        if (curX < 0) {
-            curX = 0;
-        }
-        if (curY < 0) {
-            curY = 0;
-        }
-        textOperator.setPosX(curX);
-        textOperator.setPosY(curY);
+        textOperator.moveByX(deltaX);
+        textOperator.moveByY(deltaY);
         IEManager.getInstance().updateOperator(textOperator);
+        Log.d(TAG, "moveText: " + deltaX + ", " + deltaY);
     }
 
     private void initFontPanel() {
