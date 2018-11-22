@@ -401,6 +401,11 @@ public class IEWorker extends HandlerThread {
                 imgWidth = mSurfaceWidth;
                 imgHeight = (int) (imgHeight * scale);
             }
+        } else if (imgWidth == imgHeight) {
+            if (imgWidth > mSurfaceWidth) {
+                imgWidth = mSurfaceWidth;
+                imgHeight = imgWidth;
+            }
         } else {
             if (imgHeight > mSurfaceHeight) {
                 scale = mSurfaceHeight * 1.0f / imgHeight;
