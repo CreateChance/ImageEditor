@@ -25,7 +25,7 @@ public class StickerOperator extends AbstractOperator {
     private int mTextureId;
     private float mAlphaFactor = 1.0f;
     private float mRed = 1.0f, mGreen = 1.0f, mBlue = 1.0f;
-    private float mRotateX, mRotateY, mRotateZ;
+    private float mRotateX = 180, mRotateY, mRotateZ;
 
     private StickerOperator() {
         super(StickerOperator.class.getSimpleName(), OP_STICKER);
@@ -63,16 +63,16 @@ public class StickerOperator extends AbstractOperator {
         return mPosX;
     }
 
-    public void setPosX(int posX) {
-        this.mPosX = posX;
+    public void moveByX(int deltaX) {
+        this.mPosX += deltaX;
     }
 
     public int getPosY() {
         return mPosY;
     }
 
-    public void setPosY(int posY) {
-        this.mPosY = posY;
+    public void moveByY(int deltaY) {
+        this.mPosY -= deltaY;
     }
 
     public int getWidth() {
@@ -108,9 +108,7 @@ public class StickerOperator extends AbstractOperator {
         return mSticker != null &&
                 mScaleFactor >= 0 &&
                 mWidth >= 0 &&
-                mHeight >= 0 &&
-                mPosX >= 0 &&
-                mPosY >= 0;
+                mHeight >= 0;
     }
 
     @Override
@@ -130,7 +128,7 @@ public class StickerOperator extends AbstractOperator {
         mDrawer.setRotate(mRotateX, mRotateY, mRotateZ);
         mDrawer.draw(mTextureId,
                 mPosX,
-                mPosY,
+                mWorker.getImgOriginHeight() - mPosY,
                 (int) (mWidth * mScaleFactor),
                 (int) (mHeight * mScaleFactor));
         mWorker.bindDefaultFrameBuffer();

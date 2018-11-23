@@ -73,22 +73,8 @@ public class EditStickerPanel extends AbstractPanel implements
                 mLastY = (int) event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                int curX = (int) (mCurOp.getPosX() + (event.getX() - mLastX));
-                int curY = (int) (mCurOp.getPosY() - (event.getY() - mLastY));
-                if (curX < IEManager.getInstance().getImgShowLeft()) {
-                    curX = IEManager.getInstance().getImgShowLeft();
-                } else if (curX > IEManager.getInstance().getImgShowRight() - mCurOp.getWidth() * mCurOp.getScaleFactor()) {
-                    curX = (int) (IEManager.getInstance().getImgShowRight() - mCurOp.getWidth() * mCurOp.getScaleFactor());
-                }
-
-                if (curY < IEManager.getInstance().getImgShowBottom()) {
-                    curY = IEManager.getInstance().getImgShowBottom();
-                } else if (curY > IEManager.getInstance().getImgShowTop() - mCurOp.getHeight() * mCurOp.getScaleFactor()) {
-                    curY = (int) (IEManager.getInstance().getImgShowTop() - mCurOp.getHeight() * mCurOp.getScaleFactor());
-                }
-
-                mCurOp.setPosX(curX);
-                mCurOp.setPosY(curY);
+                mCurOp.moveByX((int) event.getX() - mLastX);
+                mCurOp.moveByY((int) event.getY() - mLastY);
                 mLastX = (int) event.getX();
                 mLastY = (int) event.getY();
                 IEManager.getInstance().updateOperator(mCurOp);
