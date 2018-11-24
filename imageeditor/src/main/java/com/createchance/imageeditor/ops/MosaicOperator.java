@@ -91,12 +91,20 @@ public class MosaicOperator extends AbstractOperator {
     }
 
     public void addArea(float x, float y) {
+        if (x > mWorker.getImgShowRight() || x < mWorker.getImgShowLeft()) {
+            return;
+        }
+
+        if ((mWorker.getSurfaceHeight() - y) > mWorker.getImgShowTop() ||
+                (mWorker.getSurfaceHeight() - y) < mWorker.getImgShowBottom()) {
+            return;
+        }
 
         synchronized (mMosaicAreaList) {
             int curIndex = -1;
             for (int i = 0; i < mMosaicAreaList.size(); i++) {
                 Area area = mMosaicAreaList.get(i);
-                if (area.isIn(x, mWorker.getSurfaceHeight() - y)) {
+                if (area.isIn(x, y)) {
                     curIndex = mMosaicAreaList.indexOf(area);
                     break;
                 }
@@ -105,7 +113,7 @@ public class MosaicOperator extends AbstractOperator {
             if (curIndex == -1) {
                 Area area = new Area();
                 int xIndex = (int) (x / area.width);
-                int yIndex = (int) ((mWorker.getSurfaceHeight() - y) / area.height);
+                int yIndex = (int) (y / area.height);
                 area.x = area.width * xIndex;
                 area.y = area.height * yIndex;
                 mMosaicAreaList.add(area);
@@ -123,7 +131,7 @@ public class MosaicOperator extends AbstractOperator {
         synchronized (mMosaicAreaList) {
             int indexToRemove = -1;
             for (Area area : mMosaicAreaList) {
-                if (area.isIn(x, mWorker.getSurfaceHeight() - y)) {
+                if (area.isIn(x, mWorker.getImgOriginHeight() - y)) {
                     indexToRemove = mMosaicAreaList.indexOf(area);
                     break;
                 }
@@ -165,8 +173,8 @@ public class MosaicOperator extends AbstractOperator {
     private class Area {
         int x;
         int y;
-        int width = (int) (mWorker.getSurfaceWidth() * 1.0f / getScaledSpanCount());
-        int height = (int) (mWorker.getSurfaceHeight() * 1.0f / getScaledSpanCount());
+        int width = (int) (mWorker.getImgOriginWidth() * 1.0f / getScaledSpanCount());
+        int height = (int) (mWorker.getImgOriginHeight() * 1.0f / getScaledSpanCount());
 
         @Override
         public String toString() {

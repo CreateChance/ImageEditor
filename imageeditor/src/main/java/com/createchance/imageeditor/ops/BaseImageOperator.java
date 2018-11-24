@@ -42,6 +42,12 @@ public class BaseImageOperator extends AbstractOperator {
                 0,
                 mWorker.getImgOriginWidth(),
                 mWorker.getImgOriginHeight());
+        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
+        mDrawer.draw(mTextureId,
+                0,
+                0,
+                mWorker.getImgOriginWidth(),
+                mWorker.getImgOriginHeight());
         mWorker.bindDefaultFrameBuffer();
     }
 
