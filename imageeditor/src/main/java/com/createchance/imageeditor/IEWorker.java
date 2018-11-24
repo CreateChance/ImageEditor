@@ -299,7 +299,7 @@ public class IEWorker extends HandlerThread {
     private void handleOperator(AbstractOperator operator, boolean swap) {
         switch (operator.getType()) {
             case AbstractOperator.OP_BASE_IMAGE:
-                adjustBaseImage((BaseImageOperator) operator);
+                adjustBaseImage(((BaseImageOperator) operator));
                 break;
             case AbstractOperator.OP_FILTER:
                 break;
@@ -389,9 +389,9 @@ public class IEWorker extends HandlerThread {
         }
     }
 
-    private void adjustBaseImage(BaseImageOperator operator) {
-        mImgOriginWidth = operator.getImage().getWidth();
-        mImgOriginHeight = operator.getImage().getHeight();
+    private void adjustBaseImage(BaseImageOperator baseImageOperator) {
+        mImgOriginWidth = baseImageOperator.getImageWidth();
+        mImgOriginHeight = baseImageOperator.getImageHeight();
         int imgWidth = mImgOriginWidth;
         int imgHeight = mImgOriginHeight;
         float scale = 1.0f;
@@ -413,10 +413,23 @@ public class IEWorker extends HandlerThread {
                 imgWidth = (int) (imgWidth * scale);
             }
         }
-        mBaseImgPosX = (mSurfaceWidth - imgWidth) / 2;
-        mBaseImgPosY = (mSurfaceHeight - imgHeight) / 2;
-        mBaseImgShowWidth = imgWidth;
-        mBaseImgShowHeight = imgHeight;
+
+        if (baseImageOperator.getScissorX() == -1 ||
+                baseImageOperator.getScissorY() == -1 ||
+                baseImageOperator.getScissorWidth() == -1 ||
+                baseImageOperator.getScissorHeight() == -1) {
+            baseImageOperator.setScissor(
+                    (mSurfaceWidth - imgWidth) / 2,
+                    (mSurfaceHeight - imgHeight) / 2,
+                    imgWidth,
+                    imgHeight
+
+            );
+        }
+        mBaseImgPosX = baseImageOperator.getScissorX();
+        mBaseImgPosY = baseImageOperator.getScissorY();
+        mBaseImgShowWidth = baseImageOperator.getScissorWidth();
+        mBaseImgShowHeight = baseImageOperator.getScissorHeight();
     }
 
     private void captureImage(File target, final SaveListener listener) {

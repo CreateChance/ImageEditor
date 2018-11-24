@@ -15,6 +15,7 @@ import com.createchance.imageeditordemo.panels.EditAdjustPanel;
 import com.createchance.imageeditordemo.panels.EditFilterPanel;
 import com.createchance.imageeditordemo.panels.EditFocusPanel;
 import com.createchance.imageeditordemo.panels.EditMosaicPanel;
+import com.createchance.imageeditordemo.panels.EditScissorPanel;
 import com.createchance.imageeditordemo.panels.EditStickerPanel;
 import com.createchance.imageeditordemo.panels.EditTextPanel;
 import com.createchance.imageeditordemo.panels.EditTransformPanel;
@@ -51,7 +52,8 @@ public class EditListAdapter extends RecyclerView.Adapter<EditListAdapter.ViewHo
                 new EditFilterPanel(mContext, panelListener)));
         mEditList.add(new EditItem(R.drawable.icon_adjust, R.string.edit_adjust, AbstractPanel.TYPE_ADJUST,
                 new EditAdjustPanel(mContext, panelListener)));
-        mEditList.add(new EditItem(R.drawable.icon_cut, R.string.edit_cut, AbstractPanel.TYPE_CUT, null));
+        mEditList.add(new EditItem(R.drawable.icon_cut, R.string.edit_cut, AbstractPanel.TYPE_CUT,
+                new EditScissorPanel(mContext, panelListener)));
         mEditList.add(new EditItem(R.drawable.icon_rotate, R.string.edit_transform, AbstractPanel.TYPE_ROTATE,
                 new EditTransformPanel(mContext, panelListener)));
         mEditList.add(new EditItem(R.drawable.icon_text, R.string.edit_text, AbstractPanel.TYPE_TEXT,

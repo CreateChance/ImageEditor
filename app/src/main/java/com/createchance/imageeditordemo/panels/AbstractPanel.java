@@ -55,8 +55,12 @@ public abstract class AbstractPanel {
         mParent.setBackgroundColor(mContext.getResources().getColor(R.color.black));
         mParent.removeAllViews();
         if (mListener != null) {
-            mListener.onPanelClosed(mType);
+            mListener.onPanelClosed(mType, discard);
         }
+    }
+
+    public int getType() {
+        return mType;
     }
 
     public abstract void onTouchEvent(MotionEvent event);
@@ -64,6 +68,6 @@ public abstract class AbstractPanel {
     public interface PanelListener {
         void onPanelShow(int type);
 
-        void onPanelClosed(int type);
+        void onPanelClosed(int type, boolean discard);
     }
 }

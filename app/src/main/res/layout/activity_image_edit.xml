@@ -111,4 +111,37 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/vw_title" />
 
+    <View
+        android:id="@+id/vw_scissor_top_mask"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/vw_title"
+        android:background="@color/theme_transparent_dark" />
+
+    <View
+        android:id="@+id/vw_scissor_bottom_mask"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@id/vw_edit_panel_container"
+        android:layout_alignBottom="@id/vw_texture"
+        android:background="@color/theme_transparent_dark" />
+
+    <View
+        android:id="@+id/vw_scissor_left_mask"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/vw_scissor_bottom_mask"
+        android:layout_below="@id/vw_scissor_top_mask"
+        android:layout_alignParentStart="true"
+        android:background="@color/theme_transparent_dark" />
+
+    <View
+        android:id="@+id/vw_scissor_right_mask"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/vw_scissor_bottom_mask"
+        android:layout_below="@id/vw_scissor_top_mask"
+        android:layout_alignParentEnd="true"
+        android:background="@color/theme_transparent_dark" />
+
 </RelativeLayout>

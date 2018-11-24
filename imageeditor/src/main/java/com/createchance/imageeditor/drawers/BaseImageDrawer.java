@@ -71,10 +71,6 @@ public class BaseImageDrawer extends AbstractDrawer {
 
         GLES20.glViewport(posX, posY, width, height);
 
-        GLES20.glClearColor(0, 0, 0, 0);
-
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
         mVertexShader.setUModelMatrix(mModelMatrix);
         mVertexShader.setUViewMatrix(mViewMatrix);
         mVertexShader.setUProjectionMatrix(mProjectionMatrix);

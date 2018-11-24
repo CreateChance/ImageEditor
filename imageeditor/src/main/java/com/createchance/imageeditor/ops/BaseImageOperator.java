@@ -1,6 +1,7 @@
 package com.createchance.imageeditor.ops;
 
 import android.graphics.Bitmap;
+import android.opengl.GLES20;
 
 import com.createchance.imageeditor.drawers.BaseImageDrawer;
 import com.createchance.imageeditor.utils.OpenGlUtils;
@@ -18,6 +19,8 @@ public class BaseImageOperator extends AbstractOperator {
     private Bitmap mImage;
     private float mWidthScaleFactor = 1.0f, mHeightScaleFactor = 1.0f;
     private int mTextureId;
+
+    private int mScissorX = -1, mScissorY = -1, mScissorWidth = -1, mScissorHeight = -1;
 
     private BaseImageDrawer mDrawer;
 
@@ -37,21 +40,57 @@ public class BaseImageOperator extends AbstractOperator {
     public void exec() {
         mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getInputTextureIndex()]);
         if (mDrawer == null) {
-            mWidthScaleFactor = mWorker.getImgShowWidth() * 1.0f / mWorker.getSurfaceWidth();
-            mHeightScaleFactor = mWorker.getImgShowHeight() * 1.0f / mWorker.getSurfaceHeight();
+            mWidthScaleFactor = mScissorWidth * 1.0f / mWorker.getSurfaceWidth();
+            mHeightScaleFactor = mScissorHeight * 1.0f / mWorker.getSurfaceHeight();
             mDrawer = new BaseImageDrawer(mWidthScaleFactor, mHeightScaleFactor, false);
             mTextureId = OpenGlUtils.loadTexture(mImage, OpenGlUtils.NO_TEXTURE, false);
         }
+
+        GLES20.glClearColor(0, 0, 0, 0);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+        GLES20.glScissor(mScissorX,
+                mScissorY,
+                mScissorWidth,
+                mScissorHeight);
         mDrawer.draw(mTextureId,
                 0,
                 0,
                 mWorker.getSurfaceWidth(),
                 mWorker.getSurfaceHeight());
+        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
         mWorker.bindDefaultFrameBuffer();
     }
 
-    public Bitmap getImage() {
-        return mImage;
+    public void setScissor(int scissorX, int scissorY, int scissorWidth, int scissorHeight) {
+        this.mScissorX = scissorX;
+        this.mScissorY = scissorY;
+        this.mScissorWidth = scissorWidth;
+        this.mScissorHeight = scissorHeight;
+    }
+
+    public int getScissorX() {
+        return mScissorX;
+    }
+
+    public int getScissorY() {
+        return mScissorY;
+    }
+
+    public int getScissorWidth() {
+        return mScissorWidth;
+    }
+
+    public int getScissorHeight() {
+        return mScissorHeight;
+    }
+
+    public int getImageWidth() {
+        return mImage.getWidth();
+    }
+
+    public int getImageHeight() {
+        return mImage.getHeight();
     }
 
     public static class Builder {
