@@ -191,6 +191,9 @@ public class ImageEditActivity extends AppCompatActivity implements
         mEditListAdapter = new EditListAdapter(this, new EditListAdapter.ItemClickListener() {
             @Override
             public void onItemClicked(EditListAdapter.EditItem editItem) {
+                if (mCurrentPanel != null) {
+                    mCurrentPanel.close(true);
+                }
                 mCurrentPanel = editItem.editPanel;
                 if (editItem.editPanel != null) {
                     editItem.editPanel.show(mEditPanelContainer, mTextureWidth, mTextureHeight);
@@ -296,7 +299,7 @@ public class ImageEditActivity extends AppCompatActivity implements
                 break;
             case AbstractPanel.TYPE_CUT:
                 RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) mVwLeftScissor.getLayoutParams();
-                leftParams.width =IEManager.getInstance().getImgShowLeft();
+                leftParams.width = IEManager.getInstance().getImgShowLeft();
                 mVwLeftScissor.setLayoutParams(leftParams);
 
                 RelativeLayout.LayoutParams topParams = (RelativeLayout.LayoutParams) mVwTopScissor.getLayoutParams();
