@@ -97,7 +97,7 @@ public class AdjustListAdapter extends RecyclerView.Adapter<AdjustListAdapter.Vi
         mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_DENOISE,
                 R.drawable.icon_adjust_denoise,
                 R.string.edit_adjust_denoise));
-        mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_CURVE,
+        mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_RGB,
                 R.drawable.icon_adjust_curve,
                 R.string.edit_adjust_curve));
         mAdjustItemList.add(new AdjustItem(AdjustItem.TYPE_COLOR_BALANCE,
@@ -145,7 +145,7 @@ public class AdjustListAdapter extends RecyclerView.Adapter<AdjustListAdapter.Vi
         public static final int TYPE_COLOR_TEMP = 7;
         public static final int TYPE_TONE = 8;
         public static final int TYPE_DENOISE = 9;
-        public static final int TYPE_CURVE = 10;
+        public static final int TYPE_RGB = 10;
         public static final int TYPE_COLOR_BALANCE = 11;
         public static final int TYPE_EXPOSURE = 12;
         public static final int TYPE_GAMMA = 13;

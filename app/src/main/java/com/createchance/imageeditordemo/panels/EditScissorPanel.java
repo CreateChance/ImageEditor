@@ -11,7 +11,7 @@ import com.createchance.imageeditordemo.R;
 /**
  * Scissor edit panel.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/24
  */
 public class EditScissorPanel extends AbstractPanel implements View.OnClickListener {

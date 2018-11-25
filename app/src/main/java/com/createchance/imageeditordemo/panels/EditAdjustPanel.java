@@ -18,6 +18,7 @@ import com.createchance.imageeditor.ops.DenoiseOperator;
 import com.createchance.imageeditor.ops.ExposureAdjustOperator;
 import com.createchance.imageeditor.ops.GammaAdjustOperator;
 import com.createchance.imageeditor.ops.HighlightAdjustOperator;
+import com.createchance.imageeditor.ops.RGBAdjustOperator;
 import com.createchance.imageeditor.ops.SaturationAdjustOperator;
 import com.createchance.imageeditor.ops.ShadowAdjustOperator;
 import com.createchance.imageeditor.ops.SharpenAdjustOperator;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ${DESC}
+ * Image params adjust panel.
  *
  * @author createchance
  * @date 2018/11/2
@@ -59,20 +60,32 @@ public class EditAdjustPanel extends AbstractPanel implements
     private TempAdjustOperator mTempOp;
     private TintAdjustOperator mTintOp;
     private DenoiseOperator mDenoiseOp;
+    private RGBAdjustOperator mRGBOp;
 
-    private TextView mAdjustName, mAdjustValue;
+    private TextView mAdjustName1, mAdjustValue1, mAdjustName2, mAdjustValue2, mAdjustName3, mAdjustValue3;
 
-    private SeekBar mAdjustBar;
+    private SeekBar mAdjustBar1, mAdjustBar2, mAdjustBar3;
 
     public EditAdjustPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_ADJUST);
 
         mAdjustPanel = LayoutInflater.from(mContext).inflate(R.layout.edit_panel_adjust, mParent, false);
-        mAdjustName = mAdjustPanel.findViewById(R.id.tv_adjust_name);
-        mAdjustValue = mAdjustPanel.findViewById(R.id.tv_adjust_value);
-        mAdjustBar = mAdjustPanel.findViewById(R.id.sb_adjust_bar);
-        mAdjustBar.setEnabled(false);
-        mAdjustBar.setOnSeekBarChangeListener(this);
+        mAdjustName1 = mAdjustPanel.findViewById(R.id.tv_adjust_name_1);
+        mAdjustValue1 = mAdjustPanel.findViewById(R.id.tv_adjust_value_1);
+        mAdjustName2 = mAdjustPanel.findViewById(R.id.tv_adjust_name_2);
+        mAdjustValue2 = mAdjustPanel.findViewById(R.id.tv_adjust_value_2);
+        mAdjustName3 = mAdjustPanel.findViewById(R.id.tv_adjust_name_3);
+        mAdjustValue3 = mAdjustPanel.findViewById(R.id.tv_adjust_value_3);
+        mAdjustBar1 = mAdjustPanel.findViewById(R.id.sb_adjust_bar_1);
+        mAdjustBar1.setOnSeekBarChangeListener(this);
+        mAdjustBar1.setVisibility(View.GONE);
+        mAdjustBar2 = mAdjustPanel.findViewById(R.id.sb_adjust_bar_2);
+        mAdjustBar2.setOnSeekBarChangeListener(this);
+        mAdjustBar2.setVisibility(View.GONE);
+        mAdjustBar3 = mAdjustPanel.findViewById(R.id.sb_adjust_bar_3);
+        mAdjustBar3.setOnSeekBarChangeListener(this);
+        mAdjustBar3.setVisibility(View.GONE);
+        mAdjustPanel.findViewById(R.id.vw_control_params).setVisibility(View.GONE);
         RecyclerView adjustListView = mAdjustPanel.findViewById(R.id.rcv_adjust_list);
         adjustListView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         AdjustListAdapter adjustListAdapter = new AdjustListAdapter(mContext, this);
@@ -85,7 +98,9 @@ public class EditAdjustPanel extends AbstractPanel implements
     public void show(ViewGroup parent, int surfaceWidth, int surfaceHeight) {
         super.show(parent, surfaceWidth, surfaceHeight);
 
-        mParent.addView(mAdjustPanel);
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        mParent.addView(mAdjustPanel, params);
     }
 
     @Override
@@ -130,6 +145,9 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mDenoiseOp != null) {
                 operatorList.add(mDenoiseOp);
             }
+            if (mRGBOp != null) {
+                operatorList.add(mRGBOp);
+            }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
             mExposureOp = null;
@@ -143,6 +161,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             mTempOp = null;
             mTintOp = null;
             mDenoiseOp = null;
+            mRGBOp = null;
         }
     }
 
@@ -164,7 +183,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     IEManager.getInstance().addOperator(mBrightnessOp);
                 }
 
-                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax()));
                 mBrightnessOp.setBrightness(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mBrightnessOp);
                 break;
@@ -174,7 +193,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     IEManager.getInstance().addOperator(mExposureOp);
                 }
 
-                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mExposureOp.setExposure(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mExposureOp);
                 break;
@@ -184,7 +203,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     IEManager.getInstance().addOperator(mGammaOp);
                 }
 
-                mAdjustValue.setText(String.valueOf(progress * 4.0f / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(progress * 4.0f / seekBar.getMax()));
                 mGammaOp.setGamma(progress * 4.0f / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mGammaOp);
                 break;
@@ -194,7 +213,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     IEManager.getInstance().addOperator(mContrastOp);
                 }
 
-                mAdjustValue.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
                 mContrastOp.setContrast(progress * 2.0f / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mContrastOp);
                 break;
@@ -203,7 +222,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mSaturationOp = new SaturationAdjustOperator.Builder().build();
                     IEManager.getInstance().addOperator(mSaturationOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
                 mSaturationOp.setSaturation(progress * 2.0f / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mSaturationOp);
                 break;
@@ -212,7 +231,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mSharpenOp = new SharpenAdjustOperator.Builder().build();
                     IEManager.getInstance().addOperator(mSharpenOp);
                 }
-                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax()));
                 mSharpenOp.setSharpness(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mSharpenOp);
                 break;
@@ -221,7 +240,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mVignetteOp = new VignetteOperator.Builder().build();
                     IEManager.getInstance().addOperator(mVignetteOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
                 mVignetteOp.setStart(progress * 1.0f / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mVignetteOp);
                 break;
@@ -230,7 +249,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mShadowOp = new ShadowAdjustOperator.Builder().build();
                     IEManager.getInstance().addOperator(mShadowOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress * 1.0f * 100 / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(progress * 1.0f * 100 / seekBar.getMax()));
                 mShadowOp.setShadow(progress * 1.0f * 100 / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mShadowOp);
                 break;
@@ -239,7 +258,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mHighlightOp = new HighlightAdjustOperator.Builder().build();
                     IEManager.getInstance().addOperator(mHighlightOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
                 mHighlightOp.setHighlight(progress * 1.0f / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mHighlightOp);
                 break;
@@ -248,7 +267,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mTempOp = new TempAdjustOperator.Builder().build();
                     IEManager.getInstance().addOperator(mTempOp);
                 }
-                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mTempOp.setTemperature(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mTempOp);
                 break;
@@ -257,7 +276,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mTintOp = new TintAdjustOperator.Builder().build();
                     IEManager.getInstance().addOperator(mTintOp);
                 }
-                mAdjustValue.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mTintOp.setTint(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mTintOp);
                 break;
@@ -266,9 +285,32 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mDenoiseOp = new DenoiseOperator();
                     IEManager.getInstance().addOperator(mDenoiseOp);
                 }
-                mAdjustValue.setText(String.valueOf(progress * 100.0f / seekBar.getMax()));
+                mAdjustValue1.setText(String.valueOf(progress * 100.0f / seekBar.getMax()));
                 mDenoiseOp.setExponent(progress * 100.0f / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mDenoiseOp);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_RGB:
+                if (mRGBOp == null) {
+                    mRGBOp = new RGBAdjustOperator.Builder().build();
+                    IEManager.getInstance().addOperator(mRGBOp);
+                }
+                switch (seekBar.getId()) {
+                    case R.id.sb_adjust_bar_1:
+                        mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                        mRGBOp.setRed(progress * 1.0f / seekBar.getMax());
+                        break;
+                    case R.id.sb_adjust_bar_2:
+                        mAdjustValue2.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                        mRGBOp.setGreen(progress * 1.0f / seekBar.getMax());
+                        break;
+                    case R.id.sb_adjust_bar_3:
+                        mAdjustValue3.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                        mRGBOp.setBlue(progress * 1.0f / seekBar.getMax());
+                        break;
+                    default:
+                        break;
+                }
+                IEManager.getInstance().updateOperator(mRGBOp);
                 break;
             default:
                 break;
@@ -288,132 +330,170 @@ public class EditAdjustPanel extends AbstractPanel implements
     @Override
     public void onAdjustSelected(AdjustListAdapter.AdjustItem adjustItem) {
         mCurType = adjustItem.mType;
-        mAdjustName.setText(adjustItem.mNameStrId);
+        mAdjustPanel.findViewById(R.id.vw_control_params).setVisibility(View.VISIBLE);
+        mAdjustPanel.findViewById(R.id.vw_adjust_value_1).setVisibility(View.VISIBLE);
+        mAdjustPanel.findViewById(R.id.vw_adjust_value_2).setVisibility(View.GONE);
+        mAdjustPanel.findViewById(R.id.vw_adjust_value_3).setVisibility(View.GONE);
+        mAdjustBar1.setVisibility(View.VISIBLE);
+        mAdjustBar2.setVisibility(View.GONE);
+        mAdjustBar3.setVisibility(View.GONE);
+        mAdjustName1.setText(adjustItem.mNameStrId);
         switch (mCurType) {
             case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mBrightnessOp == null) {
-                    mAdjustValue.setText(String.valueOf(0.0f));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(0.0f));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mBrightnessOp.getBrightness()));
-                    mAdjustBar.setProgress(
-                            (int) (mBrightnessOp.getBrightness() * mAdjustBar.getMax() / 2 + mAdjustBar.getMax() / 2));
+                    mAdjustValue1.setText(String.valueOf(mBrightnessOp.getBrightness()));
+                    mAdjustBar1.setProgress(
+                            (int) (mBrightnessOp.getBrightness() * mAdjustBar1.getMax() / 2 + mAdjustBar1.getMax() / 2));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_EXPOSURE:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mExposureOp == null) {
-                    mAdjustValue.setText(String.valueOf(0.0));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(0.0));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mExposureOp.getExposure()));
-                    mAdjustBar.setProgress((int) ((mExposureOp.getExposure() + 2) * 0.25f * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mExposureOp.getExposure()));
+                    mAdjustBar1.setProgress((int) ((mExposureOp.getExposure() + 2) * 0.25f * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_GAMMA:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mGammaOp == null) {
-                    mAdjustValue.setText(String.valueOf(1.0));
-                    mAdjustBar.setProgress((int) (mAdjustBar.getMax() * 0.25f));
+                    mAdjustValue1.setText(String.valueOf(1.0));
+                    mAdjustBar1.setProgress((int) (mAdjustBar1.getMax() * 0.25f));
                 } else {
-                    mAdjustValue.setText(String.valueOf(mGammaOp.getGamma()));
-                    mAdjustBar.setProgress((int) (mGammaOp.getGamma() * 0.25f * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mGammaOp.getGamma()));
+                    mAdjustBar1.setProgress((int) (mGammaOp.getGamma() * 0.25f * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mContrastOp == null) {
-                    mAdjustValue.setText(String.valueOf(1.0f));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(1.0f));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mContrastOp.getContrast()));
-                    mAdjustBar.setProgress((int) (mContrastOp.getContrast() * 0.5f * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mContrastOp.getContrast()));
+                    mAdjustBar1.setProgress((int) (mContrastOp.getContrast() * 0.5f * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mSaturationOp == null) {
-                    mAdjustValue.setText(String.valueOf(1.0f));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(1.0f));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mSaturationOp.getSaturation()));
-                    mAdjustBar.setProgress((int) (mSaturationOp.getSaturation() * 0.5f * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mSaturationOp.getSaturation()));
+                    mAdjustBar1.setProgress((int) (mSaturationOp.getSaturation() * 0.5f * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mSharpenOp == null) {
-                    mAdjustValue.setText(String.valueOf(0.0f));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(0.0f));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mSharpenOp.getSharpness()));
-                    mAdjustBar.setProgress((int) ((mSharpenOp.getSharpness() + 4) * 0.125f * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mSharpenOp.getSharpness()));
+                    mAdjustBar1.setProgress((int) ((mSharpenOp.getSharpness() + 4) * 0.125f * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mVignetteOp == null) {
-                    mAdjustValue.setText(String.valueOf(0.3f));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(0.3f));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mVignetteOp.getStart()));
-                    mAdjustBar.setProgress((int) (mVignetteOp.getStart() * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mVignetteOp.getStart()));
+                    mAdjustBar1.setProgress((int) (mVignetteOp.getStart() * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHADOW:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mShadowOp == null) {
-                    mAdjustValue.setText(String.valueOf(0));
-                    mAdjustBar.setProgress(0);
+                    mAdjustValue1.setText(String.valueOf(0));
+                    mAdjustBar1.setProgress(0);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mShadowOp.getShadow()));
-                    mAdjustBar.setProgress((int) (mShadowOp.getShadow() * mAdjustBar.getMax() / 100f));
+                    mAdjustValue1.setText(String.valueOf(mShadowOp.getShadow()));
+                    mAdjustBar1.setProgress((int) (mShadowOp.getShadow() * mAdjustBar1.getMax() / 100f));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_HIGHLIGHT:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mHighlightOp == null) {
-                    mAdjustValue.setText(String.valueOf(0));
-                    mAdjustBar.setProgress(0);
+                    mAdjustValue1.setText(String.valueOf(0));
+                    mAdjustBar1.setProgress(0);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mHighlightOp.getHighlight()));
-                    mAdjustBar.setProgress((int) (mHighlightOp.getHighlight() * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mHighlightOp.getHighlight()));
+                    mAdjustBar1.setProgress((int) (mHighlightOp.getHighlight() * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_COLOR_TEMP:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mTempOp == null) {
-                    mAdjustValue.setText(String.valueOf(0.0));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(0.0));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mTempOp.getTemperature()));
-                    mAdjustBar.setProgress((int) ((mTempOp.getTemperature() + 2) * 0.25f * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mTempOp.getTemperature()));
+                    mAdjustBar1.setProgress((int) ((mTempOp.getTemperature() + 2) * 0.25f * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_TONE:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mTintOp == null) {
-                    mAdjustValue.setText(String.valueOf(0.0));
-                    mAdjustBar.setProgress(mAdjustBar.getMax() / 2);
+                    mAdjustValue1.setText(String.valueOf(0.0));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax() / 2);
                 } else {
-                    mAdjustValue.setText(String.valueOf(mTintOp.getTint()));
-                    mAdjustBar.setProgress((int) ((mTintOp.getTint() + 2) * 0.25f * mAdjustBar.getMax()));
+                    mAdjustValue1.setText(String.valueOf(mTintOp.getTint()));
+                    mAdjustBar1.setProgress((int) ((mTintOp.getTint() + 2) * 0.25f * mAdjustBar1.getMax()));
                 }
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DENOISE:
-                mAdjustBar.setEnabled(true);
+                mAdjustBar1.setVisibility(View.VISIBLE);
                 if (mDenoiseOp == null) {
-                    mAdjustValue.setText(String.valueOf(5.0));
-                    mAdjustBar.setProgress((int) (mAdjustBar.getMax() * 0.05f));
+                    mAdjustValue1.setText(String.valueOf(5.0));
+                    mAdjustBar1.setProgress((int) (mAdjustBar1.getMax() * 0.05f));
                 } else {
-                    mAdjustValue.setText(String.valueOf(mDenoiseOp.getExponent()));
-                    mAdjustBar.setProgress((int) (mAdjustBar.getMax() * mDenoiseOp.getExponent() / 100f));
+                    mAdjustValue1.setText(String.valueOf(mDenoiseOp.getExponent()));
+                    mAdjustBar1.setProgress((int) (mAdjustBar1.getMax() * mDenoiseOp.getExponent() / 100f));
+                }
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_RGB:
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_1).setVisibility(View.VISIBLE);
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_2).setVisibility(View.VISIBLE);
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_3).setVisibility(View.VISIBLE);
+                mAdjustName1.setText(mContext.getResources().getText(R.string.edit_adjust_curve_red));
+                mAdjustName2.setText(mContext.getResources().getText(R.string.edit_adjust_curve_green));
+                mAdjustName3.setText(mContext.getResources().getText(R.string.edit_adjust_curve_blue));
+                mAdjustBar1.setVisibility(View.VISIBLE);
+                mAdjustBar2.setVisibility(View.VISIBLE);
+                mAdjustBar3.setVisibility(View.VISIBLE);
+                if (mRGBOp == null) {
+                    mAdjustValue1.setText(String.valueOf(1.0));
+                    mAdjustValue2.setText(String.valueOf(1.0));
+                    mAdjustValue3.setText(String.valueOf(1.0));
+                    mAdjustBar1.setProgress(mAdjustBar1.getMax());
+                    mAdjustBar2.setProgress(mAdjustBar2.getMax());
+                    mAdjustBar3.setProgress(mAdjustBar3.getMax());
+                } else {
+                    mAdjustValue1.setText(String.valueOf(mRGBOp.getRed()));
+                    mAdjustValue2.setText(String.valueOf(mRGBOp.getGreen()));
+                    mAdjustValue3.setText(String.valueOf(mRGBOp.getBlue()));
+                    mAdjustBar1.setProgress((int) (mAdjustBar1.getMax() * mRGBOp.getRed()));
+                    mAdjustBar2.setProgress((int) (mAdjustBar2.getMax() * mRGBOp.getGreen()));
+                    mAdjustBar3.setProgress((int) (mAdjustBar3.getMax() * mRGBOp.getBlue()));
                 }
                 break;
             default:
-                mAdjustValue.setText("0");
-                mAdjustBar.setEnabled(false);
+                mAdjustValue1.setText("0");
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_1).setVisibility(View.GONE);
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_2).setVisibility(View.GONE);
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_3).setVisibility(View.GONE);
+                mAdjustBar1.setVisibility(View.GONE);
+                mAdjustBar2.setVisibility(View.GONE);
+                mAdjustBar3.setVisibility(View.GONE);
                 break;
         }
     }

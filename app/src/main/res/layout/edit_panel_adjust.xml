@@ -1,81 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <RelativeLayout
-        android:id="@+id/vw_title"
         android:layout_width="match_parent"
-        android:layout_height="30dp">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/iv_cancel"
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="18dp"
-            android:background="@drawable/bg_dark_red"
-            android:src="@drawable/icon_cancel" />
+        <RelativeLayout
+            android:id="@+id/vw_title"
+            android:layout_width="match_parent"
+            android:layout_height="30dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/iv_cancel"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="18dp"
+                android:background="@drawable/bg_dark_red"
+                android:src="@drawable/icon_cancel" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/edit_adjust" />
+
+            <ImageView
+                android:id="@+id/iv_apply"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="18dp"
+                android:background="@drawable/bg_dark_red"
+                android:src="@drawable/icon_apply" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/vw_control_params"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/edit_adjust" />
+            android:layout_below="@id/vw_title"
+            android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_apply"
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="18dp"
-            android:background="@drawable/bg_dark_red"
-            android:src="@drawable/icon_apply" />
+            <LinearLayout
+                android:id="@+id/vw_adjust_value_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_adjust_name_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="参数" />
+
+                <TextView
+                    android:id="@+id/tv_adjust_value_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    tools:text="0" />
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/sb_adjust_bar_1"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="5dp"
+                android:max="2000" />
+
+            <LinearLayout
+                android:id="@+id/vw_adjust_value_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_adjust_name_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="参数" />
+
+                <TextView
+                    android:id="@+id/tv_adjust_value_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    tools:text="0" />
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/sb_adjust_bar_2"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="5dp"
+                android:max="2000" />
+
+            <LinearLayout
+                android:id="@+id/vw_adjust_value_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_adjust_name_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="参数" />
+
+                <TextView
+                    android:id="@+id/tv_adjust_value_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    tools:text="0" />
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/sb_adjust_bar_3"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="5dp"
+                android:max="2000" />
+
+        </LinearLayout>
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rcv_adjust_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/vw_control_params"
+            android:layout_marginTop="10dp"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:orientation="horizontal" />
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/vw_adjust_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/vw_title"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tv_adjust_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="亮度" />
-
-        <TextView
-            android:id="@+id/tv_adjust_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            tools:text="0" />
-
-    </LinearLayout>
-
-    <SeekBar
-        android:id="@+id/sb_adjust_bar"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_below="@id/vw_adjust_value"
-        android:layout_marginTop="5dp"
-        android:max="2000" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rcv_adjust_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/sb_adjust_bar"
-        android:layout_marginTop="10dp"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        tools:orientation="horizontal" />
-
-</RelativeLayout>
+</ScrollView>

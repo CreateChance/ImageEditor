@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 /**
- * ${DESC}
+ * Abstract opengl shader class.
  *
  * @author createchance
  * @date 2018/11/9

@@ -35,7 +35,10 @@
     <string name="edit_adjust_color_temp">色温</string>
     <string name="edit_adjust_tone">色调</string>
     <string name="edit_adjust_denoise">降噪</string>
-    <string name="edit_adjust_curve">曲线调整</string>
+    <string name="edit_adjust_curve">RGB调整</string>
+    <string name="edit_adjust_curve_red">红色</string>
+    <string name="edit_adjust_curve_green">绿色</string>
+    <string name="edit_adjust_curve_blue">蓝色</string>
     <string name="edit_adjust_color_balance">色彩平衡</string>
 
     <string name="edit_cut">裁剪</string>
