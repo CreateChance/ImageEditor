@@ -313,6 +313,9 @@ public class ImageEditActivity extends AppCompatActivity implements
                 RelativeLayout.LayoutParams bottomParams = (RelativeLayout.LayoutParams) mVwBottomScissor.getLayoutParams();
                 bottomParams.height = IEManager.getInstance().getImgShowBottom();
                 mVwBottomScissor.setLayoutParams(bottomParams);
+
+                mBaseOp.setScissor(0, 0, mVwPreview.getWidth(), mVwPreview.getHeight());
+                IEManager.getInstance().updateOperator(mBaseOp);
                 break;
             case AbstractPanel.TYPE_ROTATE:
 
