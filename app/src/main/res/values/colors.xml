@@ -6,7 +6,7 @@
 
     <color name="black">#000000</color>
 
-    <color name="theme_transparent_dark">#5c303030</color>
+    <color name="theme_transparent_dark">#ac303030</color>
     <color name="theme_light_dark">#404040</color>
     <color name="theme_dark">#303030</color>
     <color name="theme_black">#202020</color>
