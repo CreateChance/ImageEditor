@@ -249,8 +249,8 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mShadowOp = new ShadowAdjustOperator.Builder().build();
                     IEManager.getInstance().addOperator(mShadowOp);
                 }
-                mAdjustValue1.setText(String.valueOf(progress * 1.0f * 100 / seekBar.getMax()));
-                mShadowOp.setShadow(progress * 1.0f * 100 / seekBar.getMax());
+                mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                mShadowOp.setShadow(progress * 1.0f / seekBar.getMax());
                 IEManager.getInstance().updateOperator(mShadowOp);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_HIGHLIGHT:
