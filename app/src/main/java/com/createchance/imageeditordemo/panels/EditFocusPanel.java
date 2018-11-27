@@ -86,12 +86,13 @@ public class EditFocusPanel extends AbstractPanel implements
             case R.id.sb_focus:
                 if (mSampleOp == null) {
                     mSampleOp = new ThreeXThreeSampleOperator.Builder()
-                            .widthStep(0.1f)
-                            .heightStep(0.1f)
                             .sampleKernel(ThreeXThreeSampleOperator.MEAN_SAMPLE_KERNEL)
                             .build();
                     IEManager.getInstance().addOperator(mSampleOp);
                 }
+                mSampleOp.setWidthStep(process * 0.01f / seekBar.getMax());
+                mSampleOp.setHeightStep(process * 0.01f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mSampleOp);
                 break;
             default:
                 break;

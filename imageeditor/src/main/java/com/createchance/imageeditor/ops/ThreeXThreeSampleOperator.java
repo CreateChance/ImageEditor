@@ -21,9 +21,9 @@ public class ThreeXThreeSampleOperator extends AbstractOperator {
     };
 
     public static final float[] MEAN_SAMPLE_KERNEL = new float[]{
-            -1f, -1f, 0.0f,
-            -1f, 0f, 1f,
-            0.0f, 1f, 1f,
+            1.0f / 9.0f, 1.0f / 9.0f, 1.0f / 9.0f,
+            1.0f / 9.0f, 1.0f / 9.0f, 1.0f / 9.0f,
+            1.0f / 9.0f, 1.0f / 9.0f, 1.0f / 9.0f,
     };
 
     private ThreeXThreeSampleDrawer mDrawer;
@@ -63,6 +63,30 @@ public class ThreeXThreeSampleOperator extends AbstractOperator {
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
         mWorker.bindDefaultFrameBuffer();
         mWorker.swapTexture();
+    }
+
+    public float getWidthStep() {
+        return mWidthStep;
+    }
+
+    public void setWidthStep(float mWidthStep) {
+        this.mWidthStep = mWidthStep;
+    }
+
+    public float getHeightStep() {
+        return mHeightStep;
+    }
+
+    public void setHeightStep(float mHeightStep) {
+        this.mHeightStep = mHeightStep;
+    }
+
+    public float[] getSampleKernel() {
+        return mSampleKernel;
+    }
+
+    public void setSampleKernel(float[] mSampleKernel) {
+        this.mSampleKernel = mSampleKernel;
     }
 
     public static class Builder {
