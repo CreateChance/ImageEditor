@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 
+import com.createchance.imageeditor.IEManager;
+import com.createchance.imageeditor.ops.ThreeXThreeSampleOperator;
 import com.createchance.imageeditordemo.R;
 
 /**
@@ -23,6 +25,8 @@ public class EditFocusPanel extends AbstractPanel implements
 
     private View mVwFocusPanel;
     private SeekBar mSbFocusValue;
+
+    private ThreeXThreeSampleOperator mSampleOp;
 
     public EditFocusPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_FOCUS);
@@ -46,6 +50,11 @@ public class EditFocusPanel extends AbstractPanel implements
     @Override
     public void close(boolean discard) {
         super.close(discard);
+
+        if (discard && mSampleOp != null) {
+            IEManager.getInstance().removeOperator(mSampleOp);
+            mSampleOp = null;
+        }
     }
 
     @Override
@@ -75,7 +84,14 @@ public class EditFocusPanel extends AbstractPanel implements
 
         switch (seekBar.getId()) {
             case R.id.sb_focus:
-
+                if (mSampleOp == null) {
+                    mSampleOp = new ThreeXThreeSampleOperator.Builder()
+                            .widthStep(0.1f)
+                            .heightStep(0.1f)
+                            .sampleKernel(ThreeXThreeSampleOperator.MEAN_SAMPLE_KERNEL)
+                            .build();
+                    IEManager.getInstance().addOperator(mSampleOp);
+                }
                 break;
             default:
                 break;

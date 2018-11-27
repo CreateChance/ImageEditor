@@ -30,6 +30,7 @@ public abstract class AbstractOperator {
     public static final int OP_DENOISE = 17;
     public static final int OP_MOSAIC = 18;
     public static final int OP_RGB = 19;
+    public static final int OP_3_X_3_SAMPLE = 20;
 
     protected final String mName;
 
