@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
-import com.createchance.imageeditor.ops.ThreeXThreeSampleOperator;
+import com.createchance.imageeditor.ops.BokehFilterOperator;
 import com.createchance.imageeditordemo.R;
 
 /**
@@ -26,7 +26,7 @@ public class EditFocusPanel extends AbstractPanel implements
     private View mVwFocusPanel;
     private SeekBar mSbFocusValue;
 
-    private ThreeXThreeSampleOperator mSampleOp;
+    private BokehFilterOperator mFocusOp;
 
     public EditFocusPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_FOCUS);
@@ -51,9 +51,9 @@ public class EditFocusPanel extends AbstractPanel implements
     public void close(boolean discard) {
         super.close(discard);
 
-        if (discard && mSampleOp != null) {
-            IEManager.getInstance().removeOperator(mSampleOp);
-            mSampleOp = null;
+        if (discard && mFocusOp != null) {
+            IEManager.getInstance().removeOperator(mFocusOp);
+            mFocusOp = null;
         }
     }
 
@@ -84,15 +84,12 @@ public class EditFocusPanel extends AbstractPanel implements
 
         switch (seekBar.getId()) {
             case R.id.sb_focus:
-                if (mSampleOp == null) {
-                    mSampleOp = new ThreeXThreeSampleOperator.Builder()
-                            .sampleKernel(ThreeXThreeSampleOperator.MEAN_SAMPLE_KERNEL)
-                            .build();
-                    IEManager.getInstance().addOperator(mSampleOp);
+                if (mFocusOp == null) {
+                    mFocusOp = new BokehFilterOperator();
+                    IEManager.getInstance().addOperator(mFocusOp);
                 }
-                mSampleOp.setWidthStep(process * 0.01f / seekBar.getMax());
-                mSampleOp.setHeightStep(process * 0.01f / seekBar.getMax());
-                IEManager.getInstance().updateOperator(mSampleOp);
+                mFocusOp.setRadius(process * 3.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(mFocusOp);
                 break;
             default:
                 break;
