@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
+import com.createchance.imageeditor.ops.FiveXFiveSampleOperator;
 import com.createchance.imageeditor.ops.ThreeXThreeSampleOperator;
 import com.createchance.imageeditordemo.R;
 
@@ -26,7 +27,7 @@ public class EditFocusPanel extends AbstractPanel implements
     private View mVwFocusPanel;
     private SeekBar mSbFocusValue;
 
-    private ThreeXThreeSampleOperator mFocusOp;
+    private FiveXFiveSampleOperator mFocusOp;
 
     public EditFocusPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_FOCUS);
@@ -85,8 +86,8 @@ public class EditFocusPanel extends AbstractPanel implements
         switch (seekBar.getId()) {
             case R.id.sb_focus:
                 if (mFocusOp == null) {
-                    mFocusOp = new ThreeXThreeSampleOperator.Builder()
-                            .sampleKernel(ThreeXThreeSampleOperator.SIGMA_1_5_GAUSSIAN_SAMPLE_KERNEL)
+                    mFocusOp = new FiveXFiveSampleOperator.Builder()
+                            .sampleKernel(FiveXFiveSampleOperator.generateGaussianKernel(1.5))
                             .build();
                     IEManager.getInstance().addOperator(mFocusOp);
                 }
