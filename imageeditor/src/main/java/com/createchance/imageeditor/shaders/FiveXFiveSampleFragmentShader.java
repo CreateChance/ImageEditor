@@ -38,7 +38,7 @@ public class FiveXFiveSampleFragmentShader extends AbstractShader {
 
     public void setUSampleKernel(float[] sampleKernel) {
         for (int i = 0; i < sampleKernel.length; i++) {
-            GLES20.glUniform1f(mUSampleKernel, sampleKernel[i]);
+            GLES20.glUniform1f(mUSampleKernel + i, sampleKernel[i]);
         }
     }
 }

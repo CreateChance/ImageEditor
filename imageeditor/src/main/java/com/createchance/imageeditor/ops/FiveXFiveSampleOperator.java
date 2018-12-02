@@ -15,9 +15,25 @@ public class FiveXFiveSampleOperator extends AbstractOperator {
 
     private static final String TAG = "FiveXFiveSampleOperator";
 
+    public static final float[] ALL_PASS_KERNEL = new float[]{
+            0f, 0f, 0f, 0f, 0f,
+            0f, 0f, 0f, 0f, 0f,
+            0f, 0f, 1f, 0f, 0f,
+            0f, 0f, 0f, 0f, 0f,
+            0f, 0f, 0f, 0f, 0f,
+    };
+
+    public static final float[] MEAN_FILTER_KERNEL = new float[]{
+            1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f,
+            1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f,
+            1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f,
+            1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f,
+            1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f,
+    };
+
     private FiveXFiveSampleDrawer mDrawer;
 
-    private float[] mSampleKernel;
+    private float[] mSampleKernel = ALL_PASS_KERNEL;
 
     private int mRepeatTimes = 1;
 

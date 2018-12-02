@@ -87,7 +87,7 @@ public class EditFocusPanel extends AbstractPanel implements
             case R.id.sb_focus:
                 if (mFocusOp == null) {
                     mFocusOp = new FiveXFiveSampleOperator.Builder()
-                            .sampleKernel(FiveXFiveSampleOperator.generateGaussianKernel(1.5))
+                            .sampleKernel(FiveXFiveSampleOperator.MEAN_FILTER_KERNEL)
                             .build();
                     IEManager.getInstance().addOperator(mFocusOp);
                 }
