@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
-import com.createchance.imageeditor.ops.BokehFilterOperator;
+import com.createchance.imageeditor.ops.ThreeXThreeSampleOperator;
 import com.createchance.imageeditordemo.R;
 
 /**
@@ -26,7 +26,7 @@ public class EditFocusPanel extends AbstractPanel implements
     private View mVwFocusPanel;
     private SeekBar mSbFocusValue;
 
-    private BokehFilterOperator mFocusOp;
+    private ThreeXThreeSampleOperator mFocusOp;
 
     public EditFocusPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_FOCUS);
@@ -85,10 +85,12 @@ public class EditFocusPanel extends AbstractPanel implements
         switch (seekBar.getId()) {
             case R.id.sb_focus:
                 if (mFocusOp == null) {
-                    mFocusOp = new BokehFilterOperator();
+                    mFocusOp = new ThreeXThreeSampleOperator.Builder()
+                            .sampleKernel(ThreeXThreeSampleOperator.SIGMA_1_5_GAUSSIAN_SAMPLE_KERNEL)
+                            .build();
                     IEManager.getInstance().addOperator(mFocusOp);
                 }
-                mFocusOp.setRadius(process * 3.0f / seekBar.getMax());
+                mFocusOp.setRepeatTimes((int) (process * 100.0f / seekBar.getMax()));
                 IEManager.getInstance().updateOperator(mFocusOp);
                 break;
             default:
