@@ -16,7 +16,7 @@ float getLuminance(vec4 color)
 vec4 highlightAdjust(vec4 color)
 {
     float luminance = getLuminance(color);
-    float highlight = clamp((1.0 - (pow(1.0-luminance, 1.0/(1.0-u_Highlight)) + (-0.8)*pow(1.0-luminance, 2.0/(1.0-u_Highlight)))) - luminance, -1.0, 0.0);
+    float highlight = clamp((1.0 - (pow(1.0-luminance, 1.0/(2.0-u_Highlight)) + (-0.8)*pow(1.0-luminance, 2.0/(2.0-u_Highlight)))) - luminance, -1.0, 0.0);
     vec3 rgb = vec3(0.0, 0.0, 0.0) + (luminance + highlight) * ((color.rgb - vec3(0.0))/(luminance - 0.0));
 
     return vec4(rgb, color.a);
