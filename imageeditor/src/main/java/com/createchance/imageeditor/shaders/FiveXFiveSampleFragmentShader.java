@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 /**
  * 5 x 5 sample fragment shader.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/2
  */
 public class FiveXFiveSampleFragmentShader extends AbstractShader {

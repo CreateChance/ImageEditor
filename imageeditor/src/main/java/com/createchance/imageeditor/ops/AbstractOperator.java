@@ -33,6 +33,7 @@ public abstract class AbstractOperator {
     public static final int OP_3_X_3_SAMPLE = 20;
     public static final int OP_5_X_5_SAMPLE = 21;
     public static final int OP_BOKEH_FILTER = 22;
+    public static final int OP_COLOR_BALANCE_FILTER = 23;
 
     protected final String mName;
 

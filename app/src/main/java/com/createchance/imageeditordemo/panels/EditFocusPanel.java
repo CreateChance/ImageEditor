@@ -27,7 +27,7 @@ public class EditFocusPanel extends AbstractPanel implements
     private View mVwFocusPanel;
     private SeekBar mSbFocusValue;
 
-    private FiveXFiveSampleOperator mFocusOp;
+    private ThreeXThreeSampleOperator mFocusOp;
 
     public EditFocusPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_FOCUS);
@@ -86,12 +86,12 @@ public class EditFocusPanel extends AbstractPanel implements
         switch (seekBar.getId()) {
             case R.id.sb_focus:
                 if (mFocusOp == null) {
-                    mFocusOp = new FiveXFiveSampleOperator.Builder()
-                            .sampleKernel(FiveXFiveSampleOperator.MEAN_FILTER_KERNEL)
+                    mFocusOp = new ThreeXThreeSampleOperator.Builder()
+                            .sampleKernel(ThreeXThreeSampleOperator.LAPLACIAN_SAMPLE_FILTER)
                             .build();
                     IEManager.getInstance().addOperator(mFocusOp);
                 }
-                mFocusOp.setRepeatTimes((int) (process * 100.0f / seekBar.getMax()));
+//                mFocusOp.setRepeatTimes((int) (process * 100.0f / seekBar.getMax()));
                 IEManager.getInstance().updateOperator(mFocusOp);
                 break;
             default:

@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 /**
  * Bokeh filter fragment shader
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/28
  */
 public class BokehFilterFragmentShader extends AbstractShader {

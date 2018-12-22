@@ -2,29 +2,30 @@ package com.createchance.imageeditor.drawers;
 
 import android.opengl.GLES20;
 
-import com.createchance.imageeditor.shaders.FiveXFiveSampleFragmentShader;
-import com.createchance.imageeditor.shaders.FiveXFiveSampleVertexShader;
+import com.createchance.imageeditor.shaders.BaseVertexShader;
+import com.createchance.imageeditor.shaders.ColorBalanceFragmentShader;
 
 import java.nio.FloatBuffer;
 
 /**
- * 5 x 5 sample drawer.
+ * Color balance adjustment drawer.
  *
- * @author createchance
- * @date 2018/12/2
+ * @author gaochao02
+ * @date 2018/12/21
  */
-public class FiveXFiveSampleDrawer extends AbstractDrawer {
-    private static final String TAG = "FiveXFiveSampleDrawer";
+public class ColorBalanceDrawer extends AbstractDrawer {
+
+    private static final String TAG = "ColorBalanceDrawer";
 
     private FloatBuffer mVertexPositionBuffer;
     private FloatBuffer mInputCoordinateBuffer;
 
-    private FiveXFiveSampleVertexShader mVertexShader;
-    private FiveXFiveSampleFragmentShader mFragmentShader;
+    private BaseVertexShader mVertexShader;
+    private ColorBalanceFragmentShader mFragmentShader;
 
-    public FiveXFiveSampleDrawer() {
-        mVertexShader = new FiveXFiveSampleVertexShader();
-        mFragmentShader = new FiveXFiveSampleFragmentShader();
+    public ColorBalanceDrawer() {
+        mVertexShader = new BaseVertexShader();
+        mFragmentShader = new ColorBalanceFragmentShader();
         loadProgram(mVertexShader.getShaderId(), mFragmentShader.getShaderId());
         mVertexShader.initLocation(mProgramId);
         mFragmentShader.initLocation(mProgramId);
@@ -47,19 +48,19 @@ public class FiveXFiveSampleDrawer extends AbstractDrawer {
         );
     }
 
-    public void setWidthStep(float widthStep) {
+    public void setRedShift(float redShift) {
         GLES20.glUseProgram(mProgramId);
-        mVertexShader.setUWidthStep(widthStep);
+        mFragmentShader.setURedShift(redShift);
     }
 
-    public void setHeightStep(float heightStep) {
+    public void setGreenShift(float greenShift) {
         GLES20.glUseProgram(mProgramId);
-        mVertexShader.setUHeightStep(heightStep);
+        mFragmentShader.setUGreenShift(greenShift);
     }
 
-    public void setSampleKernel(float[] sampleKernel) {
+    public void setBlueShift(float blueShift) {
         GLES20.glUseProgram(mProgramId);
-        mFragmentShader.setUSampleKernel(sampleKernel);
+        mFragmentShader.setUBlueShift(blueShift);
     }
 
     public void draw(int textureId,

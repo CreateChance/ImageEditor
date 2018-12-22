@@ -7,7 +7,7 @@ import java.nio.FloatBuffer;
 /**
  * 5 x 5 sample vertex shader.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/2
  */
 public class FiveXFiveSampleVertexShader extends AbstractShader {

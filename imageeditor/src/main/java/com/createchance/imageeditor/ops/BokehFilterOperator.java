@@ -7,7 +7,7 @@ import com.createchance.imageeditor.drawers.BokehFilterDrawer;
 /**
  * Bokeh filter operator.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/28
  */
 public class BokehFilterOperator extends AbstractOperator {

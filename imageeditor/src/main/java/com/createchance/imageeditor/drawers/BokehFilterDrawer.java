@@ -10,7 +10,7 @@ import java.nio.FloatBuffer;
 /**
  * Bokeh filter drawer.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/11/28
  */
 public class BokehFilterDrawer extends AbstractDrawer {

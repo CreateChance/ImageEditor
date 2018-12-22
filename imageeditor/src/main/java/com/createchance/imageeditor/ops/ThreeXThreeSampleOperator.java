@@ -32,6 +32,12 @@ public class ThreeXThreeSampleOperator extends AbstractOperator {
             0.0947416f, 0.118318f, 0.0947416f,
     };
 
+    public static final float[] LAPLACIAN_SAMPLE_FILTER = new float[]{
+            0.5f, 1.0f, 0.5f,
+            1.0f, -6.0f, 1.0f,
+            0.5f, 1.0f, 0.5f
+    };
+
     private ThreeXThreeSampleDrawer mDrawer;
 
     private float mWidthStep, mHeightStep;

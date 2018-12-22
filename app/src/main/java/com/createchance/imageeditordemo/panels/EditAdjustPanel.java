@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.ops.BrightnessAdjustOperator;
+import com.createchance.imageeditor.ops.ColorBalanceOperator;
 import com.createchance.imageeditor.ops.ContrastAdjustOperator;
 import com.createchance.imageeditor.ops.DenoiseOperator;
 import com.createchance.imageeditor.ops.ExposureAdjustOperator;
@@ -61,6 +62,7 @@ public class EditAdjustPanel extends AbstractPanel implements
     private TintAdjustOperator mTintOp;
     private DenoiseOperator mDenoiseOp;
     private RGBAdjustOperator mRGBOp;
+    private ColorBalanceOperator mColorBalanceOp;
 
     private TextView mAdjustName1, mAdjustValue1, mAdjustName2, mAdjustValue2, mAdjustName3, mAdjustValue3;
 
@@ -148,6 +150,9 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mRGBOp != null) {
                 operatorList.add(mRGBOp);
             }
+            if (mColorBalanceOp != null) {
+                operatorList.add(mColorBalanceOp);
+            }
             IEManager.getInstance().removeOperator(operatorList);
             mBrightnessOp = null;
             mExposureOp = null;
@@ -162,6 +167,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             mTintOp = null;
             mDenoiseOp = null;
             mRGBOp = null;
+            mColorBalanceOp = null;
         }
     }
 
@@ -311,6 +317,29 @@ public class EditAdjustPanel extends AbstractPanel implements
                         break;
                 }
                 IEManager.getInstance().updateOperator(mRGBOp);
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_COLOR_BALANCE:
+                if (mColorBalanceOp == null) {
+                    mColorBalanceOp = new ColorBalanceOperator();
+                    IEManager.getInstance().addOperator(mColorBalanceOp);
+                }
+                switch (seekBar.getId()) {
+                    case R.id.sb_adjust_bar_1:
+                        mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                        mColorBalanceOp.setRedShift(progress * 1.0f / seekBar.getMax());
+                        break;
+                    case R.id.sb_adjust_bar_2:
+                        mAdjustValue2.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                        mColorBalanceOp.setGreenShift(progress * 1.0f / seekBar.getMax());
+                        break;
+                    case R.id.sb_adjust_bar_3:
+                        mAdjustValue3.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
+                        mColorBalanceOp.setBlueShift(progress * 1.0f / seekBar.getMax());
+                        break;
+                    default:
+                        break;
+                }
+                IEManager.getInstance().updateOperator(mColorBalanceOp);
                 break;
             default:
                 break;
@@ -484,6 +513,32 @@ public class EditAdjustPanel extends AbstractPanel implements
                     mAdjustBar1.setProgress((int) (mAdjustBar1.getMax() * mRGBOp.getRed()));
                     mAdjustBar2.setProgress((int) (mAdjustBar2.getMax() * mRGBOp.getGreen()));
                     mAdjustBar3.setProgress((int) (mAdjustBar3.getMax() * mRGBOp.getBlue()));
+                }
+                break;
+            case AdjustListAdapter.AdjustItem.TYPE_COLOR_BALANCE:
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_1).setVisibility(View.VISIBLE);
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_2).setVisibility(View.VISIBLE);
+                mAdjustPanel.findViewById(R.id.vw_adjust_value_3).setVisibility(View.VISIBLE);
+                mAdjustName1.setText(mContext.getResources().getText(R.string.edit_adjust_curve_red));
+                mAdjustName2.setText(mContext.getResources().getText(R.string.edit_adjust_curve_green));
+                mAdjustName3.setText(mContext.getResources().getText(R.string.edit_adjust_curve_blue));
+                mAdjustBar1.setVisibility(View.VISIBLE);
+                mAdjustBar2.setVisibility(View.VISIBLE);
+                mAdjustBar3.setVisibility(View.VISIBLE);
+                if (mRGBOp == null) {
+                    mAdjustValue1.setText(String.valueOf(0.0));
+                    mAdjustValue2.setText(String.valueOf(0.0));
+                    mAdjustValue3.setText(String.valueOf(0.0));
+                    mAdjustBar1.setProgress(0);
+                    mAdjustBar2.setProgress(0);
+                    mAdjustBar3.setProgress(0);
+                } else {
+                    mAdjustValue1.setText(String.valueOf(mColorBalanceOp.getRedShift()));
+                    mAdjustValue2.setText(String.valueOf(mColorBalanceOp.getGreenShift()));
+                    mAdjustValue3.setText(String.valueOf(mColorBalanceOp.getBlueShift()));
+                    mAdjustBar1.setProgress((int) (mAdjustBar1.getMax() * mColorBalanceOp.getRedShift()));
+                    mAdjustBar2.setProgress((int) (mAdjustBar2.getMax() * mColorBalanceOp.getGreenShift()));
+                    mAdjustBar3.setProgress((int) (mAdjustBar3.getMax() * mColorBalanceOp.getBlueShift()));
                 }
                 break;
             default:

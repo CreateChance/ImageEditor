@@ -8,7 +8,7 @@ import com.createchance.imageeditor.drawers.FiveXFiveSampleDrawer;
 /**
  * 5 x 5 sample operator.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/2
  */
 public class FiveXFiveSampleOperator extends AbstractOperator {
