@@ -2,6 +2,7 @@ package com.createchance.imageeditordemo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,14 +17,23 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.createchance.imageeditor.HistogramData;
 import com.createchance.imageeditor.IEManager;
+import com.createchance.imageeditor.IHistogramGenerateListener;
 import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.ops.BaseImageOperator;
+import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.model.SimpleModel;
 import com.createchance.imageeditordemo.panels.AbstractPanel;
 import com.createchance.imageeditordemo.utils.DensityUtil;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageEditActivity extends AppCompatActivity implements
         TextureView.SurfaceTextureListener,
@@ -34,6 +44,10 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     private RecyclerView mEditListView;
     private EditListAdapter mEditListAdapter;
+
+    // chart view.
+    private View mVwHistogramContainer;
+    private LineChart mVwHistogramChartAll, mVwHistogramChartRed, mVwHistogramChartGreen, mVwHistogramChartBlue;
 
     private BaseImageOperator mBaseOp;
 
@@ -178,9 +192,15 @@ public class ImageEditActivity extends AppCompatActivity implements
         mVwTopScissor = findViewById(R.id.vw_scissor_top_mask);
         mVwRightScissor = findViewById(R.id.vw_scissor_right_mask);
         mVwBottomScissor = findViewById(R.id.vw_scissor_bottom_mask);
+        mVwHistogramContainer = findViewById(R.id.vw_histogram_container);
+        mVwHistogramChartAll = findViewById(R.id.vw_histogram_chart_all);
+        mVwHistogramChartRed = findViewById(R.id.vw_histogram_chart_red);
+        mVwHistogramChartGreen = findViewById(R.id.vw_histogram_chart_green);
+        mVwHistogramChartBlue = findViewById(R.id.vw_histogram_chart_blue);
         findViewById(R.id.vw_back).setOnClickListener(this);
         findViewById(R.id.tv_undo).setOnClickListener(this);
         findViewById(R.id.tv_redo).setOnClickListener(this);
+        findViewById(R.id.tv_histogram).setOnClickListener(this);
         findViewById(R.id.tv_save).setOnClickListener(this);
         mVwPreview = findViewById(R.id.vw_texture);
         mVwPreview.setSurfaceTextureListener(this);
@@ -216,7 +236,9 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        if (mCurrentPanel != null) {
+        if (mVwHistogramContainer.getVisibility() == View.VISIBLE) {
+            mVwHistogramContainer.setVisibility(View.GONE);
+        } else if (mCurrentPanel != null) {
             mCurrentPanel.close(true);
         } else {
             super.onBackPressed();
@@ -269,8 +291,102 @@ public class ImageEditActivity extends AppCompatActivity implements
             case R.id.tv_redo:
                 IEManager.getInstance().redo();
                 break;
+            case R.id.tv_histogram:
+                IEManager.getInstance().generatorHistogram(new IHistogramGenerateListener() {
+                    @Override
+                    public void onHistogramGenerated(List<HistogramData> data, long totalPixelSize) {
+                        mVwHistogramContainer.setVisibility(View.VISIBLE);
+
+                        // all
+                        List<Entry> allEntries = new ArrayList<>();
+                        for (int i = 0; i < data.size(); i++) {
+                            Logger.d(TAG, "histogram value: " + data.get(i) + ", total size: " + totalPixelSize);
+                            allEntries.add(new Entry(i, data.get(i).mAll * 1.0f / totalPixelSize));
+                        }
+
+                        LineDataSet allDataSet = new LineDataSet(allEntries, "All histogram");
+                        allDataSet.setColor(Color.WHITE);
+                        allDataSet.setValueTextColor(Color.WHITE);
+                        allDataSet.setDrawCircles(false);
+                        allDataSet.setFillColor(Color.WHITE);
+                        allDataSet.setDrawFilled(true);
+                        allDataSet.setHighlightEnabled(true);
+                        allDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                        mVwHistogramChartAll.animateXY(1000, 1000);
+                        mVwHistogramChartAll.getAxisLeft().setTextColor(Color.WHITE);
+                        mVwHistogramChartAll.getAxisRight().setTextColor(Color.WHITE);
+                        mVwHistogramChartAll.getXAxis().setTextColor(Color.WHITE);
+                        mVwHistogramChartAll.setData(new LineData(allDataSet));
+
+                        // red
+                        List<Entry> redEntries = new ArrayList<>();
+                        for (int i = 0; i < data.size(); i++) {
+                            redEntries.add(new Entry(i, data.get(i).mRed * 1.0f / totalPixelSize));
+                        }
+
+                        LineDataSet redDataSet = new LineDataSet(redEntries, "Red histogram");
+                        redDataSet.setColor(Color.RED);
+                        redDataSet.setValueTextColor(Color.RED);
+                        redDataSet.setDrawCircles(false);
+                        redDataSet.setFillColor(Color.RED);
+                        redDataSet.setDrawFilled(true);
+                        redDataSet.setHighlightEnabled(true);
+                        redDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                        mVwHistogramChartRed.animateXY(1000, 1000);
+                        mVwHistogramChartRed.getAxisLeft().setTextColor(Color.RED);
+                        mVwHistogramChartRed.getAxisRight().setTextColor(Color.RED);
+                        mVwHistogramChartRed.getXAxis().setTextColor(Color.RED);
+                        mVwHistogramChartRed.setData(new LineData(redDataSet));
+
+                        // green
+                        List<Entry> greenEntries = new ArrayList<>();
+                        for (int i = 0; i < data.size(); i++) {
+                            greenEntries.add(new Entry(i, data.get(i).mGreen * 1.0f / totalPixelSize));
+                        }
+
+                        LineDataSet greenDataSet = new LineDataSet(greenEntries, "Green histogram");
+                        greenDataSet.setColor(Color.GREEN);
+                        greenDataSet.setValueTextColor(Color.GREEN);
+                        greenDataSet.setDrawCircles(false);
+                        greenDataSet.setFillColor(Color.GREEN);
+                        greenDataSet.setDrawFilled(true);
+                        greenDataSet.setHighlightEnabled(true);
+                        greenDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                        mVwHistogramChartGreen.animateXY(1000, 1000);
+                        mVwHistogramChartGreen.getAxisLeft().setTextColor(Color.GREEN);
+                        mVwHistogramChartGreen.getAxisRight().setTextColor(Color.GREEN);
+                        mVwHistogramChartGreen.getXAxis().setTextColor(Color.GREEN);
+                        mVwHistogramChartGreen.setData(new LineData(greenDataSet));
+
+                        // blue
+                        List<Entry> blueEntries = new ArrayList<>();
+                        for (int i = 0; i < data.size(); i++) {
+                            blueEntries.add(new Entry(i, data.get(i).mBlue * 1.0f / totalPixelSize));
+                        }
+
+                        LineDataSet blueDataSet = new LineDataSet(blueEntries, "Blue histogram");
+                        blueDataSet.setColor(Color.BLUE);
+                        blueDataSet.setValueTextColor(Color.BLUE);
+                        blueDataSet.setDrawCircles(false);
+                        blueDataSet.setFillColor(Color.BLUE);
+                        blueDataSet.setDrawFilled(true);
+                        blueDataSet.setHighlightEnabled(true);
+                        blueDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                        mVwHistogramChartBlue.animateXY(1000, 1000);
+                        mVwHistogramChartBlue.getAxisLeft().setTextColor(Color.BLUE);
+                        mVwHistogramChartBlue.getAxisRight().setTextColor(Color.BLUE);
+                        mVwHistogramChartBlue.getXAxis().setTextColor(Color.BLUE);
+                        mVwHistogramChartBlue.setData(new LineData(blueDataSet));
+
+                        mVwHistogramChartAll.invalidate();
+                        mVwHistogramChartRed.invalidate();
+                        mVwHistogramChartGreen.invalidate();
+                        mVwHistogramChartBlue.invalidate();
+                    }
+                });
+                break;
             case R.id.tv_save:
-                IEManager.getInstance().save(new File(Constants.mBaseDir, System.currentTimeMillis() + ".png"),
+                IEManager.getInstance().save(new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg"),
                         new SaveListener() {
                             @Override
                             public void onSaveFailed() {

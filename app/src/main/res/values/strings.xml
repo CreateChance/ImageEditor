@@ -13,6 +13,7 @@
 
     <string name="goto_work_list">作品列表</string>
     <string name="save_work">保存</string>
+    <string name="histogram_view">直方图</string>
     <string name="undo">撤销</string>
     <string name="redo">恢复</string>
 

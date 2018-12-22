@@ -245,6 +245,20 @@ public class IEManager {
         return mWorker.getImgShowRight();
     }
 
+    public void generatorHistogram(IHistogramGenerateListener listener) {
+        if (mWorker == null) {
+            Logger.e(TAG, "Failed, not prepared before!");
+            return;
+        }
+
+        if (listener == null) {
+            Logger.e(TAG, "Listener can not be null!");
+            return;
+        }
+
+        mWorker.generateHistogram(listener);
+    }
+
     public Context getContext() {
         return mAppContext;
     }

@@ -45,6 +45,7 @@ public class IEWorker extends HandlerThread {
     private final int MSG_SAVE_OP = 6;
     private final int MSG_REMOVE_OP = 7;
     private final int MSG_REMOVE_OP_LIST = 8;
+    private final int MSG_GENERATOR_HIST0GRAM = 9;
 
     private Handler mHandler;
 
@@ -114,6 +115,9 @@ public class IEWorker extends HandlerThread {
                         break;
                     case MSG_REMOVE_OP_LIST:
                         handleRemoveOpList((List<AbstractOperator>) msg.obj);
+                        break;
+                    case MSG_GENERATOR_HIST0GRAM:
+                        handleGeneratorHistogram((IHistogramGenerateListener) msg.obj);
                         break;
                     default:
                         break;
@@ -260,6 +264,13 @@ public class IEWorker extends HandlerThread {
         return mOutputTextureIndex;
     }
 
+    public void generateHistogram(IHistogramGenerateListener listener) {
+        Message message = Message.obtain();
+        message.what = MSG_GENERATOR_HIST0GRAM;
+        message.obj = listener;
+        mHandler.sendMessage(message);
+    }
+
     /**
      * make input texture output, and output texture input
      */
@@ -387,6 +398,40 @@ public class IEWorker extends HandlerThread {
             }
             mWindowSurface.swapBuffers();
         }
+    }
+
+    private void handleGeneratorHistogram(final IHistogramGenerateListener listener) {
+        bindOffScreenFrameBuffer(mFboTextureIds[mInputTextureIndex]);
+        final IntBuffer pixelBuffer = IntBuffer.allocate(mBaseImgShowWidth * mBaseImgShowHeight);
+        GLES20.glReadPixels(mBaseImgPosX,
+                mBaseImgPosY,
+                mBaseImgShowWidth,
+                mBaseImgShowHeight,
+                GLES20.GL_RGBA,
+                GLES20.GL_UNSIGNED_BYTE,
+                pixelBuffer);
+        final List<HistogramData> data = new ArrayList<>(256);
+        for (int i = 0; i < 256; i++) {
+            data.add(new HistogramData());
+        }
+
+        for (int i = 0; i < pixelBuffer.limit(); i++) {
+            int rgbVal = pixelBuffer.get(i);
+            int r = rgbVal & 0xF;
+            int g = (rgbVal >> 8) & 0xFF;
+            int b = (rgbVal >> 16) & 0xFF;
+            data.get(r).mRed++;
+            data.get(g).mGreen++;
+            data.get(b).mBlue++;
+            data.get((r + g + b) / 3).mAll++;
+        }
+        UiThreadUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onHistogramGenerated(data, pixelBuffer.limit());
+            }
+        });
+        bindDefaultFrameBuffer();
     }
 
     private void adjustBaseImage(BaseImageOperator baseImageOperator) {
