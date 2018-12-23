@@ -11,6 +11,21 @@
         android:layout_height="48dp">
 
         <TextView
+            android:id="@+id/tv_generate_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:layout_marginStart="18dp"
+            android:background="@drawable/bg_solid_red"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:text="生成视频"
+            android:textColor="@color/font_white" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -26,10 +41,10 @@
             android:layout_gravity="center"
             android:layout_marginEnd="18dp"
             android:background="@drawable/bg_solid_red"
-            android:paddingBottom="5dp"
-            android:paddingEnd="10dp"
             android:paddingStart="10dp"
             android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
             android:text="@string/main_page_take_photo"
             android:textColor="@color/font_white" />
 
@@ -42,10 +57,10 @@
             android:layout_marginEnd="18dp"
             android:layout_toStartOf="@id/tv_take_photo"
             android:background="@drawable/bg_solid_red"
-            android:paddingBottom="5dp"
-            android:paddingEnd="10dp"
             android:paddingStart="10dp"
             android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
             android:text="@string/main_page_choose_photo"
             android:textColor="@color/font_white" />
 

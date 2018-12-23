@@ -1,7 +1,7 @@
 package com.createchance.imageeditordemo;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.pm.ActivityInfo;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,12 +14,14 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.createchance.imageeditordemo.model.SimpleModel;
+import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.model.Sticker;
 import com.createchance.imageeditordemo.utils.AssetsUtil;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.GlideEngine;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,8 +41,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
 
-    private static final int REQUEST_PICK_IMAGE = 1;
+    private static final int REQUEST_CHOOSE_IMAGE_FOR_EDIT = 1;
     private static final int REQUEST_TAKE_PHOTO = 2;
+    private static final int REQUEST_CHOOSE_IMAGE_FOR_VIDEO = 3;
 
     private RecyclerView mWorkListView;
     private WorkListAdapter mWorkListAdapter;
@@ -64,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         mWorkListView.setLayoutManager(new LinearLayoutManager(this));
         mWorkListView.setAdapter(mWorkListAdapter);
+        findViewById(R.id.tv_generate_video).setOnClickListener(this);
         findViewById(R.id.tv_choose_photo).setOnClickListener(this);
         findViewById(R.id.tv_take_photo).setOnClickListener(this);
 
@@ -90,28 +94,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
-            case REQUEST_PICK_IMAGE:
-                if (resultCode == RESULT_OK) {
-                    Uri uri = data.getData();
-                    try {
-                        InputStream inputStream = getContentResolver().openInputStream(uri);
-                        Bitmap image = BitmapFactory.decodeStream(inputStream);
-                        if (image != null) {
-                            SimpleModel.getInstance().putImage(image);
-                            ImageEditActivity.start(MainActivity.this);
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+            case REQUEST_CHOOSE_IMAGE_FOR_EDIT:
+                if (data != null) {
+                    List<String> mediaPathList = Matisse.obtainPathResult(data);
+                    ImageEditActivity.start(this, mediaPathList.get(0));
                 }
                 break;
             case REQUEST_TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    Bitmap image = BitmapFactory.decodeFile(mImageFromCamera.getAbsolutePath());
-                    if (image != null) {
-                        SimpleModel.getInstance().putImage(image);
-                        ImageEditActivity.start(MainActivity.this);
-                    }
+                    ImageEditActivity.start(this, mImageFromCamera.getAbsolutePath());
+                }
+                break;
+            case REQUEST_CHOOSE_IMAGE_FOR_VIDEO:
+                if (data != null) {
+                    List<String> mediaPathList = Matisse.obtainPathResult(data);
+                    Logger.d(TAG, "onActivityResult: " + mediaPathList);
+                    VideoGenerateActivity.start(this, mediaPathList);
                 }
                 break;
             default:
@@ -151,10 +149,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.tv_generate_video:
+                // choose image from local.
+                chooseImages(REQUEST_CHOOSE_IMAGE_FOR_VIDEO, 9);
+                break;
             case R.id.tv_choose_photo:
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, REQUEST_PICK_IMAGE);
+                chooseImages(REQUEST_CHOOSE_IMAGE_FOR_EDIT, 1);
                 break;
             case R.id.tv_take_photo:
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -180,6 +180,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    private void chooseImages(int requestCode, int maxCount) {
+        Matisse.from(MainActivity.this)
+                .choose(MimeType.of(MimeType.JPEG, MimeType.PNG))
+                .countable(true)
+                .maxSelectable(maxCount)
+                .gridExpectedSize(getResources()
+                        .getDimensionPixelSize(R.dimen.grid_expected_size))
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .theme(R.style.Matisse_Dracula)
+                .thumbnailScale(0.85f)
+                .imageEngine(new GlideEngine())
+                .forResult(requestCode);
     }
 
     private void tryCopyFontFile() {

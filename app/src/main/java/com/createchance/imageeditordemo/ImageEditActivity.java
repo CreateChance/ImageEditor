@@ -2,6 +2,8 @@ package com.createchance.imageeditordemo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
@@ -23,7 +25,6 @@ import com.createchance.imageeditor.IHistogramGenerateListener;
 import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.ops.BaseImageOperator;
 import com.createchance.imageeditor.utils.Logger;
-import com.createchance.imageeditordemo.model.SimpleModel;
 import com.createchance.imageeditordemo.panels.AbstractPanel;
 import com.createchance.imageeditordemo.utils.DensityUtil;
 import com.github.mikephil.charting.charts.LineChart;
@@ -42,6 +43,8 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     private static final String TAG = "ImageEditActivity";
 
+    private static final String EXTRA_IMAGE_PATH = "image path";
+
     private RecyclerView mEditListView;
     private EditListAdapter mEditListAdapter;
 
@@ -50,6 +53,8 @@ public class ImageEditActivity extends AppCompatActivity implements
     private LineChart mVwHistogramChartAll, mVwHistogramChartRed, mVwHistogramChartGreen, mVwHistogramChartBlue;
 
     private BaseImageOperator mBaseOp;
+
+    private Bitmap mImage;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         private int mLastX, mLastY;
@@ -173,8 +178,9 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     private TextureView mVwPreview;
 
-    public static void start(Context context) {
+    public static void start(Context context, String imagePath) {
         Intent intent = new Intent(context, ImageEditActivity.class);
+        intent.putExtra(EXTRA_IMAGE_PATH, imagePath);
         context.startActivity(intent);
     }
 
@@ -183,7 +189,13 @@ public class ImageEditActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_edit);
 
-        if (SimpleModel.getInstance().getImage() == null) {
+        Intent intent = getIntent();
+        if (intent != null) {
+            mImage = BitmapFactory.decodeFile(intent.getStringExtra(EXTRA_IMAGE_PATH));
+        }
+
+        if (mImage == null) {
+            Logger.e(TAG, "We can not get image!");
             finish();
         }
 
@@ -254,7 +266,7 @@ public class ImageEditActivity extends AppCompatActivity implements
         Surface holdSurface = new Surface(surface);
         IEManager.getInstance().prepare(holdSurface, width, height);
         mBaseOp = new BaseImageOperator.Builder()
-                .image(SimpleModel.getInstance().getImage())
+                .image(mImage)
                 .build();
 
         IEManager.getInstance().addOperator(mBaseOp);
