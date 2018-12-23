@@ -19,12 +19,13 @@ public abstract class AbstractDrawer {
 
     protected int mProgramId;
 
-    protected void loadProgram(int vertexShaderId, int fragmentShaderId) {
+    protected void loadProgram(int... shaderIds) {
         int[] result = new int[1];
         int programId = GLES20.glCreateProgram();
 
-        GLES20.glAttachShader(programId, vertexShaderId);
-        GLES20.glAttachShader(programId, fragmentShaderId);
+        for (int id : shaderIds) {
+            GLES20.glAttachShader(programId, id);
+        }
 
         GLES20.glLinkProgram(programId);
 
@@ -33,8 +34,10 @@ public abstract class AbstractDrawer {
             Log.e("Load Program", "Linking Failed");
             return;
         }
-        GLES20.glDeleteShader(vertexShaderId);
-        GLES20.glDeleteShader(fragmentShaderId);
+
+        for (int id : shaderIds) {
+            GLES20.glDeleteShader(id);
+        }
 
         mProgramId = programId;
     }

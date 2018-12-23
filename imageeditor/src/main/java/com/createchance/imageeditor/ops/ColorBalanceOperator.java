@@ -7,7 +7,7 @@ import com.createchance.imageeditor.drawers.ColorBalanceDrawer;
 /**
  * Color balance adjustment operator.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/21
  */
 public class ColorBalanceOperator extends AbstractOperator {

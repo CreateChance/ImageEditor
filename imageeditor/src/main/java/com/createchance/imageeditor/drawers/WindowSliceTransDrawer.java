@@ -2,33 +2,33 @@ package com.createchance.imageeditor.drawers;
 
 import android.opengl.GLES20;
 
-import com.createchance.imageeditor.shaders.BaseVertexShader;
-import com.createchance.imageeditor.shaders.ColorBalanceFragmentShader;
+import com.createchance.imageeditor.shaders.TransitionMainVertexShader;
+import com.createchance.imageeditor.shaders.WindowSliceTransShader;
 
 import java.nio.FloatBuffer;
 
 /**
- * Color balance adjustment drawer.
+ * ${DESC}
  *
  * @author createchance
- * @date 2018/12/21
+ * @date 2018/12/23
  */
-public class ColorBalanceDrawer extends AbstractDrawer {
+public class WindowSliceTransDrawer extends AbstractDrawer {
 
-    private static final String TAG = "ColorBalanceDrawer";
+    private static final String TAG = "WindowSliceTransDrawer";
 
     private FloatBuffer mVertexPositionBuffer;
     private FloatBuffer mInputCoordinateBuffer;
 
-    private BaseVertexShader mVertexShader;
-    private ColorBalanceFragmentShader mFragmentShader;
+    private TransitionMainVertexShader mVertexShader;
+    private WindowSliceTransShader mTransitionShader;
 
-    public ColorBalanceDrawer() {
-        mVertexShader = new BaseVertexShader();
-        mFragmentShader = new ColorBalanceFragmentShader();
-        loadProgram(mVertexShader.getShaderId(), mFragmentShader.getShaderId());
+    public WindowSliceTransDrawer() {
+        mVertexShader = new TransitionMainVertexShader();
+        mTransitionShader = new WindowSliceTransShader();
+        loadProgram(mVertexShader.getShaderId(), mTransitionShader.getShaderId());
         mVertexShader.initLocation(mProgramId);
-        mFragmentShader.initLocation(mProgramId);
+        mTransitionShader.initLocation(mProgramId);
 
         mInputCoordinateBuffer = createFloatBuffer(
                 new float[]{
@@ -48,22 +48,23 @@ public class ColorBalanceDrawer extends AbstractDrawer {
         );
     }
 
-    public void setRedShift(float redShift) {
+    public void setProgress(float progress) {
         GLES20.glUseProgram(mProgramId);
-        mFragmentShader.setURedShift(redShift);
+        mTransitionShader.setUProgress(progress);
     }
 
-    public void setGreenShift(float greenShift) {
+    public void setCount(float count) {
         GLES20.glUseProgram(mProgramId);
-        mFragmentShader.setUGreenShift(greenShift);
+        mTransitionShader.setUCount(count);
     }
 
-    public void setBlueShift(float blueShift) {
+    public void setSmoothness(float smoothness) {
         GLES20.glUseProgram(mProgramId);
-        mFragmentShader.setUBlueShift(blueShift);
+        mTransitionShader.setUSmoothness(smoothness);
     }
 
     public void draw(int textureId,
+                     int textureId2,
                      int posX,
                      int posY,
                      int width,
@@ -76,7 +77,8 @@ public class ColorBalanceDrawer extends AbstractDrawer {
 
         mVertexShader.setAPosition(mVertexPositionBuffer);
         mVertexShader.setATextureCoordinates(mInputCoordinateBuffer);
-        mFragmentShader.setUInputTexture(GLES20.GL_TEXTURE0, textureId);
+        mTransitionShader.setUInputTexture(GLES20.GL_TEXTURE0, textureId);
+        mTransitionShader.setUInputTexture2(GLES20.GL_TEXTURE3, textureId2);
 
         // draw filter
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);

@@ -8,8 +8,7 @@
     <ImageView
         android:id="@+id/iv_work_thumbnail"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        tools:src="@drawable/test" />
+        android:layout_height="200dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"

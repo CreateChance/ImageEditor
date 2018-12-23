@@ -35,6 +35,10 @@ public abstract class AbstractOperator {
     public static final int OP_BOKEH_FILTER = 22;
     public static final int OP_COLOR_BALANCE_FILTER = 23;
 
+    // transition operators
+    public static final int OP_TRANS_WINDOW_SLICE = 500;
+    public static final int OP_TRANS_INVERTED_PAGE_CURL = 501;
+
     protected final String mName;
 
     protected final int mType;
