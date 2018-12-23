@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="HorizontalThumbnailListView">
+        <attr name="selectedGroupBg" format="reference" />
+        <attr name="paddingStartWidth" format="dimension" />
+        <attr name="paddingEndWidth" format="dimension" />
+        <attr name="paddingVerticalHeight" format="dimension" />
+        <attr name="groupPaddingWidth" format="dimension" />
+        <attr name="imageWidth" format="dimension" />
+        <attr name="imageHeight" format="dimension" />
+    </declare-styleable>
+</resources>
