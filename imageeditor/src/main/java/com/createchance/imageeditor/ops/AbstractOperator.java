@@ -1,9 +1,9 @@
 package com.createchance.imageeditor.ops;
 
-import com.createchance.imageeditor.IEWorker;
+import com.createchance.imageeditor.OperatorContext;
 
 /**
- * ${DESC}
+ * Base class of all operators.
  *
  * @author createchance
  * @date 2018/10/28
@@ -43,11 +43,15 @@ public abstract class AbstractOperator {
 
     protected final int mType;
 
-    protected IEWorker mWorker;
+    protected OperatorContext mContext;
 
     public AbstractOperator(String name, int type) {
         mName = name;
         mType = type;
+    }
+
+    public void setOperatorContext(OperatorContext context) {
+        mContext = context;
     }
 
     public String getName() {
@@ -56,10 +60,6 @@ public abstract class AbstractOperator {
 
     public int getType() {
         return mType;
-    }
-
-    public void setWorker(IEWorker worker) {
-        mWorker = worker;
     }
 
     public abstract boolean checkRational();

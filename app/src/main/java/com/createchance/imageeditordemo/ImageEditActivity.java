@@ -2,28 +2,25 @@ package com.createchance.imageeditordemo;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.createchance.imageeditor.HistogramData;
+import com.createchance.imageeditor.IEClip;
 import com.createchance.imageeditor.IEManager;
+import com.createchance.imageeditor.IEPreviewView;
 import com.createchance.imageeditor.IHistogramGenerateListener;
 import com.createchance.imageeditor.SaveListener;
-import com.createchance.imageeditor.ops.BaseImageOperator;
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.panels.AbstractPanel;
 import com.createchance.imageeditordemo.utils.DensityUtil;
@@ -37,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImageEditActivity extends AppCompatActivity implements
-        TextureView.SurfaceTextureListener,
         View.OnClickListener,
         AbstractPanel.PanelListener {
 
@@ -52,9 +48,9 @@ public class ImageEditActivity extends AppCompatActivity implements
     private View mVwHistogramContainer;
     private LineChart mVwHistogramChartAll, mVwHistogramChartRed, mVwHistogramChartGreen, mVwHistogramChartBlue;
 
-    private BaseImageOperator mBaseOp;
+    private IEClip mClip;
 
-    private Bitmap mImage;
+    private String mImagePath;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         private int mLastX, mLastY;
@@ -176,7 +172,7 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     private View mVwLeftScissor, mVwTopScissor, mVwRightScissor, mVwBottomScissor;
 
-    private TextureView mVwPreview;
+    private IEPreviewView mVwPreview;
 
     public static void start(Context context, String imagePath) {
         Intent intent = new Intent(context, ImageEditActivity.class);
@@ -191,10 +187,10 @@ public class ImageEditActivity extends AppCompatActivity implements
 
         Intent intent = getIntent();
         if (intent != null) {
-            mImage = BitmapFactory.decodeFile(intent.getStringExtra(EXTRA_IMAGE_PATH));
+            mImagePath = intent.getStringExtra(EXTRA_IMAGE_PATH);
         }
 
-        if (mImage == null) {
+        if (TextUtils.isEmpty(mImagePath)) {
             Logger.e(TAG, "We can not get image!");
             finish();
         }
@@ -215,7 +211,6 @@ public class ImageEditActivity extends AppCompatActivity implements
         findViewById(R.id.tv_histogram).setOnClickListener(this);
         findViewById(R.id.tv_save).setOnClickListener(this);
         mVwPreview = findViewById(R.id.vw_texture);
-        mVwPreview.setSurfaceTextureListener(this);
         mVwPreview.setOnTouchListener(mTouchListener);
         mEditListView = findViewById(R.id.rcv_edit_list);
         mEditListView.setLayoutManager(new LinearLayoutManager(this,
@@ -244,6 +239,20 @@ public class ImageEditActivity extends AppCompatActivity implements
         RelativeLayout.LayoutParams containerParams = (RelativeLayout.LayoutParams) mEditPanelContainer.getLayoutParams();
         containerParams.height = (int) (totalHeight * 0.3f);
         mEditPanelContainer.setLayoutParams(containerParams);
+
+        // init IE
+        IEManager.getInstance().startEngine();
+        IEManager.getInstance().attachPreview(mVwPreview);
+        IEManager.getInstance().addClip(mImagePath);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // release IE
+        IEManager.getInstance().detachPreview(mVwPreview);
+        IEManager.getInstance().stopEngine();
     }
 
     @Override
@@ -258,53 +267,19 @@ public class ImageEditActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        mTextureWidth = width;
-        mTextureHeight = height;
-        Constants.mSurfaceWidth = width;
-        Constants.mSurfaceHeight = height;
-        Surface holdSurface = new Surface(surface);
-        IEManager.getInstance().prepare(holdSurface, width, height);
-        mBaseOp = new BaseImageOperator.Builder()
-                .image(mImage)
-                .build();
-
-        IEManager.getInstance().addOperator(mBaseOp);
-        Constants.mOpList.add(mBaseOp);
-    }
-
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        IEManager.getInstance().stop();
-        mBaseOp = null;
-
-        return true;
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
-    }
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.vw_back:
                 onBackPressed();
                 break;
             case R.id.tv_undo:
-                IEManager.getInstance().undo();
+                IEManager.getInstance().undo(0);
                 break;
             case R.id.tv_redo:
-                IEManager.getInstance().redo();
+                IEManager.getInstance().redo(0);
                 break;
             case R.id.tv_histogram:
-                IEManager.getInstance().generatorHistogram(new IHistogramGenerateListener() {
+                IEManager.getInstance().generatorHistogram(0, new IHistogramGenerateListener() {
                     @Override
                     public void onHistogramGenerated(List<HistogramData> data, long totalPixelSize) {
                         mVwHistogramContainer.setVisibility(View.VISIBLE);
@@ -427,23 +402,27 @@ public class ImageEditActivity extends AppCompatActivity implements
                 break;
             case AbstractPanel.TYPE_CUT:
                 RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) mVwLeftScissor.getLayoutParams();
-                leftParams.width = IEManager.getInstance().getImgShowLeft();
+                leftParams.width = IEManager.getInstance().getClip(0).getRenderLeft();
                 mVwLeftScissor.setLayoutParams(leftParams);
 
                 RelativeLayout.LayoutParams topParams = (RelativeLayout.LayoutParams) mVwTopScissor.getLayoutParams();
-                topParams.height = mVwPreview.getHeight() - IEManager.getInstance().getImgShowTop();
+                topParams.height = mVwPreview.getHeight() - IEManager.getInstance().getClip(0).getRenderTop();
                 mVwTopScissor.setLayoutParams(topParams);
 
                 RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) mVwRightScissor.getLayoutParams();
-                rightParams.width = mVwPreview.getWidth() - IEManager.getInstance().getImgShowRight();
+                rightParams.width = mVwPreview.getWidth() - IEManager.getInstance().getClip(0).getRenderRight();
                 mVwRightScissor.setLayoutParams(rightParams);
 
                 RelativeLayout.LayoutParams bottomParams = (RelativeLayout.LayoutParams) mVwBottomScissor.getLayoutParams();
-                bottomParams.height = IEManager.getInstance().getImgShowBottom();
+                bottomParams.height = IEManager.getInstance().getClip(0).getRenderBottom();
                 mVwBottomScissor.setLayoutParams(bottomParams);
 
-                mBaseOp.setScissor(0, 0, mVwPreview.getWidth(), mVwPreview.getHeight());
-                IEManager.getInstance().updateOperator(mBaseOp);
+                IEManager.getInstance().getClip(0).setScissorX(0);
+                IEManager.getInstance().getClip(0).setScissorY(0);
+                IEManager.getInstance().getClip(0).setScissorWidth(IEManager.getInstance().getClip(0).getRenderWidth());
+                IEManager.getInstance().getClip(0).setScissorHeight(IEManager.getInstance().getClip(0).getRenderHeight());
+
+                IEManager.getInstance().renderClip(0);
                 break;
             case AbstractPanel.TYPE_ROTATE:
 
@@ -470,14 +449,13 @@ public class ImageEditActivity extends AppCompatActivity implements
         mCurrentPanel = null;
         if (type == AbstractPanel.TYPE_CUT) {
             if (!discard) {
-                if (mBaseOp != null) {
-                    mBaseOp.setScissor(
-                            mVwLeftScissor.getWidth(),
-                            mVwBottomScissor.getHeight(),
-                            mVwPreview.getWidth() - mVwRightScissor.getWidth() - mVwLeftScissor.getWidth(),
-                            mVwPreview.getHeight() - mVwBottomScissor.getHeight() - mVwTopScissor.getHeight());
-                    IEManager.getInstance().updateOperator(mBaseOp);
-                }
+                IEManager.getInstance().getClip(0).setScissorX(mVwLeftScissor.getWidth());
+                IEManager.getInstance().getClip(0).setScissorY(mVwBottomScissor.getHeight());
+                IEManager.getInstance().getClip(0).setScissorWidth(
+                        mVwPreview.getWidth() - mVwRightScissor.getWidth() - mVwLeftScissor.getWidth());
+                IEManager.getInstance().getClip(0).setScissorHeight
+                        (mVwPreview.getHeight() - mVwBottomScissor.getHeight() - mVwTopScissor.getHeight());
+                IEManager.getInstance().renderClip(0);
             }
 
             RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) mVwLeftScissor.getLayoutParams();

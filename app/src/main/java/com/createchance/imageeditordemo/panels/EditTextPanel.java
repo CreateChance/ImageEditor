@@ -138,7 +138,7 @@ public class EditTextPanel extends AbstractPanel implements
                         if (!mTextOpList.isEmpty()) {
                             TextOperator operator = (TextOperator) mTextOpList.get(mCurOp);
                             operator.setText(text);
-                            IEManager.getInstance().updateOperator(operator);
+                            IEManager.getInstance().renderClip(0);
                         }
                     }
 
@@ -169,7 +169,7 @@ public class EditTextPanel extends AbstractPanel implements
                                 .font(new File(mContext.getFilesDir(), mFontList.get(0).fontPath).getAbsolutePath())
                                 .position(mCurTextPosX, mCurTextPosY)
                                 .build();
-                        IEManager.getInstance().addOperator(textOperator);
+                        IEManager.getInstance().addOperator(0, textOperator);
                         mCurTextPosX += 50;
                         mCurTextPosY -= 50;
                         mTextOpList.add(textOperator);
@@ -210,7 +210,7 @@ public class EditTextPanel extends AbstractPanel implements
                             .font(new File(mContext.getFilesDir(), mFontList.get(0).fontPath).getAbsolutePath())
                             .position(mCurTextPosX, mCurTextPosY)
                             .build();
-                    IEManager.getInstance().addOperator(textOperator);
+                    IEManager.getInstance().addOperator(0, textOperator);
                     mCurTextPosX += 50;
                     mCurTextPosY -= 50;
                     mTextOpList.add(textOperator);
@@ -232,7 +232,7 @@ public class EditTextPanel extends AbstractPanel implements
         if (discard && mTextOpList != null && mTextOpList.size() > 0) {
             List<AbstractOperator> tempList = new ArrayList<>();
             tempList.addAll(mTextOpList);
-            if (!IEManager.getInstance().removeOperator(tempList)) {
+            if (!IEManager.getInstance().removeOperator(0, tempList)) {
                 Log.e(TAG, "Close panel, but remove op failed!!!");
             }
             mTextOpList.clear();
@@ -259,7 +259,7 @@ public class EditTextPanel extends AbstractPanel implements
         }
         textOperator.setPosX(curX);
         textOperator.setPosY(curY);
-        IEManager.getInstance().updateOperator(textOperator);
+        IEManager.getInstance().renderClip(0);
     }
 
     private void initFontPanel() {
@@ -273,7 +273,7 @@ public class EditTextPanel extends AbstractPanel implements
             public void fontSelected(int position) {
                 TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
                 textOperator.setFontPath(new File(mContext.getFilesDir(), mFontList.get(position).fontPath).getAbsolutePath());
-                IEManager.getInstance().updateOperator(textOperator);
+                IEManager.getInstance().renderClip(0);
             }
         });
         fontListView.setAdapter(textFontAdapter);
@@ -300,7 +300,7 @@ public class EditTextPanel extends AbstractPanel implements
                 Log.d(TAG, "onTextureSelected: " + position);
                 TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
                 textOperator.setBackground(BitmapFactory.decodeResource(mContext.getResources(), mTextureList.get(position).resId));
-                IEManager.getInstance().updateOperator(textOperator);
+                IEManager.getInstance().renderClip(0);
             }
         }));
     }
@@ -365,7 +365,7 @@ public class EditTextPanel extends AbstractPanel implements
             default:
                 break;
         }
-        IEManager.getInstance().updateOperator(textOperator);
+        IEManager.getInstance().renderClip(0);
     }
 
     @Override

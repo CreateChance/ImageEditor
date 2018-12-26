@@ -1,7 +1,5 @@
 package com.createchance.imageeditor.ops;
 
-import android.opengl.GLES20;
-
 import com.createchance.imageeditor.drawers.ColorBalanceDrawer;
 
 /**
@@ -28,26 +26,19 @@ public class ColorBalanceOperator extends AbstractOperator {
 
     @Override
     public void exec() {
-        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
+        mContext.attachOffScreenTexture(mContext.getOutputTextureId());
         if (mDrawer == null) {
             mDrawer = new ColorBalanceDrawer();
         }
         mDrawer.setRedShift(mRedShift);
         mDrawer.setGreenShift(mGreenShift);
         mDrawer.setBlueShift(mBlueShift);
-        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-        GLES20.glScissor(mWorker.getImgShowLeft(),
-                mWorker.getImgShowBottom(),
-                mWorker.getImgShowWidth(),
-                mWorker.getImgShowHeight());
-        mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
+        mDrawer.draw(mContext.getInputTextureId(),
                 0,
                 0,
-                mWorker.getSurfaceWidth(),
-                mWorker.getSurfaceHeight());
-        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
-        mWorker.bindDefaultFrameBuffer();
-        mWorker.swapTexture();
+                mContext.getSurfaceWidth(),
+                mContext.getSurfaceHeight());
+        mContext.swapTexture();
     }
 
     public float getRedShift() {

@@ -77,7 +77,7 @@ public class EditTransformPanel extends AbstractPanel implements
         super.close(discard);
 
         if (discard && mCurOp != null) {
-            IEManager.getInstance().removeOperator(mCurOp);
+            IEManager.getInstance().removeOperator(0, mCurOp);
             mCurOp = null;
         }
     }
@@ -106,7 +106,7 @@ public class EditTransformPanel extends AbstractPanel implements
         if (mCurOp == null) {
             mCurOp = new ModelViewOperator.Builder()
                     .build();
-            IEManager.getInstance().addOperator(mCurOp);
+            IEManager.getInstance().addOperator(0, mCurOp);
         }
         switch (seekBar.getId()) {
             case R.id.sb_rotate_x:
@@ -140,7 +140,7 @@ public class EditTransformPanel extends AbstractPanel implements
             default:
                 break;
         }
-        IEManager.getInstance().updateOperator(mCurOp);
+        IEManager.getInstance().renderClip(0);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class EditTransformPanel extends AbstractPanel implements
         if (mCurOp == null) {
             mCurOp = new ModelViewOperator.Builder()
                     .build();
-            IEManager.getInstance().addOperator(mCurOp);
+            IEManager.getInstance().addOperator(0, mCurOp);
         }
         switch (buttonView.getId()) {
             case R.id.rb_perspective:
@@ -173,6 +173,6 @@ public class EditTransformPanel extends AbstractPanel implements
             default:
                 break;
         }
-        IEManager.getInstance().updateOperator(mCurOp);
+        IEManager.getInstance().renderClip(0);
     }
 }

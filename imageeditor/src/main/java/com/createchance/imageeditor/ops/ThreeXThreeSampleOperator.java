@@ -1,7 +1,5 @@
 package com.createchance.imageeditor.ops;
 
-import android.opengl.GLES20;
-
 import com.createchance.imageeditor.drawers.ThreeXThreeSampleDrawer;
 
 /**
@@ -60,25 +58,18 @@ public class ThreeXThreeSampleOperator extends AbstractOperator {
         if (mDrawer == null) {
             mDrawer = new ThreeXThreeSampleDrawer();
         }
-        mDrawer.setWidthStep(1.0f / mWorker.getImgShowWidth());
-        mDrawer.setHeightStep(1.0f / mWorker.getImgShowHeight());
+        mDrawer.setWidthStep(1.0f / mContext.getRenderWidth());
+        mDrawer.setHeightStep(1.0f / mContext.getRenderHeight());
         mDrawer.setSampleKernel(mSampleKernel);
-        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-        GLES20.glScissor(mWorker.getImgShowLeft(),
-                mWorker.getImgShowBottom(),
-                mWorker.getImgShowWidth(),
-                mWorker.getImgShowHeight());
         for (int i = 0; i < mRepeatTimes; i++) {
-            mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
-            mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
+            mContext.attachOffScreenTexture(mContext.getOutputTextureId());
+            mDrawer.draw(mContext.getInputTextureId(),
                     0,
                     0,
-                    mWorker.getSurfaceWidth(),
-                    mWorker.getSurfaceHeight());
-            mWorker.bindDefaultFrameBuffer();
-            mWorker.swapTexture();
+                    mContext.getSurfaceWidth(),
+                    mContext.getSurfaceHeight());
+            mContext.swapTexture();
         }
-        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
     }
 
     public float getWidthStep() {

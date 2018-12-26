@@ -51,7 +51,7 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
     public void onTouchEvent(MotionEvent event) {
         if (mMosaicOp == null) {
             mMosaicOp = new MosaicOperator.Builder().strength(20).build();
-            IEManager.getInstance().addOperator(mMosaicOp);
+            IEManager.getInstance().addOperator(0, mMosaicOp);
         }
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
@@ -64,7 +64,7 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
             default:
                 break;
         }
-        IEManager.getInstance().updateOperator(mMosaicOp);
+        IEManager.getInstance().renderClip(0);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
         super.close(discard);
 
         if (discard && mMosaicOp != null) {
-            IEManager.getInstance().removeOperator(mMosaicOp);
+            IEManager.getInstance().removeOperator(0, mMosaicOp);
             mMosaicOp.clearArea();
             mMosaicOp = null;
             mSbSize.setProgress(0);
@@ -118,7 +118,7 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
 
         if (mMosaicOp == null) {
             mMosaicOp = new MosaicOperator.Builder().strength(20).build();
-            IEManager.getInstance().addOperator(mMosaicOp);
+            IEManager.getInstance().addOperator(0, mMosaicOp);
         }
         switch (seekBar.getId()) {
             case R.id.sb_mosaic_size:
@@ -130,7 +130,7 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
             default:
                 break;
         }
-        IEManager.getInstance().updateOperator(mMosaicOp);
+        IEManager.getInstance().renderClip(0);
     }
 
     @Override

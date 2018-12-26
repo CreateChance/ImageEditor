@@ -1,12 +1,11 @@
 package com.createchance.imageeditor.ops;
 
 import android.graphics.Bitmap;
-import android.opengl.GLES20;
 
 import com.createchance.imageeditor.drawers.LookupFilterDrawer;
 
 /**
- * ${DESC}
+ * Look up filter operator.
  *
  * @author createchance
  * @date 2018/11/10
@@ -32,7 +31,7 @@ public class LookupFilterOperator extends AbstractOperator {
 
     @Override
     public void exec() {
-        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
+        mContext.attachOffScreenTexture(mContext.getOutputTextureId());
         if (mDrawer == null) {
             mDrawer = new LookupFilterDrawer();
         }
@@ -42,19 +41,12 @@ public class LookupFilterOperator extends AbstractOperator {
             mReloadLookup = false;
             mDrawer.setLookup(mLookupImage);
         }
-        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-        GLES20.glScissor(mWorker.getImgShowLeft(),
-                mWorker.getImgShowBottom(),
-                mWorker.getImgShowWidth(),
-                mWorker.getImgShowHeight());
-        mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
+        mDrawer.draw(mContext.getInputTextureId(),
                 0,
                 0,
-                mWorker.getSurfaceWidth(),
-                mWorker.getSurfaceHeight());
-        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
-        mWorker.bindDefaultFrameBuffer();
-        mWorker.swapTexture();
+                mContext.getSurfaceWidth(),
+                mContext.getSurfaceHeight());
+        mContext.swapTexture();
     }
 
     public void setIntensity(float intensity) {

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import com.createchance.imageeditordemo.R;
 
 /**
- * ${DESC}
+ * Abstract panel, super class of all panels.
  *
  * @author createchance
  * @date 2018/10/31

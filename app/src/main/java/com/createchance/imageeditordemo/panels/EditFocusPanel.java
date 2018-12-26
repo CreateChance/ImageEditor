@@ -9,7 +9,6 @@ import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.InvertedPageCurlTransOperator;
-import com.createchance.imageeditor.ops.WindowSliceTransOperator;
 import com.createchance.imageeditordemo.R;
 
 /**
@@ -53,7 +52,7 @@ public class EditFocusPanel extends AbstractPanel implements
         super.close(discard);
 
         if (discard && mFocusOp != null) {
-            IEManager.getInstance().removeOperator(mFocusOp);
+            IEManager.getInstance().removeOperator(0, mFocusOp);
             mFocusOp = null;
         }
     }
@@ -90,11 +89,11 @@ public class EditFocusPanel extends AbstractPanel implements
 //                            .sampleKernel(ThreeXThreeSampleOperator.LAPLACIAN_SAMPLE_FILTER)
 //                            .build();
                     mFocusOp = new InvertedPageCurlTransOperator();
-                    IEManager.getInstance().addOperator(mFocusOp);
+                    IEManager.getInstance().addOperator(0, mFocusOp);
                 }
 //                mFocusOp.setRepeatTimes((int) (process * 100.0f / seekBar.getMax()));
                 mFocusOp.setProgress(process * 1.0f / seekBar.getMax());
-                IEManager.getInstance().updateOperator(mFocusOp);
+                IEManager.getInstance().renderClip(0);
                 break;
             default:
                 break;

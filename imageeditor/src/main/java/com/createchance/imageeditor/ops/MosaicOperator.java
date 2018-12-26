@@ -40,7 +40,7 @@ public class MosaicOperator extends AbstractOperator {
 
     @Override
     public void exec() {
-        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
+        mContext.attachOffScreenTexture(mContext.getOutputTextureId());
         if (mDrawer == null) {
             mDrawer = new MosaicDrawer();
         }
@@ -59,18 +59,17 @@ public class MosaicOperator extends AbstractOperator {
                         area.y,
                         area.width,
                         area.height);
-                mDrawer.setImageSize(mWorker.getImgShowWidth(), mWorker.getImgShowHeight());
+                mDrawer.setImageSize(mContext.getRenderWidth(), mContext.getRenderHeight());
                 mDrawer.setMosaicSize(mMosaicWidth, mMosaicHeight);
-                mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
+                mDrawer.draw(mContext.getInputTextureId(),
                         0,
                         0,
-                        mWorker.getSurfaceWidth(),
-                        mWorker.getSurfaceHeight());
+                        mContext.getSurfaceWidth(),
+                        mContext.getSurfaceHeight());
             }
         }
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
-        mWorker.bindDefaultFrameBuffer();
-        mWorker.swapTexture();
+        mContext.swapTexture();
     }
 
     public float getSize() {
@@ -96,7 +95,7 @@ public class MosaicOperator extends AbstractOperator {
             int curIndex = -1;
             for (int i = 0; i < mMosaicAreaList.size(); i++) {
                 Area area = mMosaicAreaList.get(i);
-                if (area.isIn(x, mWorker.getSurfaceHeight() - y)) {
+                if (area.isIn(x, mContext.getSurfaceHeight() - y)) {
                     curIndex = mMosaicAreaList.indexOf(area);
                     break;
                 }
@@ -105,7 +104,7 @@ public class MosaicOperator extends AbstractOperator {
             if (curIndex == -1) {
                 Area area = new Area();
                 int xIndex = (int) (x / area.width);
-                int yIndex = (int) ((mWorker.getSurfaceHeight() - y) / area.height);
+                int yIndex = (int) ((mContext.getSurfaceHeight() - y) / area.height);
                 area.x = area.width * xIndex;
                 area.y = area.height * yIndex;
                 mMosaicAreaList.add(area);
@@ -123,7 +122,7 @@ public class MosaicOperator extends AbstractOperator {
         synchronized (mMosaicAreaList) {
             int indexToRemove = -1;
             for (Area area : mMosaicAreaList) {
-                if (area.isIn(x, mWorker.getSurfaceHeight() - y)) {
+                if (area.isIn(x, mContext.getSurfaceHeight() - y)) {
                     indexToRemove = mMosaicAreaList.indexOf(area);
                     break;
                 }
@@ -165,8 +164,8 @@ public class MosaicOperator extends AbstractOperator {
     private class Area {
         int x;
         int y;
-        int width = (int) (mWorker.getSurfaceWidth() * 1.0f / getScaledSpanCount());
-        int height = (int) (mWorker.getSurfaceHeight() * 1.0f / getScaledSpanCount());
+        int width = (int) (mContext.getSurfaceWidth() * 1.0f / getScaledSpanCount());
+        int height = (int) (mContext.getSurfaceHeight() * 1.0f / getScaledSpanCount());
 
         @Override
         public String toString() {
