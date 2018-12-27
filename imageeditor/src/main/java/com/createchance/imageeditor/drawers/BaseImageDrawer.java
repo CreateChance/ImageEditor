@@ -1,9 +1,10 @@
 package com.createchance.imageeditor.drawers;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import com.createchance.imageeditor.shaders.BaseFragmentShader;
-import com.createchance.imageeditor.shaders.BaseVertexShader;
+import com.createchance.imageeditor.shaders.ModelViewVertexShader;
 
 import java.nio.FloatBuffer;
 
@@ -20,13 +21,15 @@ public class BaseImageDrawer extends AbstractDrawer {
     private FloatBuffer mVertexPositionBuffer;
 
     private FloatBuffer mTextureCoordinateBuffer;
-    private FloatBuffer mTextureCoordinateBufferFliped;
+    private FloatBuffer mTextureCoordinateBufferFlipped;
 
-    private BaseVertexShader mVertexShader;
+    private ModelViewVertexShader mVertexShader;
     private BaseFragmentShader mFragmentShader;
 
+    private float[] mModelMatrix, mViewMatrix, mProjectionMatrix;
+
     public BaseImageDrawer(float widthScaleFactor, float heightScaleFactor) {
-        mVertexShader = new BaseVertexShader();
+        mVertexShader = new ModelViewVertexShader();
         mFragmentShader = new BaseFragmentShader();
         loadProgram(mVertexShader.getShaderId(), mFragmentShader.getShaderId());
         mVertexShader.initLocation(mProgramId);
@@ -40,7 +43,7 @@ public class BaseImageDrawer extends AbstractDrawer {
                         1.0f * widthScaleFactor, -1.0f * heightScaleFactor,
                 }
         );
-        mTextureCoordinateBufferFliped = createFloatBuffer(
+        mTextureCoordinateBufferFlipped = createFloatBuffer(
                 new float[]{
                         0.0f, 0.0f,
                         0.0f, 1.0f,
@@ -56,6 +59,10 @@ public class BaseImageDrawer extends AbstractDrawer {
                         1.0f, 0.0f,
                 }
         );
+
+        mModelMatrix = new float[16];
+        mViewMatrix = new float[16];
+        mProjectionMatrix = new float[16];
     }
 
     public void draw(int inputTexture,
@@ -63,14 +70,26 @@ public class BaseImageDrawer extends AbstractDrawer {
                      int posY,
                      int width,
                      int height,
-                     boolean flipY) {
+                     boolean flipY,
+                     float scaleX,
+                     float scaleY,
+                     float translateX,
+                     float translateY) {
         GLES20.glUseProgram(mProgramId);
 
         GLES20.glViewport(posX, posY, width, height);
 
+        Matrix.setIdentityM(mModelMatrix, 0);
+        Matrix.setIdentityM(mViewMatrix, 0);
+        Matrix.setIdentityM(mProjectionMatrix, 0);
+        Matrix.scaleM(mModelMatrix, 0, scaleX, scaleY, 1.0f);
+        Matrix.translateM(mViewMatrix, 0, translateX, translateY, 0);
+        mVertexShader.setUModelMatrix(mModelMatrix);
+        mVertexShader.setUViewMatrix(mViewMatrix);
+        mVertexShader.setUProjectionMatrix(mProjectionMatrix);
         mVertexShader.setAPosition(mVertexPositionBuffer);
         if (flipY) {
-            mVertexShader.setATextureCoordinates(mTextureCoordinateBufferFliped);
+            mVertexShader.setATextureCoordinates(mTextureCoordinateBufferFlipped);
         } else {
             mVertexShader.setATextureCoordinates(mTextureCoordinateBuffer);
         }

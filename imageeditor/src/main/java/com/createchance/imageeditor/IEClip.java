@@ -47,6 +47,8 @@ public class IEClip implements OperatorContext {
 
     private int mRenderLeft, mRenderTop, mRenderRight, mRenderBottom;
     private int mScissorX, mScissorY, mScissorWidth, mScissorHeight;
+    private float mScaleX = 1.0f, mScaleY = 1.0f;
+    private float mTranslateX, mTranslateY;
 
     IEClip(String imagePath, long startTime, long endTime, GLRenderThread renderThread) {
         mBitmap = BitmapFactory.decodeFile(imagePath);
@@ -128,6 +130,48 @@ public class IEClip implements OperatorContext {
 
     public void setScissorHeight(int scissorHeight) {
         this.mScissorHeight = scissorHeight;
+    }
+
+    public float getScaleX() {
+        return mScaleX;
+    }
+
+    public void setScaleX(float scaleX) {
+        this.mScaleX = scaleX;
+        if (mScaleX < 0.1f) {
+            mScaleX = 0.1f;
+        } else if (mScaleX > 10.0f) {
+            mScaleX = 10.0f;
+        }
+    }
+
+    public float getScaleY() {
+        return mScaleY;
+    }
+
+    public void setScaleY(float scaleY) {
+        this.mScaleY = scaleY;
+        if (mScaleY < 0.1f) {
+            mScaleY = 0.1f;
+        } else if (mScaleY > 10.0f) {
+            mScaleY = 10.0f;
+        }
+    }
+
+    public float getTranslateX() {
+        return mTranslateX;
+    }
+
+    public void setTranslateX(float translateX) {
+        this.mTranslateX = translateX;
+    }
+
+    public float getTranslateY() {
+        return mTranslateY;
+    }
+
+    public void setTranslateY(float translateY) {
+        this.mTranslateY = translateY;
     }
 
     public void generatorHistogram(final IHistogramGenerateListener listener) {
@@ -300,7 +344,11 @@ public class IEClip implements OperatorContext {
                         mRenderBottom,
                         getRenderWidth(),
                         getRenderHeight(),
-                        true);
+                        true,
+                        1.0f,
+                        1.0f,
+                        0,
+                        0);
 
                 for (AbstractOperator operator : mOpList) {
                     operator.exec();
@@ -309,12 +357,18 @@ public class IEClip implements OperatorContext {
 
                 mRenderTarget.bindDefaultFrameBuffer();
 
+                GLES20.glClearColor(0, 0, 0, 0);
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
                 mDrawer.draw(mRenderTarget.getInputTextureId(),
                         0,
                         0,
                         mRenderTarget.getSurfaceWidth(),
                         mRenderTarget.getSurfaceHeight(),
-                        false);
+                        false,
+                        mScaleX,
+                        mScaleY,
+                        mTranslateX,
+                        mTranslateY);
 
                 // swap to show it.
                 mRenderTarget.swapBuffers();

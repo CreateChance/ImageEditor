@@ -9,7 +9,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -35,7 +37,8 @@ import java.util.List;
 
 public class ImageEditActivity extends AppCompatActivity implements
         View.OnClickListener,
-        AbstractPanel.PanelListener {
+        AbstractPanel.PanelListener,
+        ScaleGestureDetector.OnScaleGestureListener {
 
     private static final String TAG = "ImageEditActivity";
 
@@ -52,12 +55,18 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     private String mImagePath;
 
+    private ScaleGestureDetector mScaleGestureDetector;
+    private GestureDetector mGestureDetector;
+    private float mCurScale = 1.0f;
+
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         private int mLastX, mLastY;
         private int mDownX, mDownY;
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
+            mScaleGestureDetector.onTouchEvent(event);
+            mGestureDetector.onTouchEvent(event);
             if (mCurrentPanel != null) {
                 if (mCurrentPanel.getType() == AbstractPanel.TYPE_CUT) {
                     handleScissor(event);
@@ -195,6 +204,70 @@ public class ImageEditActivity extends AppCompatActivity implements
             finish();
         }
 
+        mScaleGestureDetector = new ScaleGestureDetector(this, this);
+        mGestureDetector = new GestureDetector(ImageEditActivity.this, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                Logger.d(TAG, "Scroll, dis x: " + distanceX + ", dis y: " + distanceY);
+                mClip.setTranslateX((-distanceX * 1.0f / mClip.getSurfaceWidth()) + mClip.getTranslateX());
+                mClip.setTranslateY((distanceY * 1.0f / mClip.getSurfaceHeight()) + mClip.getTranslateY());
+                IEManager.getInstance().renderClip(0);
+                return true;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return true;
+            }
+        });
+        mGestureDetector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                if (mClip.getScaleX() != 1.0f) {
+                    mClip.setScaleX(1.0f);
+                    mClip.setScaleY(1.0f);
+                    mCurScale = 1.0f;
+                } else {
+                    mClip.setScaleX(2.0f);
+                    mClip.setScaleY(2.0f);
+                    mCurScale = 2.0f;
+                }
+                mClip.setTranslateX(0);
+                mClip.setTranslateY(0);
+                IEManager.getInstance().renderClip(0);
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTapEvent(MotionEvent e) {
+                return true;
+            }
+        });
         mEditPanelContainer = findViewById(R.id.vw_edit_panel_container);
         mVwLeftScissor = findViewById(R.id.vw_scissor_left_mask);
         mVwTopScissor = findViewById(R.id.vw_scissor_top_mask);
@@ -243,7 +316,7 @@ public class ImageEditActivity extends AppCompatActivity implements
         // init IE
         IEManager.getInstance().startEngine();
         IEManager.getInstance().attachPreview(mVwPreview);
-        IEManager.getInstance().addClip(mImagePath);
+        mClip = IEManager.getInstance().addClip(mImagePath);
     }
 
     @Override
@@ -405,27 +478,26 @@ public class ImageEditActivity extends AppCompatActivity implements
                 mVwRightScissor.setVisibility(View.VISIBLE);
                 mVwTopScissor.setVisibility(View.VISIBLE);
                 mVwBottomScissor.setVisibility(View.VISIBLE);
-                IEClip clip = IEManager.getInstance().getClip(0);
                 RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) mVwLeftScissor.getLayoutParams();
-                leftParams.width = clip.getScissorX();
+                leftParams.width = mClip.getScissorX();
                 mVwLeftScissor.setLayoutParams(leftParams);
 
                 RelativeLayout.LayoutParams topParams = (RelativeLayout.LayoutParams) mVwTopScissor.getLayoutParams();
-                topParams.height = mVwPreview.getHeight() - (clip.getScissorY() + clip.getScissorHeight());
+                topParams.height = mVwPreview.getHeight() - (mClip.getScissorY() + mClip.getScissorHeight());
                 mVwTopScissor.setLayoutParams(topParams);
 
                 RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) mVwRightScissor.getLayoutParams();
-                rightParams.width = mVwPreview.getWidth() - (clip.getScissorX() + clip.getScissorWidth());
+                rightParams.width = mVwPreview.getWidth() - (mClip.getScissorX() + mClip.getScissorWidth());
                 mVwRightScissor.setLayoutParams(rightParams);
 
                 RelativeLayout.LayoutParams bottomParams = (RelativeLayout.LayoutParams) mVwBottomScissor.getLayoutParams();
-                bottomParams.height = clip.getScissorY();
+                bottomParams.height = mClip.getScissorY();
                 mVwBottomScissor.setLayoutParams(bottomParams);
 
-                clip.setScissorX(clip.getRenderLeft());
-                clip.setScissorY(clip.getRenderBottom());
-                clip.setScissorWidth(clip.getRenderWidth());
-                clip.setScissorHeight(clip.getRenderHeight());
+                mClip.setScissorX(mClip.getRenderLeft());
+                mClip.setScissorY(mClip.getRenderBottom());
+                mClip.setScissorWidth(mClip.getRenderWidth());
+                mClip.setScissorHeight(mClip.getRenderHeight());
                 IEManager.getInstance().renderClip(0);
                 break;
             case AbstractPanel.TYPE_ROTATE:
@@ -467,5 +539,24 @@ public class ImageEditActivity extends AppCompatActivity implements
             mVwTopScissor.setVisibility(View.GONE);
             mVwBottomScissor.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public boolean onScale(ScaleGestureDetector detector) {
+        mCurScale *= detector.getScaleFactor();
+        mClip.setScaleX(mCurScale);
+        mClip.setScaleY(mCurScale);
+        IEManager.getInstance().renderClip(0);
+        return true;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
+        return true;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector detector) {
+
     }
 }
