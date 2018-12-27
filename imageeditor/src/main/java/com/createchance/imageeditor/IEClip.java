@@ -289,6 +289,12 @@ public class IEClip implements OperatorContext {
 
                 GLES20.glClearColor(0, 0, 0, 0);
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+                // scissor for output
+                GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+                GLES20.glScissor(mScissorX,
+                        mScissorY,
+                        mScissorWidth,
+                        mScissorHeight);
                 mDrawer.draw(mBaseTextureId,
                         mRenderLeft,
                         mRenderBottom,
@@ -299,21 +305,16 @@ public class IEClip implements OperatorContext {
                 for (AbstractOperator operator : mOpList) {
                     operator.exec();
                 }
+                GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
 
                 mRenderTarget.bindDefaultFrameBuffer();
 
-                GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-                GLES20.glScissor(mScissorX,
-                        mScissorY,
-                        mScissorWidth,
-                        mScissorHeight);
                 mDrawer.draw(mRenderTarget.getInputTextureId(),
                         0,
                         0,
                         mRenderTarget.getSurfaceWidth(),
                         mRenderTarget.getSurfaceHeight(),
                         false);
-                GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
 
                 // swap to show it.
                 mRenderTarget.swapBuffers();
