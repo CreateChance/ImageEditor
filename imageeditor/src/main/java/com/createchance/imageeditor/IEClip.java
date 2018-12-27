@@ -195,7 +195,7 @@ public class IEClip implements OperatorContext {
 
                 for (int i = 0; i < pixelBuffer.limit(); i++) {
                     int rgbVal = pixelBuffer.get(i);
-                    int r = rgbVal & 0xF;
+                    int r = rgbVal & 0xFF;
                     int g = (rgbVal >> 8) & 0xFF;
                     int b = (rgbVal >> 16) & 0xFF;
                     data.get(r).mRed++;
