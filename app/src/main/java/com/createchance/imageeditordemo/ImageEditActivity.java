@@ -224,7 +224,7 @@ public class ImageEditActivity extends AppCompatActivity implements
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 Logger.d(TAG, "Scroll, dis x: " + distanceX + ", dis y: " + distanceY);
-                if (mCurrentPanel == null || mCurrentPanel.getType() != AbstractPanel.TYPE_CUT) {
+                if (mCurrentPanel == null) {
                     mClip.setTranslateX((-distanceX * 2.0f / mClip.getSurfaceWidth()) + mClip.getTranslateX());
                     mClip.setTranslateY((distanceY * 2.0f / mClip.getSurfaceHeight()) + mClip.getTranslateY());
                     IEManager.getInstance().renderClip(0);
