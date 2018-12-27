@@ -381,22 +381,16 @@ public class IEClip implements OperatorContext {
         int imgHeight = mBitmap.getHeight();
         float scale = 1.0f;
         if (imgWidth > imgHeight) {
-            if (imgWidth > mRenderTarget.getSurfaceWidth()) {
-                scale = mRenderTarget.getSurfaceWidth() * 1.0f / imgWidth;
-                imgWidth = mRenderTarget.getSurfaceWidth();
-                imgHeight = (int) (imgHeight * scale);
-            }
+            scale = mRenderTarget.getSurfaceWidth() * 1.0f / imgWidth;
+            imgWidth = mRenderTarget.getSurfaceWidth();
+            imgHeight = (int) (imgHeight * scale);
         } else if (imgWidth == imgHeight) {
-            if (imgWidth > mRenderTarget.getSurfaceWidth()) {
-                imgWidth = mRenderTarget.getSurfaceWidth();
-                imgHeight = imgWidth;
-            }
+            imgWidth = mRenderTarget.getSurfaceWidth();
+            imgHeight = imgWidth;
         } else {
-            if (imgHeight > mRenderTarget.getSurfaceHeight()) {
-                scale = mRenderTarget.getSurfaceHeight() * 1.0f / imgHeight;
-                imgHeight = mRenderTarget.getSurfaceHeight();
-                imgWidth = (int) (imgWidth * scale);
-            }
+            scale = mRenderTarget.getSurfaceHeight() * 1.0f / imgHeight;
+            imgHeight = mRenderTarget.getSurfaceHeight();
+            imgWidth = (int) (imgWidth * scale);
         }
 
         mRenderLeft = (mRenderTarget.getSurfaceWidth() - imgWidth) / 2;
