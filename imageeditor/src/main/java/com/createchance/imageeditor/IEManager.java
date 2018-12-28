@@ -76,10 +76,12 @@ public class IEManager {
                         mPreviewTarget.makeCurrent();
                         // adjust img render size.
                         for (IEClip clip : mClipList) {
+                            clip.setRenderTarget(mPreviewTarget);
+                            clip.init();
                             clip.adjustSize();
                         }
                         // render first clip for now.
-                        renderClip(0);
+                        mClipList.get(0).render(true);
                     }
                 });
             }
@@ -112,33 +114,33 @@ public class IEManager {
         });
     }
 
-    public IEClip addClip(String imagePath) {
+    public boolean addClip(String imagePath) {
         return addClip(imagePath, 0);
     }
 
-    public IEClip addClip(String imagePath, long duration) {
+    public boolean addClip(String imagePath, long duration) {
         if (TextUtils.isEmpty(imagePath)) {
             Logger.e(TAG, "Image path can not be null or empty!");
-            return null;
+            return false;
         }
 
         if (duration < 0) {
             Logger.e(TAG, "Duration can not < 0!");
-            return null;
+            return false;
         }
 
         long startTime = 0;
         for (IEClip ieClip : mClipList) {
             startTime += ieClip.getDuration();
         }
-        IEClip clip = new IEClip(imagePath, startTime, startTime + duration, mRenderThread);
+        IEClip clip = new IEClip(imagePath, startTime, startTime + duration);
         clip.setRenderTarget(mPreviewTarget);
         mClipList.add(clip);
 
-        return clip;
+        return true;
     }
 
-    public boolean addOperator(int clipIndex, AbstractOperator operator) {
+    public boolean addOperator(int clipIndex, AbstractOperator operator, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Add operator failed, clip index invalid: " + clipIndex);
             return false;
@@ -154,24 +156,43 @@ public class IEManager {
             return false;
         }
 
-        IEClip clip = mClipList.get(clipIndex);
+        final IEClip clip = mClipList.get(clipIndex);
         clip.addOperator(operator);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
 
         return true;
     }
 
-    public boolean renderClip(int clipIndex) {
+    public boolean updateOperator(int clipIndex, AbstractOperator operator, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
-            Logger.e(TAG, "Render clip failed, clip index invalid: " + clipIndex);
+            Logger.e(TAG, "Update operator failed, clip index invalid: " + clipIndex);
             return false;
         }
 
-        IEClip clip = mClipList.get(clipIndex);
-        clip.render(true);
+        if (operator == null) {
+            Logger.e(TAG, "Operator can not be null!");
+            return false;
+        }
+
+        if (!operator.checkRational()) {
+            Logger.e(TAG, "Operator check rational failed, can not be executed! op: " + operator.getName());
+            return false;
+        }
+
+        final IEClip clip = mClipList.get(clipIndex);
+        clip.updateOperator(operator);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
         return true;
     }
 
-    public boolean undo(int clipIndex) {
+    public boolean undo(int clipIndex, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Undo operator failed, clip index invalid: " + clipIndex);
             return false;
@@ -179,10 +200,14 @@ public class IEManager {
 
         mClipList.get(clipIndex).undo();
 
+        if (render) {
+            renderClip(clipIndex);
+        }
+
         return true;
     }
 
-    public boolean redo(int clipIndex) {
+    public boolean redo(int clipIndex, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Redo operator failed, clip index invalid: " + clipIndex);
             return false;
@@ -190,10 +215,14 @@ public class IEManager {
 
         mClipList.get(clipIndex).redo();
 
+        if (render) {
+            renderClip(clipIndex);
+        }
+
         return true;
     }
 
-    public boolean removeOperator(int clipIndex, AbstractOperator operator) {
+    public boolean removeOperator(int clipIndex, AbstractOperator operator, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Remove operator failed, clip index invalid: " + clipIndex);
             return false;
@@ -201,10 +230,14 @@ public class IEManager {
 
         mClipList.get(clipIndex).removeOperator(operator);
 
+        if (render) {
+            renderClip(clipIndex);
+        }
+
         return true;
     }
 
-    public boolean removeOperator(int clipIndex, List<AbstractOperator> operatorList) {
+    public boolean removeOperator(int clipIndex, List<AbstractOperator> operatorList, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Remove operator list failed, clip index invalid: " + clipIndex);
             return false;
@@ -212,7 +245,293 @@ public class IEManager {
 
         mClipList.get(clipIndex).removeOperator(operatorList);
 
+        if (render) {
+            renderClip(clipIndex);
+        }
+
         return true;
+    }
+
+    public boolean setTranslateX(int clipIndex, float translateX, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set translate x failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setTranslateX(translateX);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setTranslateY(int clipIndex, float translateY, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set translate y failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setTranslateY(translateY);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setScaleX(int clipIndex, float scaleX, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set scale x failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setScaleX(scaleX);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setScaleY(int clipIndex, float scaleY, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set scale y failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setScaleY(scaleY);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setScissorX(int clipIndex, int scissorX, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set scissor x failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setScissorX(scissorX);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setScissorY(int clipIndex, int scissorY, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set scissor y failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setScissorY(scissorY);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setScissorWidth(int clipIndex, int scissorWidth, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set scissor width failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setScissorWidth(scissorWidth);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setScissorHeight(int clipIndex, int scissorHeight, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Set scissor height failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setScissorHeight(scissorHeight);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public float getTranslateX(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get translate X failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getTranslateX();
+    }
+
+    public float getTranslateY(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get translate Y failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getTranslateY();
+    }
+
+    public float getScaleX(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get scale X failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getScaleX();
+    }
+
+    public float getScaleY(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get scale Y failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getScaleY();
+    }
+
+    public int getOriginWidth(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get origin width failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getOriginWidth();
+    }
+
+    public int getOriginHeight(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get origin height failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getOriginHeight();
+    }
+
+    public int getSurfaceWidth(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get surface width failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getSurfaceWidth();
+    }
+
+    public int getSurfaceHeight(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get surface height failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getSurfaceHeight();
+    }
+
+    public int getScissorX(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get scissor x failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getScissorX();
+    }
+
+    public int getScissorY(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get scissor y failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getScissorY();
+    }
+
+    public int getScissorWidth(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get scissor width failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getScissorWidth();
+    }
+
+    public int getScissorHeight(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get scissor height failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getScissorHeight();
+    }
+
+    public int getRenderLeft(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get render left failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getRenderLeft();
+    }
+
+    public int getRenderTop(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get render top failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getRenderTop();
+    }
+
+    public int getRenderRight(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get render right failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getRenderRight();
+    }
+
+    public int getRenderBottom(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get render bottom failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getRenderBottom();
+    }
+
+    public int getRenderWidth(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get render width failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getRenderWidth();
+    }
+
+    public int getRenderHeight(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Get render height failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getRenderHeight();
     }
 
     public List<IEClip> getClipList() {
@@ -252,18 +571,18 @@ public class IEManager {
                 // swap to send this image to saver.
                 mSaveTarget.swapBuffers();
 
-//                mPreviewTarget.makeCurrent();
-//                for (IEClip clip : mClipList) {
-//                    // set target to preview target
-//                    clip.setRenderTarget(mPreviewTarget);
-//                    // adjust img render size again.
-//                    clip.adjustSize();
-//                }
+                mPreviewTarget.makeCurrent();
+                for (IEClip clip : mClipList) {
+                    // set target to preview target
+                    clip.setRenderTarget(mPreviewTarget);
+                    // adjust img render size again.
+                    clip.adjustSize();
+                }
             }
         });
     }
 
-    public boolean generatorHistogram(int clipIndex, IHistogramGenerateListener listener) {
+    public boolean generatorHistogram(final int clipIndex, final IHistogramGenerateListener listener) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
             return false;
@@ -274,13 +593,27 @@ public class IEManager {
             return false;
         }
 
-        mClipList.get(clipIndex).generatorHistogram(listener);
+        mRenderThread.post(new Runnable() {
+            @Override
+            public void run() {
+                mClipList.get(clipIndex).generatorHistogram(listener);
+            }
+        });
 
         return true;
     }
 
     public Context getContext() {
         return mAppContext;
+    }
+
+    private void renderClip(final int clipIndex) {
+        mRenderThread.post(new Runnable() {
+            @Override
+            public void run() {
+                mClipList.get(clipIndex).render(true);
+            }
+        });
     }
 
     private static class Holder {

@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 
 import com.createchance.imageeditor.drawers.BaseImageDrawer;
 import com.createchance.imageeditor.ops.AbstractOperator;
+import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditor.utils.OpenGlUtils;
 import com.createchance.imageeditor.utils.UiThreadUtil;
 
@@ -19,7 +20,7 @@ import java.util.List;
  * @author createchance
  * @date 2018/12/24
  */
-public class IEClip implements OperatorContext {
+class IEClip implements OperatorContext {
 
     private static final String TAG = "IEClip";
 
@@ -33,13 +34,11 @@ public class IEClip implements OperatorContext {
 
     private long mDuration;
 
-    private int mBaseTextureId;
+    private int mBaseTextureId = -1;
 
     private final List<AbstractOperator> mOpList = new ArrayList<>();
 
     private IRenderTarget mRenderTarget;
-
-    private GLRenderThread mRenderThread;
 
     private BaseImageDrawer mDrawer;
 
@@ -48,176 +47,14 @@ public class IEClip implements OperatorContext {
     private float mScaleX = 1.0f, mScaleY = 1.0f;
     private float mTranslateX, mTranslateY;
 
-    IEClip(String imagePath, long startTime, long endTime, GLRenderThread renderThread) {
+    private boolean mDirty = true;
+
+    IEClip(String imagePath, long startTime, long endTime) {
         mBitmap = BitmapFactory.decodeFile(imagePath);
         mImageFilePath = imagePath;
         mStartTime = startTime;
         mEndTime = endTime;
         mDuration = endTime - startTime;
-        mRenderThread = renderThread;
-    }
-
-    public void setRenderTarget(IRenderTarget target) {
-        mRenderTarget = target;
-    }
-
-    public void addOperator(AbstractOperator operator) {
-        operator.setOperatorContext(this);
-        mOpList.add(operator);
-
-        render(true);
-    }
-
-    public void undo() {
-
-    }
-
-    public void redo() {
-
-    }
-
-    public void removeOperator(AbstractOperator operator) {
-        mOpList.remove(operator);
-        render(true);
-    }
-
-    public void removeOperator(List<AbstractOperator> operatorList) {
-        mOpList.removeAll(operatorList);
-        render(true);
-    }
-
-    public Bitmap getBitmap() {
-        return mBitmap;
-    }
-
-    public String getImageFilePath() {
-        return mImageFilePath;
-    }
-
-    public long getStartTime() {
-        return mStartTime;
-    }
-
-    public long getEndTime() {
-        return mEndTime;
-    }
-
-    public List<AbstractOperator> getOpList() {
-        return mOpList;
-    }
-
-    public long getDuration() {
-        return mDuration;
-    }
-
-    public void setDuration(long duration) {
-        this.mDuration = duration;
-    }
-
-    public void setScissorX(int scissorX) {
-        this.mScissorX = scissorX;
-    }
-
-    public void setScissorY(int scissorY) {
-        this.mScissorY = scissorY;
-    }
-
-    public void setScissorWidth(int scissorWidth) {
-        this.mScissorWidth = scissorWidth;
-    }
-
-    public void setScissorHeight(int scissorHeight) {
-        this.mScissorHeight = scissorHeight;
-    }
-
-    public float getScaleX() {
-        return mScaleX;
-    }
-
-    public void setScaleX(float scaleX) {
-        this.mScaleX = scaleX;
-        if (mScaleX < 0.1f) {
-            mScaleX = 0.1f;
-        } else if (mScaleX > 10.0f) {
-            mScaleX = 10.0f;
-        }
-    }
-
-    public float getScaleY() {
-        return mScaleY;
-    }
-
-    public void setScaleY(float scaleY) {
-        this.mScaleY = scaleY;
-        if (mScaleY < 0.1f) {
-            mScaleY = 0.1f;
-        } else if (mScaleY > 10.0f) {
-            mScaleY = 10.0f;
-        }
-    }
-
-    public float getTranslateX() {
-        return mTranslateX;
-    }
-
-    public void setTranslateX(float translateX) {
-        this.mTranslateX = translateX;
-    }
-
-    public float getTranslateY() {
-        return mTranslateY;
-    }
-
-    public void setTranslateY(float translateY) {
-        this.mTranslateY = translateY;
-    }
-
-    public int getOriginWidth() {
-        return mBitmap.getWidth();
-    }
-
-    public int getOriginHeight() {
-        return mBitmap.getHeight();
-    }
-
-    public void generatorHistogram(final IHistogramGenerateListener listener) {
-        mRenderThread.post(new Runnable() {
-            @Override
-            public void run() {
-                mRenderTarget.bindOffScreenFrameBuffer();
-                mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
-                final IntBuffer pixelBuffer = IntBuffer.allocate(getRenderWidth() * getRenderHeight());
-                GLES20.glReadPixels(mRenderLeft,
-                        mRenderBottom,
-                        getRenderWidth(),
-                        getRenderHeight(),
-                        GLES20.GL_RGBA,
-                        GLES20.GL_UNSIGNED_BYTE,
-                        pixelBuffer);
-                final List<HistogramData> data = new ArrayList<>(256);
-                for (int i = 0; i < 256; i++) {
-                    data.add(new HistogramData());
-                }
-
-                for (int i = 0; i < pixelBuffer.limit(); i++) {
-                    int rgbVal = pixelBuffer.get(i);
-                    int r = rgbVal & 0xFF;
-                    int g = (rgbVal >> 8) & 0xFF;
-                    int b = (rgbVal >> 16) & 0xFF;
-                    data.get(r).mRed++;
-                    data.get(g).mGreen++;
-                    data.get(b).mBlue++;
-                    data.get((r + g + b) / 3).mAll++;
-                }
-                UiThreadUtil.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onHistogramGenerated(data, pixelBuffer.limit());
-                    }
-                });
-                mRenderTarget.bindDefaultFrameBuffer();
-            }
-        });
     }
 
     @Override
@@ -310,8 +147,182 @@ public class IEClip implements OperatorContext {
         mRenderTarget.swapTexture();
     }
 
-    void release() {
-        mBitmap.recycle();
+    void init() {
+        if (mDrawer == null) {
+            mDrawer = new BaseImageDrawer();
+        }
+        if (mBaseTextureId == -1) {
+            mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
+        }
+    }
+
+    void setRenderTarget(IRenderTarget target) {
+        mRenderTarget = target;
+    }
+
+    void addOperator(AbstractOperator operator) {
+        operator.setOperatorContext(this);
+        mOpList.add(operator);
+        mDirty = true;
+    }
+
+    void updateOperator(AbstractOperator operator) {
+        mDirty = true;
+    }
+
+    void undo() {
+        mDirty = true;
+    }
+
+    void redo() {
+        mDirty = true;
+    }
+
+    void removeOperator(AbstractOperator operator) {
+        mOpList.remove(operator);
+        mDirty = true;
+    }
+
+    void removeOperator(List<AbstractOperator> operatorList) {
+        mOpList.removeAll(operatorList);
+        mDirty = true;
+    }
+
+    Bitmap getBitmap() {
+        return mBitmap;
+    }
+
+    String getImageFilePath() {
+        return mImageFilePath;
+    }
+
+    long getStartTime() {
+        return mStartTime;
+    }
+
+    long getEndTime() {
+        return mEndTime;
+    }
+
+    List<AbstractOperator> getOpList() {
+        return mOpList;
+    }
+
+    long getDuration() {
+        return mDuration;
+    }
+
+    void setDuration(long duration) {
+        this.mDuration = duration;
+    }
+
+    void setScissorX(int scissorX) {
+        this.mScissorX = scissorX;
+        mDirty = true;
+    }
+
+    void setScissorY(int scissorY) {
+        this.mScissorY = scissorY;
+        mDirty = true;
+    }
+
+    void setScissorWidth(int scissorWidth) {
+        this.mScissorWidth = scissorWidth;
+        mDirty = true;
+    }
+
+    void setScissorHeight(int scissorHeight) {
+        this.mScissorHeight = scissorHeight;
+        mDirty = true;
+    }
+
+    float getScaleX() {
+        return mScaleX;
+    }
+
+    void setScaleX(float scaleX) {
+        this.mScaleX = scaleX;
+        if (mScaleX < 0.1f) {
+            mScaleX = 0.1f;
+        } else if (mScaleX > 10.0f) {
+            mScaleX = 10.0f;
+        }
+        mDirty = true;
+    }
+
+    float getScaleY() {
+        return mScaleY;
+    }
+
+    void setScaleY(float scaleY) {
+        this.mScaleY = scaleY;
+        if (mScaleY < 0.1f) {
+            mScaleY = 0.1f;
+        } else if (mScaleY > 10.0f) {
+            mScaleY = 10.0f;
+        }
+        mDirty = true;
+    }
+
+    float getTranslateX() {
+        return mTranslateX;
+    }
+
+    void setTranslateX(float translateX) {
+        this.mTranslateX = translateX;
+        mDirty = true;
+    }
+
+    float getTranslateY() {
+        return mTranslateY;
+    }
+
+    void setTranslateY(float translateY) {
+        this.mTranslateY = translateY;
+        mDirty = true;
+    }
+
+    int getOriginWidth() {
+        return mBitmap.getWidth();
+    }
+
+    int getOriginHeight() {
+        return mBitmap.getHeight();
+    }
+
+    void generatorHistogram(final IHistogramGenerateListener listener) {
+        mRenderTarget.bindOffScreenFrameBuffer();
+        mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
+        final IntBuffer pixelBuffer = IntBuffer.allocate(getRenderWidth() * getRenderHeight());
+        GLES20.glReadPixels(mRenderLeft,
+                mRenderBottom,
+                getRenderWidth(),
+                getRenderHeight(),
+                GLES20.GL_RGBA,
+                GLES20.GL_UNSIGNED_BYTE,
+                pixelBuffer);
+        final List<HistogramData> data = new ArrayList<>(256);
+        for (int i = 0; i < 256; i++) {
+            data.add(new HistogramData());
+        }
+
+        for (int i = 0; i < pixelBuffer.limit(); i++) {
+            int rgbVal = pixelBuffer.get(i);
+            int r = rgbVal & 0xFF;
+            int g = (rgbVal >> 8) & 0xFF;
+            int b = (rgbVal >> 16) & 0xFF;
+            data.get(r).mRed++;
+            data.get(g).mGreen++;
+            data.get(b).mBlue++;
+            data.get((r + g + b) / 3).mAll++;
+        }
+        UiThreadUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onHistogramGenerated(data, pixelBuffer.limit());
+            }
+        });
+        mRenderTarget.bindDefaultFrameBuffer();
     }
 
     void setStartTime(long startTime) {
@@ -325,75 +336,58 @@ public class IEClip implements OperatorContext {
     /**
      * Render all operators
      */
-    void render(final boolean swap) {
-        mRenderThread.post(new Runnable() {
-            @Override
-            public void run() {
-                // render base image
-                mRenderTarget.bindOffScreenFrameBuffer();
-                mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
-                if (mDrawer == null) {
-                    mDrawer = new BaseImageDrawer();
-                    mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
-                }
+    void render(boolean swap) {
+        if (!mDirty) {
+            Logger.w(TAG, "Current clip is not dirty, no need to draw!");
+            return;
+        }
+        mDirty = false;
+        // render base image
+        mRenderTarget.bindOffScreenFrameBuffer();
+        mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
 
-                GLES20.glClearColor(0, 0, 0, 0);
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-                // scissor for output
-                GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-                GLES20.glScissor(mScissorX,
-                        mScissorY,
-                        mScissorWidth,
-                        mScissorHeight);
-                mDrawer.draw(mBaseTextureId,
-                        mRenderLeft,
-                        mRenderBottom,
-                        getRenderWidth(),
-                        getRenderHeight(),
-                        true,
-                        1.0f,
-                        1.0f,
-                        0,
-                        0);
+        GLES20.glClearColor(0, 0, 0, 0);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        // scissor for output
+        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+        GLES20.glScissor(mScissorX,
+                mScissorY,
+                mScissorWidth,
+                mScissorHeight);
+        mDrawer.draw(mBaseTextureId,
+                mRenderLeft,
+                mRenderBottom,
+                getRenderWidth(),
+                getRenderHeight(),
+                true,
+                1.0f,
+                1.0f,
+                0,
+                0);
 
-                for (AbstractOperator operator : mOpList) {
-                    operator.exec();
-                }
-                GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+        for (AbstractOperator operator : mOpList) {
+            operator.exec();
+        }
+        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
 
-                mRenderTarget.bindDefaultFrameBuffer();
+        mRenderTarget.bindDefaultFrameBuffer();
 
-                GLES20.glClearColor(0, 0, 0, 0);
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-                mDrawer.draw(mRenderTarget.getInputTextureId(),
-                        0,
-                        0,
-                        mRenderTarget.getSurfaceWidth(),
-                        mRenderTarget.getSurfaceHeight(),
-                        false,
-                        mScaleX,
-                        mScaleY,
-                        mTranslateX,
-                        mTranslateY);
-
-//                final IntBuffer pixelBuffer = IntBuffer.allocate(mRenderTarget.getSurfaceWidth() * mRenderTarget.getSurfaceHeight());
-//                GLES20.glReadPixels(0,
-//                        0,
-//                        mRenderTarget.getSurfaceWidth(),
-//                        mRenderTarget.getSurfaceHeight(),
-//                        GLES20.GL_RGBA,
-//                        GLES20.GL_UNSIGNED_BYTE,
-//                        pixelBuffer);
-//                for (int i = 0; i < pixelBuffer.limit(); i++) {
-//                    Log.d(TAG, "GAOCHAO: " + pixelBuffer.get(i));
-//                }
-
-                if (swap) {
-                    // swap to send image to render target.
-                    mRenderTarget.swapBuffers();
-                }
-            }
-        });
+        GLES20.glClearColor(0, 0, 0, 0);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        mDrawer.draw(mRenderTarget.getInputTextureId(),
+                0,
+                0,
+                mRenderTarget.getSurfaceWidth(),
+                mRenderTarget.getSurfaceHeight(),
+                false,
+                mScaleX,
+                mScaleY,
+                mTranslateX,
+                mTranslateY);
+        if (swap) {
+            // swap to send image to render target.
+            mRenderTarget.swapBuffers();
+        }
     }
 
     void adjustSize() {
@@ -421,5 +415,9 @@ public class IEClip implements OperatorContext {
         mScissorY = mRenderBottom;
         mScissorWidth = mRenderRight - mRenderLeft;
         mScissorHeight = mRenderTop - mRenderBottom;
+    }
+
+    void release() {
+        mBitmap.recycle();
     }
 }

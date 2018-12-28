@@ -18,7 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.createchance.imageeditor.HistogramData;
-import com.createchance.imageeditor.IEClip;
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.IEPreviewView;
 import com.createchance.imageeditor.IHistogramGenerateListener;
@@ -50,8 +49,6 @@ public class ImageEditActivity extends AppCompatActivity implements
     // chart view.
     private View mVwHistogramContainer;
     private LineChart mVwHistogramChartAll, mVwHistogramChartRed, mVwHistogramChartGreen, mVwHistogramChartBlue;
-
-    private IEClip mClip;
 
     private String mImagePath;
 
@@ -225,9 +222,12 @@ public class ImageEditActivity extends AppCompatActivity implements
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 Logger.d(TAG, "Scroll, dis x: " + distanceX + ", dis y: " + distanceY);
                 if (mCurrentPanel == null) {
-                    mClip.setTranslateX((-distanceX * 2.0f / mClip.getSurfaceWidth()) + mClip.getTranslateX());
-                    mClip.setTranslateY((distanceY * 2.0f / mClip.getSurfaceHeight()) + mClip.getTranslateY());
-                    IEManager.getInstance().renderClip(0);
+                    int surfaceWidth = IEManager.getInstance().getSurfaceWidth(0);
+                    int surfaceHeight = IEManager.getInstance().getSurfaceHeight(0);
+                    IEManager.getInstance().setTranslateX(0,
+                            (-distanceX * 2.0f / surfaceWidth) + IEManager.getInstance().getTranslateX(0), false);
+                    IEManager.getInstance().setTranslateY(0,
+                            (distanceY * 2.0f / surfaceHeight) + IEManager.getInstance().getTranslateY(0), true);
                 }
                 return true;
             }
@@ -250,18 +250,17 @@ public class ImageEditActivity extends AppCompatActivity implements
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                if (mClip.getScaleX() != 1.0f) {
-                    mClip.setScaleX(1.0f);
-                    mClip.setScaleY(1.0f);
+                if (IEManager.getInstance().getScaleX(0) != 1.0f) {
+                    IEManager.getInstance().setScaleX(0, 1.0f, false);
+                    IEManager.getInstance().setScaleY(0, 1.0f, false);
                     mCurScale = 1.0f;
                 } else {
-                    mClip.setScaleX(2.0f);
-                    mClip.setScaleY(2.0f);
+                    IEManager.getInstance().setScaleX(0, 2.0f, false);
+                    IEManager.getInstance().setScaleY(0, 2.0f, false);
                     mCurScale = 2.0f;
                 }
-                mClip.setTranslateX(0);
-                mClip.setTranslateY(0);
-                IEManager.getInstance().renderClip(0);
+                IEManager.getInstance().setTranslateX(0, 0, false);
+                IEManager.getInstance().setTranslateY(0, 0, true);
                 return true;
             }
 
@@ -318,7 +317,7 @@ public class ImageEditActivity extends AppCompatActivity implements
         // init IE
         IEManager.getInstance().startEngine();
         IEManager.getInstance().attachPreview(mVwPreview);
-        mClip = IEManager.getInstance().addClip(mImagePath);
+        IEManager.getInstance().addClip(mImagePath);
     }
 
     @Override
@@ -348,10 +347,10 @@ public class ImageEditActivity extends AppCompatActivity implements
                 onBackPressed();
                 break;
             case R.id.tv_undo:
-                IEManager.getInstance().undo(0);
+                IEManager.getInstance().undo(0, true);
                 break;
             case R.id.tv_redo:
-                IEManager.getInstance().redo(0);
+                IEManager.getInstance().redo(0, true);
                 break;
             case R.id.tv_histogram:
                 IEManager.getInstance().generatorHistogram(0, new IHistogramGenerateListener() {
@@ -448,8 +447,8 @@ public class ImageEditActivity extends AppCompatActivity implements
                 });
                 break;
             case R.id.tv_save:
-                IEManager.getInstance().saveAsImage(mClip.getOriginWidth(),
-                        mClip.getOriginHeight(),
+                IEManager.getInstance().saveAsImage(IEManager.getInstance().getOriginWidth(0),
+                        IEManager.getInstance().getOriginHeight(0),
                         new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg"),
                         new SaveListener() {
                             @Override
@@ -485,26 +484,27 @@ public class ImageEditActivity extends AppCompatActivity implements
                 mVwTopScissor.setVisibility(View.VISIBLE);
                 mVwBottomScissor.setVisibility(View.VISIBLE);
                 RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) mVwLeftScissor.getLayoutParams();
-                leftParams.width = mClip.getScissorX();
+                leftParams.width = IEManager.getInstance().getScissorX(0);
                 mVwLeftScissor.setLayoutParams(leftParams);
 
                 RelativeLayout.LayoutParams topParams = (RelativeLayout.LayoutParams) mVwTopScissor.getLayoutParams();
-                topParams.height = mVwPreview.getHeight() - (mClip.getScissorY() + mClip.getScissorHeight());
+                topParams.height = mVwPreview.getHeight() -
+                        (IEManager.getInstance().getScissorY(0) + IEManager.getInstance().getScissorHeight(0));
                 mVwTopScissor.setLayoutParams(topParams);
 
                 RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) mVwRightScissor.getLayoutParams();
-                rightParams.width = mVwPreview.getWidth() - (mClip.getScissorX() + mClip.getScissorWidth());
+                rightParams.width = mVwPreview.getWidth() -
+                        (IEManager.getInstance().getScissorX(0) + IEManager.getInstance().getScissorWidth(0));
                 mVwRightScissor.setLayoutParams(rightParams);
 
                 RelativeLayout.LayoutParams bottomParams = (RelativeLayout.LayoutParams) mVwBottomScissor.getLayoutParams();
-                bottomParams.height = mClip.getScissorY();
+                bottomParams.height = IEManager.getInstance().getScissorY(0);
                 mVwBottomScissor.setLayoutParams(bottomParams);
 
-                mClip.setScissorX(mClip.getRenderLeft());
-                mClip.setScissorY(mClip.getRenderBottom());
-                mClip.setScissorWidth(mClip.getRenderWidth());
-                mClip.setScissorHeight(mClip.getRenderHeight());
-                IEManager.getInstance().renderClip(0);
+                IEManager.getInstance().setScissorX(0, IEManager.getInstance().getRenderLeft(0), false);
+                IEManager.getInstance().setScissorY(0, IEManager.getInstance().getRenderBottom(0), false);
+                IEManager.getInstance().setScissorWidth(0, IEManager.getInstance().getRenderWidth(0), false);
+                IEManager.getInstance().setScissorHeight(0, IEManager.getInstance().getRenderHeight(0), true);
                 break;
             case AbstractPanel.TYPE_ROTATE:
 
@@ -531,13 +531,14 @@ public class ImageEditActivity extends AppCompatActivity implements
         mCurrentPanel = null;
         if (type == AbstractPanel.TYPE_CUT) {
             if (!discard) {
-                IEManager.getInstance().getClip(0).setScissorX(mVwLeftScissor.getWidth());
-                IEManager.getInstance().getClip(0).setScissorY(mVwBottomScissor.getHeight());
-                IEManager.getInstance().getClip(0).setScissorWidth(
-                        mVwPreview.getWidth() - mVwRightScissor.getWidth() - mVwLeftScissor.getWidth());
-                IEManager.getInstance().getClip(0).setScissorHeight
-                        (mVwPreview.getHeight() - mVwBottomScissor.getHeight() - mVwTopScissor.getHeight());
-                IEManager.getInstance().renderClip(0);
+                IEManager.getInstance().setScissorX(0, mVwLeftScissor.getWidth(), false);
+                IEManager.getInstance().setScissorY(0, mVwBottomScissor.getHeight(), false);
+                IEManager.getInstance().setScissorWidth(0,
+                        mVwPreview.getWidth() - mVwRightScissor.getWidth() - mVwLeftScissor.getWidth(),
+                        false);
+                IEManager.getInstance().setScissorHeight(0,
+                        mVwPreview.getHeight() - mVwBottomScissor.getHeight() - mVwTopScissor.getHeight(),
+                        true);
             }
 
             mVwLeftScissor.setVisibility(View.GONE);
@@ -550,9 +551,8 @@ public class ImageEditActivity extends AppCompatActivity implements
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         mCurScale *= detector.getScaleFactor();
-        mClip.setScaleX(mCurScale);
-        mClip.setScaleY(mCurScale);
-        IEManager.getInstance().renderClip(0);
+        IEManager.getInstance().setScaleX(0, mCurScale, false);
+        IEManager.getInstance().setScaleY(0, mCurScale, true);
         return true;
     }
 

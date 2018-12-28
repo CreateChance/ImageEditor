@@ -153,7 +153,7 @@ public class EditAdjustPanel extends AbstractPanel implements
             if (mColorBalanceOp != null) {
                 operatorList.add(mColorBalanceOp);
             }
-            IEManager.getInstance().removeOperator(0, operatorList);
+            IEManager.getInstance().removeOperator(0, operatorList, true);
             mBrightnessOp = null;
             mExposureOp = null;
             mGammaOp = null;
@@ -186,107 +186,119 @@ public class EditAdjustPanel extends AbstractPanel implements
             case AdjustListAdapter.AdjustItem.TYPE_BRIGHTNESS:
                 if (mBrightnessOp == null) {
                     mBrightnessOp = new BrightnessAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mBrightnessOp);
+                    IEManager.getInstance().addOperator(0, mBrightnessOp, false);
                 }
 
                 mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax()));
                 mBrightnessOp.setBrightness(((progress - seekBar.getMax() / 2) * 2.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mBrightnessOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_EXPOSURE:
                 if (mExposureOp == null) {
                     mExposureOp = new ExposureAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mExposureOp);
+                    IEManager.getInstance().addOperator(0, mExposureOp, false);
                 }
 
                 mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mExposureOp.setExposure(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mExposureOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_GAMMA:
                 if (mGammaOp == null) {
                     mGammaOp = new GammaAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mGammaOp);
+                    IEManager.getInstance().addOperator(0, mGammaOp, false);
                 }
 
                 mAdjustValue1.setText(String.valueOf(progress * 4.0f / seekBar.getMax()));
                 mGammaOp.setGamma(progress * 4.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mGammaOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_CONTRAST:
                 if (mContrastOp == null) {
                     mContrastOp = new ContrastAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mContrastOp);
+                    IEManager.getInstance().addOperator(0, mContrastOp, false);
                 }
 
                 mAdjustValue1.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
                 mContrastOp.setContrast(progress * 2.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mContrastOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SATURATION:
                 if (mSaturationOp == null) {
                     mSaturationOp = new SaturationAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mSaturationOp);
+                    IEManager.getInstance().addOperator(0, mSaturationOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(progress * 2.0f / seekBar.getMax()));
                 mSaturationOp.setSaturation(progress * 2.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mSaturationOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHARPEN:
                 if (mSharpenOp == null) {
                     mSharpenOp = new SharpenAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mSharpenOp);
+                    IEManager.getInstance().addOperator(0, mSharpenOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax()));
                 mSharpenOp.setSharpness(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mShadowOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
                 if (mVignetteOp == null) {
                     mVignetteOp = new VignetteOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mVignetteOp);
+                    IEManager.getInstance().addOperator(0, mVignetteOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
                 mVignetteOp.setStart(progress * 1.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mVignetteOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_SHADOW:
                 if (mShadowOp == null) {
                     mShadowOp = new ShadowAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mShadowOp);
+                    IEManager.getInstance().addOperator(0, mShadowOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
                 mShadowOp.setShadow(progress * 1.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mShadowOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_HIGHLIGHT:
                 if (mHighlightOp == null) {
                     mHighlightOp = new HighlightAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mHighlightOp);
+                    IEManager.getInstance().addOperator(0, mHighlightOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
                 mHighlightOp.setHighlight(progress * 1.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mHighlightOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_COLOR_TEMP:
                 if (mTempOp == null) {
                     mTempOp = new TempAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mTempOp);
+                    IEManager.getInstance().addOperator(0, mTempOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mTempOp.setTemperature(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mTempOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_TONE:
                 if (mTintOp == null) {
                     mTintOp = new TintAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mTintOp);
+                    IEManager.getInstance().addOperator(0, mTintOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax()));
                 mTintOp.setTint(((progress - seekBar.getMax() / 2) * 4.0f) / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mTintOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DENOISE:
                 if (mDenoiseOp == null) {
                     mDenoiseOp = new DenoiseOperator();
-                    IEManager.getInstance().addOperator(0, mDenoiseOp);
+                    IEManager.getInstance().addOperator(0, mDenoiseOp, false);
                 }
                 mAdjustValue1.setText(String.valueOf(progress * 100.0f / seekBar.getMax()));
                 mDenoiseOp.setExponent(progress * 100.0f / seekBar.getMax());
+                IEManager.getInstance().updateOperator(0, mDenoiseOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_RGB:
                 if (mRGBOp == null) {
                     mRGBOp = new RGBAdjustOperator.Builder().build();
-                    IEManager.getInstance().addOperator(0, mRGBOp);
+                    IEManager.getInstance().addOperator(0, mRGBOp, false);
                 }
                 switch (seekBar.getId()) {
                     case R.id.sb_adjust_bar_1:
@@ -304,11 +316,12 @@ public class EditAdjustPanel extends AbstractPanel implements
                     default:
                         break;
                 }
+                IEManager.getInstance().updateOperator(0, mRGBOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_COLOR_BALANCE:
                 if (mColorBalanceOp == null) {
                     mColorBalanceOp = new ColorBalanceOperator();
-                    IEManager.getInstance().addOperator(0, mColorBalanceOp);
+                    IEManager.getInstance().addOperator(0, mColorBalanceOp, false);
                 }
                 switch (seekBar.getId()) {
                     case R.id.sb_adjust_bar_1:
@@ -326,12 +339,11 @@ public class EditAdjustPanel extends AbstractPanel implements
                     default:
                         break;
                 }
+                IEManager.getInstance().updateOperator(0, mColorBalanceOp, true);
                 break;
             default:
                 break;
         }
-
-        IEManager.getInstance().renderClip(0);
     }
 
     @Override

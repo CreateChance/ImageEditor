@@ -52,7 +52,7 @@ public class EditFocusPanel extends AbstractPanel implements
         super.close(discard);
 
         if (discard && mFocusOp != null) {
-            IEManager.getInstance().removeOperator(0, mFocusOp);
+            IEManager.getInstance().removeOperator(0, mFocusOp, true);
             mFocusOp = null;
         }
     }
@@ -89,11 +89,11 @@ public class EditFocusPanel extends AbstractPanel implements
 //                            .sampleKernel(ThreeXThreeSampleOperator.LAPLACIAN_SAMPLE_FILTER)
 //                            .build();
                     mFocusOp = new InvertedPageCurlTransOperator();
-                    IEManager.getInstance().addOperator(0, mFocusOp);
+                    IEManager.getInstance().addOperator(0, mFocusOp, false);
                 }
 //                mFocusOp.setRepeatTimes((int) (process * 100.0f / seekBar.getMax()));
                 mFocusOp.setProgress(process * 1.0f / seekBar.getMax());
-                IEManager.getInstance().renderClip(0);
+                IEManager.getInstance().updateOperator(0, mFocusOp, true);
                 break;
             default:
                 break;
