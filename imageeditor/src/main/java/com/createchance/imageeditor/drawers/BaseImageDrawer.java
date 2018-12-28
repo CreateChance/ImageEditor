@@ -28,7 +28,7 @@ public class BaseImageDrawer extends AbstractDrawer {
 
     private float[] mModelMatrix, mViewMatrix, mProjectionMatrix;
 
-    public BaseImageDrawer(float widthScaleFactor, float heightScaleFactor) {
+    public BaseImageDrawer() {
         mVertexShader = new ModelViewVertexShader();
         mFragmentShader = new BaseFragmentShader();
         loadProgram(mVertexShader.getShaderId(), mFragmentShader.getShaderId());
@@ -37,10 +37,10 @@ public class BaseImageDrawer extends AbstractDrawer {
 
         mVertexPositionBuffer = createFloatBuffer(
                 new float[]{
-                        -1.0f * widthScaleFactor, 1.0f * heightScaleFactor,
-                        -1.0f * widthScaleFactor, -1.0f * heightScaleFactor,
-                        1.0f * widthScaleFactor, 1.0f * heightScaleFactor,
-                        1.0f * widthScaleFactor, -1.0f * heightScaleFactor,
+                        -1.0f, 1.0f,
+                        -1.0f, -1.0f,
+                        1.0f, 1.0f,
+                        1.0f, -1.0f,
                 }
         );
         mTextureCoordinateBufferFlipped = createFloatBuffer(

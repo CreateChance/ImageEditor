@@ -9,7 +9,7 @@ import com.createchance.imageeditor.gles.EglCore;
 /**
  * OpenGl render thread.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/24
  */
 public class GLRenderThread extends HandlerThread {

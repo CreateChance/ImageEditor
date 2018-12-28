@@ -33,8 +33,6 @@ public class IEClip implements OperatorContext {
 
     private long mDuration;
 
-    private float mWidthScaleFactor = 1.0f, mHeightScaleFactor = 1.0f;
-
     private int mBaseTextureId;
 
     private final List<AbstractOperator> mOpList = new ArrayList<>();
@@ -67,7 +65,7 @@ public class IEClip implements OperatorContext {
         operator.setOperatorContext(this);
         mOpList.add(operator);
 
-        render();
+        render(true);
     }
 
     public void undo() {
@@ -80,12 +78,12 @@ public class IEClip implements OperatorContext {
 
     public void removeOperator(AbstractOperator operator) {
         mOpList.remove(operator);
-        render();
+        render(true);
     }
 
     public void removeOperator(List<AbstractOperator> operatorList) {
         mOpList.removeAll(operatorList);
-        render();
+        render(true);
     }
 
     public Bitmap getBitmap() {
@@ -172,6 +170,14 @@ public class IEClip implements OperatorContext {
 
     public void setTranslateY(float translateY) {
         this.mTranslateY = translateY;
+    }
+
+    public int getOriginWidth() {
+        return mBitmap.getWidth();
+    }
+
+    public int getOriginHeight() {
+        return mBitmap.getHeight();
     }
 
     public void generatorHistogram(final IHistogramGenerateListener listener) {
@@ -319,7 +325,7 @@ public class IEClip implements OperatorContext {
     /**
      * Render all operators
      */
-    void render() {
+    void render(final boolean swap) {
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {
@@ -327,7 +333,7 @@ public class IEClip implements OperatorContext {
                 mRenderTarget.bindOffScreenFrameBuffer();
                 mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
                 if (mDrawer == null) {
-                    mDrawer = new BaseImageDrawer(mWidthScaleFactor, mHeightScaleFactor);
+                    mDrawer = new BaseImageDrawer();
                     mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
                 }
 
@@ -370,8 +376,22 @@ public class IEClip implements OperatorContext {
                         mTranslateX,
                         mTranslateY);
 
-                // swap to show it.
-                mRenderTarget.swapBuffers();
+//                final IntBuffer pixelBuffer = IntBuffer.allocate(mRenderTarget.getSurfaceWidth() * mRenderTarget.getSurfaceHeight());
+//                GLES20.glReadPixels(0,
+//                        0,
+//                        mRenderTarget.getSurfaceWidth(),
+//                        mRenderTarget.getSurfaceHeight(),
+//                        GLES20.GL_RGBA,
+//                        GLES20.GL_UNSIGNED_BYTE,
+//                        pixelBuffer);
+//                for (int i = 0; i < pixelBuffer.limit(); i++) {
+//                    Log.d(TAG, "GAOCHAO: " + pixelBuffer.get(i));
+//                }
+
+                if (swap) {
+                    // swap to send image to render target.
+                    mRenderTarget.swapBuffers();
+                }
             }
         });
     }

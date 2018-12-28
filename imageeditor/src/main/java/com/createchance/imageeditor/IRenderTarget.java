@@ -1,18 +1,16 @@
 package com.createchance.imageeditor;
 
-import android.graphics.SurfaceTexture;
-
 import com.createchance.imageeditor.gles.EglCore;
 
 /**
  * ${DESC}
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/24
  */
 public interface IRenderTarget {
 
-    void init(EglCore eglCore, SurfaceTexture surfaceTexture);
+    void init(EglCore eglCore);
 
     int getInputTextureId();
 

@@ -1,7 +1,6 @@
 package com.createchance.imageeditor;
 
 import android.content.Context;
-import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.util.AttributeSet;
 import android.view.TextureView;
@@ -12,7 +11,7 @@ import com.createchance.imageeditor.gles.WindowSurface;
 /**
  * Preview view.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/24
  */
 public class IEPreviewView extends TextureView implements IRenderTarget {
@@ -52,8 +51,8 @@ public class IEPreviewView extends TextureView implements IRenderTarget {
     }
 
     @Override
-    public void init(EglCore eglCore, SurfaceTexture surfaceTexture) {
-        mWindowSurface = new WindowSurface(eglCore, surfaceTexture);
+    public void init(EglCore eglCore) {
+        mWindowSurface = new WindowSurface(eglCore, getSurfaceTexture());
         mWindowSurface.makeCurrent();
         createOffScreenFrameBuffer();
         createOffScreenTextures();
@@ -94,26 +93,6 @@ public class IEPreviewView extends TextureView implements IRenderTarget {
         }
     }
 
-    private void createOffScreenTextures() {
-        GLES20.glGenTextures(mOffScreenTextureIds.length, mOffScreenTextureIds, 0);
-        for (int mTextureId : mOffScreenTextureIds) {
-            // bind to fbo texture cause we are going to do setting.
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId);
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, getWidth(), getHeight(),
-                    0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
-            // 设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-            // 设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-            // 设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-            // 设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-            // unbind fbo texture.
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
-        }
-    }
-
     @Override
     public void bindOffScreenFrameBuffer() {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mOffScreenFrameBuffer[0]);
@@ -132,6 +111,26 @@ public class IEPreviewView extends TextureView implements IRenderTarget {
 
     private void createOffScreenFrameBuffer() {
         GLES20.glGenFramebuffers(mOffScreenFrameBuffer.length, mOffScreenFrameBuffer, 0);
+    }
+
+    private void createOffScreenTextures() {
+        GLES20.glGenTextures(mOffScreenTextureIds.length, mOffScreenTextureIds, 0);
+        for (int mTextureId : mOffScreenTextureIds) {
+            // bind to fbo texture cause we are going to do setting.
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, getWidth(), getHeight(),
+                    0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+            // 设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+            // 设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+            // 设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+            // 设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+            // unbind fbo texture.
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        }
     }
 
     private void deleteOffScreenFrameBuffer() {

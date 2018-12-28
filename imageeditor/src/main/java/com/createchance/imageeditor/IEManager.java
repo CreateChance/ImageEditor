@@ -67,12 +67,12 @@ public class IEManager {
         mPreviewTarget = previewView;
         previewView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
-            public void onSurfaceTextureAvailable(final SurfaceTexture surface, int width, int height) {
+            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
                 Logger.d(TAG, "onSurfaceTextureAvailable, width: " + width + ", height: " + height);
                 mRenderThread.post(new Runnable() {
                     @Override
                     public void run() {
-                        mPreviewTarget.init(mRenderThread.getEglCore(), surface);
+                        mPreviewTarget.init(mRenderThread.getEglCore());
                         mPreviewTarget.makeCurrent();
                         // adjust img render size.
                         for (IEClip clip : mClipList) {
@@ -167,7 +167,7 @@ public class IEManager {
         }
 
         IEClip clip = mClipList.get(clipIndex);
-        clip.render();
+        clip.render(true);
         return true;
     }
 
@@ -223,11 +223,44 @@ public class IEManager {
         return mClipList.get(clipIndex);
     }
 
-    public void save(File target, SaveListener listener) {
+    public void saveAsImage(int width,
+                            int height,
+                            File target,
+                            SaveListener listener) {
+        if (width <= 0 || height <= 0) {
+            Logger.e(TAG, "Output size invalid, width: " + width + ", height: " + height);
+        }
         if (target == null) {
             Logger.e(TAG, "Target file can not be null!");
             return;
         }
+
+        mSaveTarget = new ImageSaver(width, height, target, listener);
+        mRenderThread.post(new Runnable() {
+            @Override
+            public void run() {
+                mSaveTarget.init(mRenderThread.getEglCore());
+                mSaveTarget.makeCurrent();
+                for (IEClip clip : mClipList) {
+                    // set target to output target
+                    clip.setRenderTarget(mSaveTarget);
+                    // adjust size to fit target.
+                    clip.adjustSize();
+                    // render to save target.
+                    clip.render(false);
+                }
+                // swap to send this image to saver.
+                mSaveTarget.swapBuffers();
+
+//                mPreviewTarget.makeCurrent();
+//                for (IEClip clip : mClipList) {
+//                    // set target to preview target
+//                    clip.setRenderTarget(mPreviewTarget);
+//                    // adjust img render size again.
+//                    clip.adjustSize();
+//                }
+            }
+        });
     }
 
     public boolean generatorHistogram(int clipIndex, IHistogramGenerateListener listener) {
