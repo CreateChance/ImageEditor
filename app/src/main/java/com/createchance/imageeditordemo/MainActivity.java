@@ -1,18 +1,24 @@
 package com.createchance.imageeditordemo;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.model.Sticker;
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_CHOOSE_IMAGE_FOR_EDIT = 1;
     private static final int REQUEST_TAKE_PHOTO = 2;
     private static final int REQUEST_CHOOSE_IMAGE_FOR_VIDEO = 3;
+    private static final int REQUEST_CODE_PERMISSION = 4;
 
     private RecyclerView mWorkListView;
     private WorkListAdapter mWorkListAdapter;
@@ -81,6 +88,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tryCopyStickerFile();
             }
         });
+
+        // request permissions
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+            // No explanation needed; request the permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.CAMERA},
+                    REQUEST_CODE_PERMISSION);
+        }
     }
 
     @Override
@@ -89,6 +114,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initWorkList();
         mWorkListAdapter.refresh(mWorkList);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION:
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE)
+                                != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.CAMERA)
+                                != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "We need permissions to work！", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
