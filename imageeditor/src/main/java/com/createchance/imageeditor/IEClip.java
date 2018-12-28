@@ -6,7 +6,6 @@ import android.opengl.GLES20;
 
 import com.createchance.imageeditor.drawers.BaseImageDrawer;
 import com.createchance.imageeditor.ops.AbstractOperator;
-import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditor.utils.OpenGlUtils;
 import com.createchance.imageeditor.utils.UiThreadUtil;
 
@@ -46,8 +45,6 @@ class IEClip implements OperatorContext {
     private int mScissorX, mScissorY, mScissorWidth, mScissorHeight;
     private float mScaleX = 1.0f, mScaleY = 1.0f;
     private float mTranslateX, mTranslateY;
-
-    private boolean mDirty = true;
 
     IEClip(String imagePath, long startTime, long endTime) {
         mBitmap = BitmapFactory.decodeFile(imagePath);
@@ -163,29 +160,23 @@ class IEClip implements OperatorContext {
     void addOperator(AbstractOperator operator) {
         operator.setOperatorContext(this);
         mOpList.add(operator);
-        mDirty = true;
     }
 
     void updateOperator(AbstractOperator operator) {
-        mDirty = true;
     }
 
     void undo() {
-        mDirty = true;
     }
 
     void redo() {
-        mDirty = true;
     }
 
     void removeOperator(AbstractOperator operator) {
         mOpList.remove(operator);
-        mDirty = true;
     }
 
     void removeOperator(List<AbstractOperator> operatorList) {
         mOpList.removeAll(operatorList);
-        mDirty = true;
     }
 
     Bitmap getBitmap() {
@@ -218,22 +209,18 @@ class IEClip implements OperatorContext {
 
     void setScissorX(int scissorX) {
         this.mScissorX = scissorX;
-        mDirty = true;
     }
 
     void setScissorY(int scissorY) {
         this.mScissorY = scissorY;
-        mDirty = true;
     }
 
     void setScissorWidth(int scissorWidth) {
         this.mScissorWidth = scissorWidth;
-        mDirty = true;
     }
 
     void setScissorHeight(int scissorHeight) {
         this.mScissorHeight = scissorHeight;
-        mDirty = true;
     }
 
     float getScaleX() {
@@ -247,7 +234,6 @@ class IEClip implements OperatorContext {
         } else if (mScaleX > 10.0f) {
             mScaleX = 10.0f;
         }
-        mDirty = true;
     }
 
     float getScaleY() {
@@ -261,7 +247,6 @@ class IEClip implements OperatorContext {
         } else if (mScaleY > 10.0f) {
             mScaleY = 10.0f;
         }
-        mDirty = true;
     }
 
     float getTranslateX() {
@@ -270,7 +255,6 @@ class IEClip implements OperatorContext {
 
     void setTranslateX(float translateX) {
         this.mTranslateX = translateX;
-        mDirty = true;
     }
 
     float getTranslateY() {
@@ -279,7 +263,6 @@ class IEClip implements OperatorContext {
 
     void setTranslateY(float translateY) {
         this.mTranslateY = translateY;
-        mDirty = true;
     }
 
     int getOriginWidth() {
@@ -337,11 +320,6 @@ class IEClip implements OperatorContext {
      * Render all operators
      */
     void render(boolean swap) {
-        if (!mDirty) {
-            Logger.w(TAG, "Current clip is not dirty, no need to draw!");
-            return;
-        }
-        mDirty = false;
         // render base image
         mRenderTarget.bindOffScreenFrameBuffer();
         mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());

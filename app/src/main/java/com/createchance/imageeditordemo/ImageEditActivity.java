@@ -447,6 +447,7 @@ public class ImageEditActivity extends AppCompatActivity implements
                 });
                 break;
             case R.id.tv_save:
+                final OutputDialog dialog = OutputDialog.start(this);
                 IEManager.getInstance().saveAsImage(IEManager.getInstance().getOriginWidth(0),
                         IEManager.getInstance().getOriginHeight(0),
                         new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg"),
@@ -454,12 +455,14 @@ public class ImageEditActivity extends AppCompatActivity implements
                             @Override
                             public void onSaveFailed() {
                                 Toast.makeText(ImageEditActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
                                 Log.d(TAG, "onSaveFailed: " + Thread.currentThread().getName());
                             }
 
                             @Override
                             public void onSaved(File target) {
                                 Toast.makeText(ImageEditActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
                                 Log.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
                             }
                         });
