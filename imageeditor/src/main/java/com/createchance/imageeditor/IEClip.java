@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 
 import com.createchance.imageeditor.drawers.BaseImageDrawer;
 import com.createchance.imageeditor.ops.AbstractOperator;
+import com.createchance.imageeditor.transitions.AbstractTransition;
 import com.createchance.imageeditor.utils.OpenGlUtils;
 import com.createchance.imageeditor.utils.UiThreadUtil;
 
@@ -36,6 +37,65 @@ class IEClip implements OperatorContext {
     private int mBaseTextureId = -1;
 
     private final List<AbstractOperator> mOpList = new ArrayList<>();
+    private AbstractTransition mTransition;
+    private TransitionContext mTransitionContext = new TransitionContext() {
+        @Override
+        public int getSurfaceWidth() {
+            return IEClip.this.getSurfaceWidth();
+        }
+
+        @Override
+        public int getSurfaceHeight() {
+            return IEClip.this.getSurfaceHeight();
+        }
+
+        @Override
+        public int getInputTextureId() {
+            return IEClip.this.getInputTextureId();
+        }
+
+        @Override
+        public int getToTextureId() {
+            int textureId = -1;
+            for (int i = 0; i < IEManager.getInstance().getClipList().size(); i++) {
+                IEClip clip = IEManager.getInstance().getClip(i);
+                if (clip == IEClip.this && i < IEManager.getInstance().getClipList().size() - 1) {
+                    textureId = IEManager.getInstance().getClip(i + 1).getBaseTextureId();
+                }
+            }
+            return textureId;
+        }
+
+        @Override
+        public int getFromTextureId() {
+            return mBaseTextureId;
+        }
+
+        @Override
+        public int getOutputTextureId() {
+            return IEClip.this.getOutputTextureId();
+        }
+
+        @Override
+        public void bindOffScreenFrameBuffer() {
+            IEClip.this.bindDefaultFrameBuffer();
+        }
+
+        @Override
+        public void attachOffScreenTexture(int textureId) {
+            IEClip.this.attachOffScreenTexture(textureId);
+        }
+
+        @Override
+        public void bindDefaultFrameBuffer() {
+            IEClip.this.bindDefaultFrameBuffer();
+        }
+
+        @Override
+        public void swapTexture() {
+            IEClip.this.swapTexture();
+        }
+    };
 
     private IRenderTarget mRenderTarget;
 
@@ -153,6 +213,10 @@ class IEClip implements OperatorContext {
         }
     }
 
+    int getBaseTextureId() {
+        return mBaseTextureId;
+    }
+
     void setRenderTarget(IRenderTarget target) {
         mRenderTarget = target;
     }
@@ -177,6 +241,15 @@ class IEClip implements OperatorContext {
 
     void removeOperator(List<AbstractOperator> operatorList) {
         mOpList.removeAll(operatorList);
+    }
+
+    void setTransition(AbstractTransition transition) {
+        mTransition = transition;
+        mTransition.setTransitionContext(mTransitionContext);
+    }
+
+    void removeTransition() {
+        mTransition = null;
     }
 
     Bitmap getBitmap() {
@@ -337,7 +410,7 @@ class IEClip implements OperatorContext {
                 mRenderBottom,
                 getRenderWidth(),
                 getRenderHeight(),
-                true,
+                false,
                 1.0f,
                 1.0f,
                 0,
@@ -346,6 +419,11 @@ class IEClip implements OperatorContext {
         for (AbstractOperator operator : mOpList) {
             operator.exec();
         }
+
+        if (mTransition != null) {
+            mTransition.exec();
+        }
+
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
 
         mRenderTarget.bindDefaultFrameBuffer();
@@ -357,7 +435,7 @@ class IEClip implements OperatorContext {
                 0,
                 mRenderTarget.getSurfaceWidth(),
                 mRenderTarget.getSurfaceHeight(),
-                false,
+                true,
                 mScaleX,
                 mScaleY,
                 mTranslateX,

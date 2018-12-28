@@ -7,6 +7,7 @@ import android.view.TextureView;
 
 import com.createchance.imageeditor.freetype.FreeType;
 import com.createchance.imageeditor.ops.AbstractOperator;
+import com.createchance.imageeditor.transitions.AbstractTransition;
 import com.createchance.imageeditor.utils.Logger;
 
 import java.io.File;
@@ -156,7 +157,7 @@ public class IEManager {
             return false;
         }
 
-        final IEClip clip = mClipList.get(clipIndex);
+        IEClip clip = mClipList.get(clipIndex);
         clip.addOperator(operator);
 
         if (render) {
@@ -244,6 +245,41 @@ public class IEManager {
         }
 
         mClipList.get(clipIndex).removeOperator(operatorList);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean setTransition(int clipIndex, AbstractTransition transition, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Remove operator list failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        if (transition == null || !transition.checkRational()) {
+            Logger.e(TAG, "Transition invalid: " + transition);
+            return false;
+        }
+
+        mClipList.get(clipIndex).setTransition(transition);
+
+        if (render) {
+            renderClip(clipIndex);
+        }
+
+        return true;
+    }
+
+    public boolean removeTransition(int clipIndex, boolean render) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Remove operator list failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        mClipList.get(clipIndex).removeTransition();
 
         if (render) {
             renderClip(clipIndex);
