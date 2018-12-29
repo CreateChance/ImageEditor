@@ -177,10 +177,22 @@ class IEClip implements RenderContext {
     }
 
     void loadImage() {
-        releaseImage();
-        Logger.d(TAG, "Clip load image, index: " + IEManager.getInstance().getClipList().indexOf(this));
-        mBitmap = loadBitmap(mImageFilePath, mRenderTarget.getSurfaceWidth(), mRenderTarget.getSurfaceHeight());
-        adjustSize();
+        if (mRenderTarget == null ||
+                mRenderTarget.getSurfaceWidth() == 0 ||
+                mRenderTarget.getSurfaceHeight() == 0) {
+            return;
+        }
+        if (mBitmap == null) {
+            Logger.d(TAG, "Clip load image, index: " + IEManager.getInstance().getClipList().indexOf(this));
+            mBitmap = loadBitmap(mImageFilePath, mRenderTarget.getSurfaceWidth(), mRenderTarget.getSurfaceHeight());
+            adjustSize();
+        }
+    }
+
+    void loadTexture() {
+        if (mBaseTextureId == -1) {
+            mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
+        }
     }
 
     void addOperator(AbstractOperator operator) {
@@ -359,9 +371,7 @@ class IEClip implements RenderContext {
         if (mDrawer == null) {
             mDrawer = new BaseImageDrawer();
         }
-        if (mBaseTextureId == -1) {
-            mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
-        }
+
         // render base image
         mRenderTarget.bindOffScreenFrameBuffer();
         mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());

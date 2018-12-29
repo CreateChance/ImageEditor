@@ -27,7 +27,6 @@ public class IEManager {
     private Context mAppContext;
 
     private List<IEClip> mClipList = new ArrayList<>();
-    private int mCurClipIndex;
 
     private long mCurrentPosition;
 
@@ -88,11 +87,11 @@ public class IEManager {
                         // set render target
                         for (IEClip clip : mClipList) {
                             clip.setRenderTarget(mPreviewTarget);
+                            clip.loadImage();
+                            clip.loadTexture();
                         }
 
                         if (mClipList.size() > 0) {
-                            mCurClipIndex = 0;
-                            preLoadImage();
                             // render first clip for now.
                             mClipList.get(0).render(true, 0);
                         }
@@ -149,6 +148,15 @@ public class IEManager {
         }
         IEClip clip = new IEClip(imagePath, startTime, startTime + duration);
         mClipList.add(clip);
+        clip.loadImage();
+        if (clip.getBitmap() != null) {
+            mRenderThread.post(new Runnable() {
+                @Override
+                public void run() {
+                    mClipList.get(mClipList.size() - 1).loadTexture();
+                }
+            });
+        }
 
         return true;
     }
@@ -656,10 +664,16 @@ public class IEManager {
         return mClipList.get(clipIndex);
     }
 
-    public boolean saveAsImage(int width,
+    public boolean saveAsImage(final int clipIndex,
+                               int width,
                                int height,
                                File target,
                                SaveListener listener) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
         if (width <= 0 || height <= 0) {
             Logger.e(TAG, "Output size invalid, width: " + width + ", height: " + height);
         }
@@ -670,20 +684,27 @@ public class IEManager {
 
         mSaveTarget = new ImageSaver(width, height, target, listener);
         // we can not do load image in gl thread, because do this will make gl thread memory used out.
-        mClipList.get(mCurClipIndex).setRenderTarget(mSaveTarget);
-        mClipList.get(mCurClipIndex).loadImage();
+        mClipList.get(clipIndex).setRenderTarget(mSaveTarget);
+        // reload image.
+        mClipList.get(clipIndex).releaseImage();
+        mClipList.get(clipIndex).loadImage();
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {
                 mSaveTarget.init(mRenderThread.getEglCore());
                 mSaveTarget.makeCurrent();
-                // release old resources.
-                mClipList.get(mCurClipIndex).releaseTexture();
-                mClipList.get(mCurClipIndex).render(true, 0);
+                // reload texture.
+                mClipList.get(clipIndex).releaseTexture();
+                mClipList.get(clipIndex).loadTexture();
+                mClipList.get(clipIndex).render(true, 0);
 
                 mPreviewTarget.makeCurrent();
-                mClipList.get(mCurClipIndex).setRenderTarget(mPreviewTarget);
-                mClipList.get(mCurClipIndex).loadImage();
+                mClipList.get(clipIndex).setRenderTarget(mPreviewTarget);
+                // reload image and texture.
+                mClipList.get(clipIndex).releaseImage();
+                mClipList.get(clipIndex).loadImage();
+                mClipList.get(clipIndex).releaseTexture();
+                mClipList.get(clipIndex).loadTexture();
             }
         });
 
@@ -715,7 +736,7 @@ public class IEManager {
         return mAppContext;
     }
 
-    public void renderClip(final int clipIndex) {
+    private void renderClip(final int clipIndex) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
             return;
@@ -736,35 +757,12 @@ public class IEManager {
                 for (int i = 0; i < mClipList.size(); i++) {
                     IEClip clip = mClipList.get(i);
                     if (position >= clip.getStartTime() && position < clip.getEndTime()) {
-                        if (i != mCurClipIndex) {
-                            mCurClipIndex = i;
-                            preLoadImage();
-                        }
                         clip.render(true, position - clip.getStartTime());
                         break;
                     }
                 }
             }
         });
-    }
-
-    private void preLoadImage() {
-        int preIndex = mCurClipIndex - 1;
-        int nextIndex = mCurClipIndex + 1;
-        for (int i = 0; i < mClipList.size(); i++) {
-            if (i != preIndex && i != mCurClipIndex && i != nextIndex) {
-                // todo: we should release texture too.
-                mClipList.get(i).releaseImage();
-            } else {
-                if (preIndex >= 0) {
-                    mClipList.get(preIndex).loadImage();
-                }
-                mClipList.get(mCurClipIndex).loadImage();
-                if (nextIndex < mClipList.size()) {
-                    mClipList.get(nextIndex).loadImage();
-                }
-            }
-        }
     }
 
     private static class Holder {
