@@ -27,6 +27,7 @@ public class IEManager {
     private Context mAppContext;
 
     private List<IEClip> mClipList = new ArrayList<>();
+    private int mCurClipIndex;
 
     private long mCurrentPosition;
 
@@ -77,14 +78,17 @@ public class IEManager {
                     public void run() {
                         mPreviewTarget.init(mRenderThread.getEglCore());
                         mPreviewTarget.makeCurrent();
-                        // adjust img render size.
+                        // set render target
                         for (IEClip clip : mClipList) {
                             clip.setRenderTarget(mPreviewTarget);
-                            clip.init();
-                            clip.adjustSize();
                         }
-                        // render first clip for now.
-                        mClipList.get(0).render(true, mClipList.get(0).getStartTime());
+
+                        if (mClipList.size() > 0) {
+                            mCurClipIndex = 0;
+                            preLoadImage();
+                            // render first clip for now.
+                            mClipList.get(0).render(true, 0);
+                        }
                     }
                 });
             }
@@ -137,7 +141,6 @@ public class IEManager {
             startTime += ieClip.getDuration();
         }
         IEClip clip = new IEClip(imagePath, startTime, startTime + duration);
-        clip.setRenderTarget(mPreviewTarget);
         mClipList.add(clip);
 
         return true;
@@ -646,16 +649,16 @@ public class IEManager {
         return mClipList.get(clipIndex);
     }
 
-    public void saveAsImage(int width,
-                            int height,
-                            File target,
-                            SaveListener listener) {
+    public boolean saveAsImage(int width,
+                               int height,
+                               File target,
+                               SaveListener listener) {
         if (width <= 0 || height <= 0) {
             Logger.e(TAG, "Output size invalid, width: " + width + ", height: " + height);
         }
         if (target == null) {
             Logger.e(TAG, "Target file can not be null!");
-            return;
+            return false;
         }
 
         mSaveTarget = new ImageSaver(width, height, target, listener);
@@ -664,26 +667,17 @@ public class IEManager {
             public void run() {
                 mSaveTarget.init(mRenderThread.getEglCore());
                 mSaveTarget.makeCurrent();
-                for (IEClip clip : mClipList) {
-                    // set target to output target
-                    clip.setRenderTarget(mSaveTarget);
-                    // adjust size to fit target.
-                    clip.adjustSize();
-                    // render to save target.
-                    clip.render(false, clip.getStartTime());
-                }
-                // swap to send this image to saver.
-                mSaveTarget.swapBuffers();
+                mClipList.get(mCurClipIndex).setRenderTarget(mSaveTarget);
+                mClipList.get(mCurClipIndex).loadImage();
+                mClipList.get(mCurClipIndex).render(true, 0);
 
                 mPreviewTarget.makeCurrent();
-                for (IEClip clip : mClipList) {
-                    // set target to preview target
-                    clip.setRenderTarget(mPreviewTarget);
-                    // adjust img render size again.
-                    clip.adjustSize();
-                }
+                mClipList.get(mCurClipIndex).setRenderTarget(mPreviewTarget);
+                mClipList.get(mCurClipIndex).loadImage();
             }
         });
+
+        return true;
     }
 
     public boolean generatorHistogram(final int clipIndex, final IHistogramGenerateListener listener) {
@@ -720,7 +714,7 @@ public class IEManager {
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {
-                mClipList.get(clipIndex).render(true, mClipList.get(clipIndex).getStartTime());
+                mClipList.get(clipIndex).render(true, 0);
             }
         });
     }
@@ -729,14 +723,37 @@ public class IEManager {
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {
-                for (IEClip clip : mClipList) {
+                for (int i = 0; i < mClipList.size(); i++) {
+                    IEClip clip = mClipList.get(i);
                     if (position >= clip.getStartTime() && position < clip.getEndTime()) {
+                        if (i != mCurClipIndex) {
+                            mCurClipIndex = i;
+                            preLoadImage();
+                        }
                         clip.render(true, position - clip.getStartTime());
                         break;
                     }
                 }
             }
         });
+    }
+
+    private void preLoadImage() {
+        int preIndex = mCurClipIndex - 1;
+        int nextIndex = mCurClipIndex + 1;
+        for (int i = 0; i < mClipList.size(); i++) {
+            if (i != preIndex && i != mCurClipIndex && i != nextIndex) {
+                mClipList.get(i).release();
+            } else {
+                if (preIndex >= 0) {
+                    mClipList.get(preIndex).loadImage();
+                }
+                mClipList.get(mCurClipIndex).loadImage();
+                if (nextIndex < mClipList.size()) {
+                    mClipList.get(nextIndex).loadImage();
+                }
+            }
+        }
     }
 
     private static class Holder {

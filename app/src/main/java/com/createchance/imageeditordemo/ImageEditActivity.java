@@ -448,7 +448,8 @@ public class ImageEditActivity extends AppCompatActivity implements
                 break;
             case R.id.tv_save:
                 final OutputDialog dialog = OutputDialog.start(this);
-                IEManager.getInstance().saveAsImage(IEManager.getInstance().getOriginWidth(0),
+                IEManager.getInstance().saveAsImage(
+                        IEManager.getInstance().getOriginWidth(0),
                         IEManager.getInstance().getOriginHeight(0),
                         new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg"),
                         new SaveListener() {

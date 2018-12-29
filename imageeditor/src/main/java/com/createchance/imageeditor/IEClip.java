@@ -7,6 +7,7 @@ import android.opengl.GLES20;
 import com.createchance.imageeditor.drawers.BaseImageDrawer;
 import com.createchance.imageeditor.ops.AbstractOperator;
 import com.createchance.imageeditor.transitions.AbstractTransition;
+import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditor.utils.OpenGlUtils;
 import com.createchance.imageeditor.utils.UiThreadUtil;
 
@@ -24,7 +25,9 @@ class IEClip implements RenderContext {
 
     private static final String TAG = "IEClip";
 
-    private final Bitmap mBitmap;
+    private Bitmap mBitmap;
+
+    private int mOriginWidth, mOriginHeight;
 
     private final String mImageFilePath;
 
@@ -51,11 +54,11 @@ class IEClip implements RenderContext {
     private float mTranslateX, mTranslateY;
 
     IEClip(String imagePath, long startTime, long endTime) {
-        mBitmap = BitmapFactory.decodeFile(imagePath);
         mImageFilePath = imagePath;
         mStartTime = startTime;
         mEndTime = endTime;
         mDuration = endTime - startTime;
+        getOriginSize();
     }
 
     @Override
@@ -165,21 +168,22 @@ class IEClip implements RenderContext {
         mRenderTarget.swapTexture();
     }
 
-    void init() {
-        if (mDrawer == null) {
-            mDrawer = new BaseImageDrawer();
-        }
-        if (mBaseTextureId == -1) {
-            mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
-        }
-    }
-
     int getBaseTextureId() {
         return mBaseTextureId;
     }
 
     void setRenderTarget(IRenderTarget target) {
         mRenderTarget = target;
+        release();
+    }
+
+    void loadImage() {
+        if (mBitmap == null) {
+            Logger.d(TAG, "Clip load image, index: " + IEManager.getInstance().getClipList().indexOf(this));
+            mBitmap = loadBitmap(mImageFilePath, mRenderTarget.getSurfaceWidth(), mRenderTarget.getSurfaceHeight());
+            adjustSize();
+            mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
+        }
     }
 
     void addOperator(AbstractOperator operator) {
@@ -301,11 +305,11 @@ class IEClip implements RenderContext {
     }
 
     int getOriginWidth() {
-        return mBitmap.getWidth();
+        return mOriginWidth;
     }
 
     int getOriginHeight() {
-        return mBitmap.getHeight();
+        return mOriginHeight;
     }
 
     void generatorHistogram(final IHistogramGenerateListener listener) {
@@ -355,6 +359,9 @@ class IEClip implements RenderContext {
      * Render all operators
      */
     void render(boolean swap, long localTime) {
+        if (mDrawer == null) {
+            mDrawer = new BaseImageDrawer();
+        }
         // render base image
         mRenderTarget.bindOffScreenFrameBuffer();
         mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
@@ -409,7 +416,7 @@ class IEClip implements RenderContext {
         }
     }
 
-    void adjustSize() {
+    private void adjustSize() {
         int imgWidth = mBitmap.getWidth();
         int imgHeight = mBitmap.getHeight();
         float scale = 1.0f;
@@ -437,6 +444,62 @@ class IEClip implements RenderContext {
     }
 
     void release() {
-        mBitmap.recycle();
+        if (mBitmap != null) {
+            Logger.d(TAG, "Clip released, index: " + IEManager.getInstance().getClipList().indexOf(this));
+            mBitmap.recycle();
+            mBitmap = null;
+            if (mBaseTextureId != -1) {
+                GLES20.glDeleteTextures(1, new int[]{mBaseTextureId}, 0);
+                mBaseTextureId = -1;
+            }
+        }
+    }
+
+    private Bitmap loadBitmap(String filePath, int width, int height) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+
+        // preload size
+        BitmapFactory.decodeFile(filePath, options);
+
+        int originalWidth = options.outWidth;
+        int originalHeight = options.outHeight;
+
+        // real load size
+        options.inJustDecodeBounds = false;
+
+        // get sample size by target size.
+        options.inSampleSize = getSampleSize(originalWidth, originalHeight, width, height);
+
+        return BitmapFactory.decodeFile(filePath, options);
+    }
+
+    private int getSampleSize(int originalWidth, int originalHeight, int width, int height) {
+        int sampleSize = 1;
+
+        if (originalWidth > originalHeight && originalWidth > width) {
+            sampleSize = originalWidth / width;
+        } else if (originalWidth < originalHeight && originalHeight > height) {
+            sampleSize = originalHeight / height;
+        }
+
+        if (sampleSize <= 0) {
+            sampleSize = 1;
+        }
+
+        return sampleSize;
+    }
+
+    private void getOriginSize() {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+
+        // preload size
+        BitmapFactory.decodeFile(mImageFilePath, options);
+
+        mOriginWidth = options.outWidth;
+        mOriginHeight = options.outHeight;
     }
 }
