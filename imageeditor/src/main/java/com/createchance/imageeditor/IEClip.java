@@ -174,16 +174,13 @@ class IEClip implements RenderContext {
 
     void setRenderTarget(IRenderTarget target) {
         mRenderTarget = target;
-        release();
     }
 
     void loadImage() {
-        if (mBitmap == null) {
-            Logger.d(TAG, "Clip load image, index: " + IEManager.getInstance().getClipList().indexOf(this));
-            mBitmap = loadBitmap(mImageFilePath, mRenderTarget.getSurfaceWidth(), mRenderTarget.getSurfaceHeight());
-            adjustSize();
-            mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
-        }
+        releaseImage();
+        Logger.d(TAG, "Clip load image, index: " + IEManager.getInstance().getClipList().indexOf(this));
+        mBitmap = loadBitmap(mImageFilePath, mRenderTarget.getSurfaceWidth(), mRenderTarget.getSurfaceHeight());
+        adjustSize();
     }
 
     void addOperator(AbstractOperator operator) {
@@ -362,6 +359,9 @@ class IEClip implements RenderContext {
         if (mDrawer == null) {
             mDrawer = new BaseImageDrawer();
         }
+        if (mBaseTextureId == -1) {
+            mBaseTextureId = OpenGlUtils.loadTexture(mBitmap, OpenGlUtils.NO_TEXTURE, false);
+        }
         // render base image
         mRenderTarget.bindOffScreenFrameBuffer();
         mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
@@ -410,6 +410,7 @@ class IEClip implements RenderContext {
                 mScaleY,
                 mTranslateX,
                 mTranslateY);
+
         if (swap) {
             // swap to send image to render target.
             mRenderTarget.swapBuffers();
@@ -443,15 +444,17 @@ class IEClip implements RenderContext {
         mScissorHeight = mRenderTop - mRenderBottom;
     }
 
-    void release() {
+    void releaseImage() {
         if (mBitmap != null) {
-            Logger.d(TAG, "Clip released, index: " + IEManager.getInstance().getClipList().indexOf(this));
             mBitmap.recycle();
             mBitmap = null;
-            if (mBaseTextureId != -1) {
-                GLES20.glDeleteTextures(1, new int[]{mBaseTextureId}, 0);
-                mBaseTextureId = -1;
-            }
+        }
+    }
+
+    void releaseTexture() {
+        if (mBaseTextureId != -1) {
+            GLES20.glDeleteTextures(1, new int[]{mBaseTextureId}, 0);
+            mBaseTextureId = -1;
         }
     }
 
@@ -463,14 +466,14 @@ class IEClip implements RenderContext {
         // preload size
         BitmapFactory.decodeFile(filePath, options);
 
-        int originalWidth = options.outWidth;
-        int originalHeight = options.outHeight;
+        mOriginWidth = options.outWidth;
+        mOriginHeight = options.outHeight;
 
         // real load size
         options.inJustDecodeBounds = false;
 
         // get sample size by target size.
-        options.inSampleSize = getSampleSize(originalWidth, originalHeight, width, height);
+        options.inSampleSize = getSampleSize(mOriginWidth, mOriginHeight, width, height);
 
         return BitmapFactory.decodeFile(filePath, options);
     }

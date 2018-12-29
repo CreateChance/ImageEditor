@@ -60,9 +60,16 @@ public class IEManager {
             Logger.e(TAG, "Call startEngine first!!!");
             return;
         }
-        for (IEClip clip : mClipList) {
-            clip.release();
-        }
+        // release resources.
+        mRenderThread.post(new Runnable() {
+            @Override
+            public void run() {
+                for (IEClip clip : mClipList) {
+                    clip.releaseImage();
+                    clip.releaseTexture();
+                }
+            }
+        });
         mClipList.clear();
         mRenderThread.quitSafely();
     }
@@ -662,13 +669,16 @@ public class IEManager {
         }
 
         mSaveTarget = new ImageSaver(width, height, target, listener);
+        // we can not do load image in gl thread, because do this will make gl thread memory used out.
+        mClipList.get(mCurClipIndex).setRenderTarget(mSaveTarget);
+        mClipList.get(mCurClipIndex).loadImage();
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {
                 mSaveTarget.init(mRenderThread.getEglCore());
                 mSaveTarget.makeCurrent();
-                mClipList.get(mCurClipIndex).setRenderTarget(mSaveTarget);
-                mClipList.get(mCurClipIndex).loadImage();
+                // release old resources.
+                mClipList.get(mCurClipIndex).releaseTexture();
                 mClipList.get(mCurClipIndex).render(true, 0);
 
                 mPreviewTarget.makeCurrent();
@@ -743,7 +753,8 @@ public class IEManager {
         int nextIndex = mCurClipIndex + 1;
         for (int i = 0; i < mClipList.size(); i++) {
             if (i != preIndex && i != mCurClipIndex && i != nextIndex) {
-                mClipList.get(i).release();
+                // todo: we should release texture too.
+                mClipList.get(i).releaseImage();
             } else {
                 if (preIndex >= 0) {
                     mClipList.get(preIndex).loadImage();
