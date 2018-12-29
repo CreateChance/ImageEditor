@@ -1,6 +1,6 @@
 package com.createchance.imageeditor.ops;
 
-import com.createchance.imageeditor.OperatorContext;
+import com.createchance.imageeditor.RenderContext;
 
 /**
  * Base class of all operators.
@@ -39,14 +39,14 @@ public abstract class AbstractOperator {
 
     protected final int mType;
 
-    protected OperatorContext mContext;
+    protected RenderContext mContext;
 
     public AbstractOperator(String name, int type) {
         mName = name;
         mType = type;
     }
 
-    public void setOperatorContext(OperatorContext context) {
+    public void setRenderContext(RenderContext context) {
         mContext = context;
     }
 

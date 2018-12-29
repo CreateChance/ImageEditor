@@ -1,6 +1,6 @@
 package com.createchance.imageeditor.transitions;
 
-import com.createchance.imageeditor.TransitionContext;
+import com.createchance.imageeditor.RenderContext;
 
 /**
  * Abstract transition class.
@@ -19,14 +19,14 @@ public abstract class AbstractTransition {
 
     protected float mProgress;
 
-    protected TransitionContext mContext;
+    protected RenderContext mContext;
 
     public AbstractTransition(String name, int type) {
         mName = name;
         mType = type;
     }
 
-    public final void setTransitionContext(TransitionContext context) {
+    public final void setRenderContext(RenderContext context) {
         mContext = context;
     }
 

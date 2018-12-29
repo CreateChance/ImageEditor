@@ -1,12 +1,12 @@
 package com.createchance.imageeditor;
 
 /**
- * Transition Context interface.
+ * Operator info context.
  *
  * @author createchance
- * @date 2018/12/28
+ * @date 2018/12/24
  */
-public interface TransitionContext {
+public interface RenderContext {
     int getSurfaceWidth();
 
     int getSurfaceHeight();
@@ -22,6 +22,14 @@ public interface TransitionContext {
     int getRenderRight();
 
     int getRenderBottom();
+
+    int getScissorX();
+
+    int getScissorY();
+
+    int getScissorWidth();
+
+    int getScissorHeight();
 
     int getInputTextureId();
 

@@ -20,7 +20,7 @@ import java.util.List;
  * @author createchance
  * @date 2018/12/24
  */
-class IEClip implements OperatorContext {
+class IEClip implements RenderContext {
 
     private static final String TAG = "IEClip";
 
@@ -40,94 +40,6 @@ class IEClip implements OperatorContext {
 
     private final List<AbstractOperator> mOpList = new ArrayList<>();
     private AbstractTransition mTransition;
-    private TransitionContext mTransitionContext = new TransitionContext() {
-        @Override
-        public int getSurfaceWidth() {
-            return IEClip.this.getSurfaceWidth();
-        }
-
-        @Override
-        public int getSurfaceHeight() {
-            return IEClip.this.getSurfaceHeight();
-        }
-
-        @Override
-        public int getRenderWidth() {
-            return IEClip.this.getRenderWidth();
-        }
-
-        @Override
-        public int getRenderHeight() {
-            return IEClip.this.getRenderHeight();
-        }
-
-        @Override
-        public int getRenderLeft() {
-            return IEClip.this.getRenderLeft();
-        }
-
-        @Override
-        public int getRenderTop() {
-            return IEClip.this.getRenderTop();
-        }
-
-        @Override
-        public int getRenderRight() {
-            return IEClip.this.getRenderRight();
-        }
-
-        @Override
-        public int getRenderBottom() {
-            return IEClip.this.getRenderBottom();
-        }
-
-        @Override
-        public int getInputTextureId() {
-            return IEClip.this.getInputTextureId();
-        }
-
-        @Override
-        public int getToTextureId() {
-            int textureId = -1;
-            for (int i = 0; i < IEManager.getInstance().getClipList().size(); i++) {
-                IEClip clip = IEManager.getInstance().getClip(i);
-                if (clip == IEClip.this && i < IEManager.getInstance().getClipList().size() - 1) {
-                    textureId = IEManager.getInstance().getClip(i + 1).getBaseTextureId();
-                }
-            }
-            return textureId;
-        }
-
-        @Override
-        public int getFromTextureId() {
-            return mBaseTextureId;
-        }
-
-        @Override
-        public int getOutputTextureId() {
-            return IEClip.this.getOutputTextureId();
-        }
-
-        @Override
-        public void bindOffScreenFrameBuffer() {
-            IEClip.this.bindDefaultFrameBuffer();
-        }
-
-        @Override
-        public void attachOffScreenTexture(int textureId) {
-            IEClip.this.attachOffScreenTexture(textureId);
-        }
-
-        @Override
-        public void bindDefaultFrameBuffer() {
-            IEClip.this.bindDefaultFrameBuffer();
-        }
-
-        @Override
-        public void swapTexture() {
-            IEClip.this.swapTexture();
-        }
-    };
 
     private IRenderTarget mRenderTarget;
 
@@ -217,6 +129,23 @@ class IEClip implements OperatorContext {
     }
 
     @Override
+    public int getFromTextureId() {
+        return mBaseTextureId;
+    }
+
+    @Override
+    public int getToTextureId() {
+        int textureId = -1;
+        for (int i = 0; i < IEManager.getInstance().getClipList().size(); i++) {
+            IEClip clip = IEManager.getInstance().getClip(i);
+            if (clip == IEClip.this && i < IEManager.getInstance().getClipList().size() - 1) {
+                textureId = IEManager.getInstance().getClip(i + 1).getBaseTextureId();
+            }
+        }
+        return textureId;
+    }
+
+    @Override
     public void bindOffScreenFrameBuffer() {
         mRenderTarget.bindOffScreenFrameBuffer();
     }
@@ -254,7 +183,7 @@ class IEClip implements OperatorContext {
     }
 
     void addOperator(AbstractOperator operator) {
-        operator.setOperatorContext(this);
+        operator.setRenderContext(this);
         mOpList.add(operator);
     }
 
@@ -278,7 +207,7 @@ class IEClip implements OperatorContext {
     void setTransition(AbstractTransition transition, long duration) {
         mTransition = transition;
         mTransitionDuration = duration;
-        mTransition.setTransitionContext(mTransitionContext);
+        mTransition.setRenderContext(this);
     }
 
     void removeTransition() {
