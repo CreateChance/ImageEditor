@@ -4,11 +4,11 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.createchance.imageeditor.utils.OpenGlUtils;
 import com.createchance.imageeditor.freetype.FreeType;
 import com.createchance.imageeditor.shaders.ModelViewVertexShader;
 import com.createchance.imageeditor.shaders.TextFragmentShader;
 import com.createchance.imageeditor.utils.Logger;
+import com.createchance.imageeditor.utils.OpenGlUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -61,10 +61,10 @@ public class TextDrawer extends AbstractDrawer {
 
         mTextureCoordinateBuffer = createFloatBuffer(
                 new float[]{
-                        0.0f, 0.0f,
                         0.0f, 1.0f,
-                        1.0f, 0.0f,
+                        0.0f, 0.0f,
                         1.0f, 1.0f,
+                        1.0f, 0.0f,
                 }
         );
 

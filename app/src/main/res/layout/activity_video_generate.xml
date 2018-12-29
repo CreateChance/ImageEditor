@@ -121,7 +121,7 @@
 
     </RelativeLayout>
 
-    <TextureView
+    <com.createchance.imageeditor.IEPreviewView
         android:id="@+id/vw_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -11,6 +11,18 @@ public interface TransitionContext {
 
     int getSurfaceHeight();
 
+    int getRenderWidth();
+
+    int getRenderHeight();
+
+    int getRenderLeft();
+
+    int getRenderTop();
+
+    int getRenderRight();
+
+    int getRenderBottom();
+
     int getInputTextureId();
 
     int getOutputTextureId();

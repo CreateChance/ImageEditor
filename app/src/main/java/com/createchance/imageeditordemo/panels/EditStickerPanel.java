@@ -73,7 +73,7 @@ public class EditStickerPanel extends AbstractPanel implements
                 break;
             case MotionEvent.ACTION_MOVE:
                 int curX = (int) (mCurOp.getPosX() + (event.getX() - mLastX));
-                int curY = (int) (mCurOp.getPosY() - (event.getY() - mLastY));
+                int curY = (int) (mCurOp.getPosY() + (event.getY() - mLastY));
                 if (curX < IEManager.getInstance().getScissorX(0)) {
                     curX = IEManager.getInstance().getScissorX(0);
                 } else if (curX > IEManager.getInstance().getScissorX(0) +

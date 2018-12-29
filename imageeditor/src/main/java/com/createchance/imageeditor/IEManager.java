@@ -28,6 +28,8 @@ public class IEManager {
 
     private List<IEClip> mClipList = new ArrayList<>();
 
+    private long mCurrentPosition;
+
     // render target
     private IRenderTarget mPreviewTarget;
     private IRenderTarget mSaveTarget;
@@ -82,7 +84,7 @@ public class IEManager {
                             clip.adjustSize();
                         }
                         // render first clip for now.
-                        mClipList.get(0).render(true);
+                        mClipList.get(0).render(true, mClipList.get(0).getStartTime());
                     }
                 });
             }
@@ -139,6 +141,72 @@ public class IEManager {
         mClipList.add(clip);
 
         return true;
+    }
+
+    public boolean setClipDuration(int clipIndex, long duration) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Add operator failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        if (duration < 0) {
+            Logger.e(TAG, "Clip duration can not < 0.");
+            return false;
+        }
+
+        mClipList.get(clipIndex).setDuration(duration);
+
+        return true;
+    }
+
+    public boolean seek(long position) {
+        if (position < 0 || position > getTotalDuration()) {
+            Logger.e(TAG, "Position invalid, seek failed!");
+            return false;
+        }
+
+        // do seek here.
+        renderAtPosition(position);
+
+        return true;
+    }
+
+    public long getCurrentPosition() {
+        return mCurrentPosition;
+    }
+
+    public boolean playback(long startPosition, long duration) {
+        if (startPosition < 0 || startPosition > getTotalDuration()) {
+            Logger.e(TAG, "Start position invalid, playback failed!");
+            return false;
+        }
+
+        if (duration <= 0 || duration > getTotalDuration() - startPosition) {
+            Logger.e(TAG, "Duration invalid, playback failed!");
+            return false;
+        }
+
+        // do playback here.
+
+        return true;
+    }
+
+    public long getTotalDuration() {
+        long duration = 0;
+        for (IEClip clip : mClipList) {
+            duration += clip.getDuration();
+        }
+
+        return duration;
+    }
+
+    public long getDuration(int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Add operator failed, clip index invalid: " + clipIndex);
+            return -1;
+        }
+
+        return mClipList.get(clipIndex).getDuration();
     }
 
     public boolean addOperator(int clipIndex, AbstractOperator operator, boolean render) {
@@ -253,7 +321,7 @@ public class IEManager {
         return true;
     }
 
-    public boolean setTransition(int clipIndex, AbstractTransition transition, boolean render) {
+    public boolean setTransition(int clipIndex, AbstractTransition transition, long duration, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Remove operator list failed, clip index invalid: " + clipIndex);
             return false;
@@ -264,7 +332,7 @@ public class IEManager {
             return false;
         }
 
-        mClipList.get(clipIndex).setTransition(transition);
+        mClipList.get(clipIndex).setTransition(transition, duration);
 
         if (render) {
             renderClip(clipIndex);
@@ -602,7 +670,7 @@ public class IEManager {
                     // adjust size to fit target.
                     clip.adjustSize();
                     // render to save target.
-                    clip.render(false);
+                    clip.render(false, clip.getStartTime());
                 }
                 // swap to send this image to saver.
                 mSaveTarget.swapBuffers();
@@ -643,11 +711,30 @@ public class IEManager {
         return mAppContext;
     }
 
-    private void renderClip(final int clipIndex) {
+    public void renderClip(final int clipIndex) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
+            return;
+        }
+
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {
-                mClipList.get(clipIndex).render(true);
+                mClipList.get(clipIndex).render(true, mClipList.get(clipIndex).getStartTime());
+            }
+        });
+    }
+
+    private void renderAtPosition(final long position) {
+        mRenderThread.post(new Runnable() {
+            @Override
+            public void run() {
+                for (IEClip clip : mClipList) {
+                    if (position >= clip.getStartTime() && position < clip.getEndTime()) {
+                        clip.render(true, position - clip.getStartTime());
+                        break;
+                    }
+                }
             }
         });
     }

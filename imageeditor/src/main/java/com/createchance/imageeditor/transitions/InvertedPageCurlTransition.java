@@ -4,7 +4,7 @@ import com.createchance.imageeditor.drawers.InvertedPageCurlTransDrawer;
 import com.createchance.imageeditor.utils.Logger;
 
 /**
- * ${DESC}
+ * Inverted page curl transition.
  *
  * @author createchance
  * @date 2018/12/23
@@ -35,12 +35,12 @@ public class InvertedPageCurlTransition extends AbstractTransition {
 
             mDrawer.setProgress(mProgress);
 
-            mDrawer.draw(mContext.getInputTextureId(),
+            mDrawer.draw(mContext.getFromTextureId(),
                     texture2,
-                    0,
-                    0,
-                    mContext.getSurfaceWidth(),
-                    mContext.getSurfaceHeight());
+                    mContext.getRenderLeft(),
+                    mContext.getRenderBottom(),
+                    mContext.getRenderWidth(),
+                    mContext.getRenderHeight());
             mContext.swapTexture();
         } else {
             Logger.e(TAG, "Can not get texture 2 id.");

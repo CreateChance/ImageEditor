@@ -34,6 +34,8 @@ class IEClip implements OperatorContext {
 
     private long mDuration;
 
+    private long mTransitionDuration;
+
     private int mBaseTextureId = -1;
 
     private final List<AbstractOperator> mOpList = new ArrayList<>();
@@ -47,6 +49,36 @@ class IEClip implements OperatorContext {
         @Override
         public int getSurfaceHeight() {
             return IEClip.this.getSurfaceHeight();
+        }
+
+        @Override
+        public int getRenderWidth() {
+            return IEClip.this.getRenderWidth();
+        }
+
+        @Override
+        public int getRenderHeight() {
+            return IEClip.this.getRenderHeight();
+        }
+
+        @Override
+        public int getRenderLeft() {
+            return IEClip.this.getRenderLeft();
+        }
+
+        @Override
+        public int getRenderTop() {
+            return IEClip.this.getRenderTop();
+        }
+
+        @Override
+        public int getRenderRight() {
+            return IEClip.this.getRenderRight();
+        }
+
+        @Override
+        public int getRenderBottom() {
+            return IEClip.this.getRenderBottom();
         }
 
         @Override
@@ -243,8 +275,9 @@ class IEClip implements OperatorContext {
         mOpList.removeAll(operatorList);
     }
 
-    void setTransition(AbstractTransition transition) {
+    void setTransition(AbstractTransition transition, long duration) {
         mTransition = transition;
+        mTransitionDuration = duration;
         mTransition.setTransitionContext(mTransitionContext);
     }
 
@@ -392,7 +425,7 @@ class IEClip implements OperatorContext {
     /**
      * Render all operators
      */
-    void render(boolean swap) {
+    void render(boolean swap, long localTime) {
         // render base image
         mRenderTarget.bindOffScreenFrameBuffer();
         mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
@@ -420,7 +453,8 @@ class IEClip implements OperatorContext {
             operator.exec();
         }
 
-        if (mTransition != null) {
+        if (mTransition != null && mDuration - localTime <= mTransitionDuration) {
+            mTransition.setProgress(1.0f - (mDuration - localTime) * 1.0f / mTransitionDuration);
             mTransition.exec();
         }
 

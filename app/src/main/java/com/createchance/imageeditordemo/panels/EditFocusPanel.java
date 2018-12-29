@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
-import com.createchance.imageeditor.transitions.InvertedPageCurlTransition;
+import com.createchance.imageeditor.ops.ThreeXThreeSampleOperator;
 import com.createchance.imageeditordemo.R;
 
 /**
@@ -26,7 +26,7 @@ public class EditFocusPanel extends AbstractPanel implements
     private View mVwFocusPanel;
     private SeekBar mSbFocusValue;
 
-    private InvertedPageCurlTransition mFocusOp;
+    private ThreeXThreeSampleOperator mFocusOp;
 
     public EditFocusPanel(Context context, PanelListener listener) {
         super(context, listener, TYPE_FOCUS);
@@ -52,7 +52,7 @@ public class EditFocusPanel extends AbstractPanel implements
         super.close(discard);
 
         if (discard && mFocusOp != null) {
-            IEManager.getInstance().removeTransition(0, true);
+            IEManager.getInstance().removeOperator(0, mFocusOp, true);
             mFocusOp = null;
         }
     }
@@ -85,14 +85,13 @@ public class EditFocusPanel extends AbstractPanel implements
         switch (seekBar.getId()) {
             case R.id.sb_focus:
                 if (mFocusOp == null) {
-//                    mFocusOp = new ThreeXThreeSampleOperator.Builder()
-//                            .sampleKernel(ThreeXThreeSampleOperator.LAPLACIAN_SAMPLE_FILTER)
-//                            .build();
-                    mFocusOp = new InvertedPageCurlTransition();
+                    mFocusOp = new ThreeXThreeSampleOperator.Builder()
+                            .sampleKernel(ThreeXThreeSampleOperator.SIGMA_1_5_GAUSSIAN_SAMPLE_KERNEL)
+                            .build();
+                    IEManager.getInstance().addOperator(0, mFocusOp, false);
                 }
-//                mFocusOp.setRepeatTimes((int) (process * 100.0f / seekBar.getMax()));
-                mFocusOp.setProgress(process * 1.0f / seekBar.getMax());
-                IEManager.getInstance().setTransition(0, mFocusOp, true);
+                mFocusOp.setRepeatTimes((int) (process * 100.0f / seekBar.getMax()));
+                IEManager.getInstance().updateOperator(0, mFocusOp, true);
                 break;
             default:
                 break;

@@ -42,10 +42,10 @@ public class WindowSliceTransition extends AbstractTransition {
 
             mDrawer.draw(mContext.getFromTextureId(),
                     texture2,
-                    0,
-                    0,
-                    mContext.getSurfaceWidth(),
-                    mContext.getSurfaceHeight());
+                    mContext.getRenderLeft(),
+                    mContext.getRenderBottom(),
+                    mContext.getRenderWidth(),
+                    mContext.getRenderHeight());
             mContext.swapTexture();
         } else {
             Logger.e(TAG, "Can not get texture 2 id.");

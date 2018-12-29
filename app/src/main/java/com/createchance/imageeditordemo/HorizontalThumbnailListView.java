@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 横向thumbnail列表view
+ * Thumbnail list view.
  *
- * @author createchance
+ * @author gaochao02
  * @date 2018/12/6
  */
 public class HorizontalThumbnailListView extends FrameLayout {
@@ -53,6 +53,7 @@ public class HorizontalThumbnailListView extends FrameLayout {
 
     private boolean mHoldScroll;
     private boolean mIsLeft;
+    private boolean mFromLeftToRight;
     private boolean mIsScrollFromUser;
 
     private float mLastX;
@@ -168,14 +169,18 @@ public class HorizontalThumbnailListView extends FrameLayout {
                     // adjust view width.
                     if (mIsLeft) {
                         if (delta > 0) {
+                            mFromLeftToRight = true;
                             mCurImageGroup.shrinkLeft(delta);
                         } else if (delta < 0) {
+                            mFromLeftToRight = false;
                             mCurImageGroup.expandLeft(-delta);
                         }
                     } else {
                         if (delta > 0) {
+                            mFromLeftToRight = true;
                             mCurImageGroup.expandRight(delta);
                         } else if (delta < 0) {
+                            mFromLeftToRight = false;
                             mCurImageGroup.shrinkRight(-delta);
                         }
                     }
@@ -184,8 +189,8 @@ public class HorizontalThumbnailListView extends FrameLayout {
                     int scrollX = (int) (getScrollX() + (mLastX - event.getRawX()));
                     if (scrollX < 0) {
                         scrollX = 0;
-                    } else if (scrollX > getGroupContentWidth()) {
-                        scrollX = getGroupContentWidth();
+                    } else if (scrollX > getTotalGroupWidth()) {
+                        scrollX = getTotalGroupWidth();
                     }
                     scrollTo(scrollX, getScrollY());
                 }
@@ -197,6 +202,45 @@ public class HorizontalThumbnailListView extends FrameLayout {
                 if (mHoldScroll) {
                     mHoldScroll = false;
 
+                    int curIndex = 0;
+                    for (int i = 0; i < mImageGroupList.size(); i++) {
+                        ImageGroup imageGroup = mImageGroupList.get(i);
+                        if (imageGroup == mCurImageGroup) {
+                            break;
+                        }
+                        if (!mImageGroupList.get(i).isHidden) {
+                            curIndex++;
+                        }
+                    }
+                    if (mIsLeft) {
+                        if (mFromLeftToRight) {
+                            if (mImageGroupListener != null) {
+                                mImageGroupListener.onImageGroupLeftShrink(curIndex,
+                                        mCurImageGroup.curLeftPos * 1.0f / getGroupContentMaxWidth(),
+                                        true);
+                            }
+                        } else {
+                            if (mImageGroupListener != null) {
+                                mImageGroupListener.onImageGroupLeftExpand(curIndex,
+                                        mCurImageGroup.curLeftPos * 1.0f / getGroupContentMaxWidth(),
+                                        true);
+                            }
+                        }
+                    } else {
+                        if (mFromLeftToRight) {
+                            if (mImageGroupListener != null) {
+                                mImageGroupListener.onImageGroupRightExpand(curIndex,
+                                        mCurImageGroup.curRightPos * 1.0f / getGroupContentMaxWidth(),
+                                        true);
+                            }
+                        } else {
+                            if (mImageGroupListener != null) {
+                                mImageGroupListener.onImageGroupRightShrink(curIndex,
+                                        mCurImageGroup.curRightPos * 1.0f / getGroupContentMaxWidth(),
+                                        true);
+                            }
+                        }
+                    }
                     mPaddingStartWidth = getDisplay().getWidth() / 2 - mGroupPaddingWidth;
                     requestLayout();
                 }
@@ -294,10 +338,9 @@ public class HorizontalThumbnailListView extends FrameLayout {
             return;
         }
 
-        if (posX <= 0 ||
-                posX >= (mWidth - mPaddingStartWidth - mPaddingEndWidth - mGroupPaddingWidth * 2)) {
+        if (posX <= 0 || posX >= getTotalGroupWidth()) {
             Logger.e(TAG, "Position X is out of range, should between: (" + 0 +
-                    ", " + (mWidth - mPaddingStartWidth - mPaddingEndWidth - mGroupPaddingWidth * 2) + ")" + ", Current position: " + posX);
+                    ", " + getTotalGroupWidth() + ")" + ", Current position: " + posX);
             return;
         }
 
@@ -309,7 +352,9 @@ public class HorizontalThumbnailListView extends FrameLayout {
         List<ImageItem> newImageItemList = new ArrayList<>();
         int curStartPos = mPaddingStartWidth + mGroupPaddingWidth;
         for (int i = 0; i < curIndex; i++) {
-            curStartPos += mImageGroupList.get(i).getWidth() + mGroupPaddingWidth;
+            if (!mImageGroupList.get(i).isHidden) {
+                curStartPos += mImageGroupList.get(i).getWidth() + mGroupPaddingWidth;
+            }
         }
 
         int posXDelta = posX - curStartPos;
@@ -321,8 +366,14 @@ public class HorizontalThumbnailListView extends FrameLayout {
             } else if (posXDelta <= imageItemPos) {
                 newImageItemList.add(imageItem);
             } else if (posXDelta > imageItemPos && posXDelta < (imageItemPos + imageItem.getWidth())) {
-                ImageItem oldItem = new ImageItem(imageItem.image, mImageWidth, imageItem.leftBound, posXDelta - imageItemPos);
-                ImageItem newItem = new ImageItem(imageItem.image, mImageWidth, posXDelta - imageItemPos, imageItem.rightBound);
+                ImageItem oldItem = new ImageItem(imageItem.image,
+                        mImageWidth,
+                        imageItem.leftBound,
+                        imageItem.leftBound + posXDelta - imageItemPos);
+                ImageItem newItem = new ImageItem(imageItem.image,
+                        mImageWidth,
+                        posXDelta - imageItemPos,
+                        imageItem.rightBound);
                 oldImageItemList.add(oldItem);
                 newImageItemList.add(newItem);
             }
@@ -333,8 +384,8 @@ public class HorizontalThumbnailListView extends FrameLayout {
         // make new image group
         ImageGroup oldImageGroup = new ImageGroup(mCurImageGroup.LEFT_BOUND, oldImageItemList);
         ImageGroup newImageGroup = new ImageGroup(oldImageGroup.RIGHT_BOUND, newImageItemList);
-        newImageGroup.measuredLeft += mGroupPaddingWidth;
-        newImageGroup.measuredRight += mGroupPaddingWidth;
+//        newImageGroup.measuredLeft += mGroupPaddingWidth;
+//        newImageGroup.measuredRight += mGroupPaddingWidth;
 
         mImageGroupList.remove(curIndex);
         mImageGroupList.add(curIndex, oldImageGroup);
@@ -344,6 +395,11 @@ public class HorizontalThumbnailListView extends FrameLayout {
 
         if (mImageGroupListener != null) {
             mImageGroupListener.onImageGroupSplit(curIndex, oldImageGroup.curRightPos * 1.0f / getGroupContentMaxWidth());
+        }
+
+        // for debug use
+        for (ImageGroup imageGroup : mImageGroupList) {
+            Logger.d(TAG, "After spilt image group, image group: " + imageGroup);
         }
 
         requestLayout();
@@ -375,9 +431,35 @@ public class HorizontalThumbnailListView extends FrameLayout {
             mCurImageGroup.isSelected = true;
         }
 
-        if (mImageGroupListener != null) {
-            mImageGroupListener.onImageGroupHidden(index);
+        int validIndex = 0;
+        for (int i = 0; i < mImageGroupList.size(); i++) {
+            if (i == index) {
+                break;
+            }
+            if (!mImageGroupList.get(i).isHidden) {
+                validIndex++;
+            }
         }
+        if (mImageGroupListener != null) {
+            mImageGroupListener.onImageGroupHidden(validIndex);
+        }
+
+        requestLayout();
+    }
+
+    /**
+     * 重新展示被隐藏的image group
+     *
+     * @param index 需要重新展示的index
+     */
+    public void showHiddenImageGroup(int index) {
+        if (index < 0 || index > mImageGroupList.size() - 1) {
+            Logger.e(TAG, "Index invalid! index: " + index);
+            return;
+        }
+
+        ImageGroup targetGroup = mImageGroupList.get(index);
+        targetGroup.isHidden = false;
 
         requestLayout();
     }
@@ -456,10 +538,16 @@ public class HorizontalThumbnailListView extends FrameLayout {
      *
      * @return 除去start和end padding部分的宽度
      */
-    public int getTotalGroupWidth() {
+    private int getTotalGroupWidth() {
         int width = getGroupContentWidth();
-        if (mImageGroupList.size() > 0) {
-            width += (mImageGroupList.size() - 1) * mGroupPaddingWidth;
+        int validSize = 0;
+        for (ImageGroup imageGroup : mImageGroupList) {
+            if (!imageGroup.isHidden) {
+                validSize++;
+            }
+        }
+        if (validSize > 0) {
+            width += (validSize - 1) * mGroupPaddingWidth;
         }
         return width;
     }
@@ -562,7 +650,7 @@ public class HorizontalThumbnailListView extends FrameLayout {
             this.imageItemList.addAll(imageItemList);
             LEFT_BOUND = leftBound;
             curLeftPos = leftBound;
-            RIGHT_BOUND = leftBound + getMaxWidth();
+            RIGHT_BOUND = leftBound + getWidth();
             curRightPos = RIGHT_BOUND;
             measuredLeft = curLeftPos;
             measuredRight = curRightPos;
@@ -589,6 +677,7 @@ public class HorizontalThumbnailListView extends FrameLayout {
             }
             measuredRight = curPos;
 
+            Logger.d(TAG, "Image group draw, index: " + mImageGroupList.indexOf(this) + ", group: " + this);
         }
 
         void shrinkLeft(int size) {
@@ -624,8 +713,19 @@ public class HorizontalThumbnailListView extends FrameLayout {
             mCurImageGroup.curLeftPos += size;
 
             Logger.d(TAG, "Adjust image group, shrink left, left progress: " + getCurLeftPos() + ", right process: " + getCurRightPos());
+            int index = 0;
+            for (int i = 0; i < mImageGroupList.size(); i++) {
+                ImageGroup imageGroup = mImageGroupList.get(i);
+                if (imageGroup == this) {
+                    break;
+                }
+                if (!mImageGroupList.get(i).isHidden) {
+                    index++;
+                }
+            }
             if (mImageGroupListener != null) {
-                mImageGroupListener.onImageGroupLeftShrink(mImageGroupList.indexOf(this), curLeftPos * 1.0f / getGroupContentMaxWidth());
+                mImageGroupListener.onImageGroupLeftShrink(index,
+                        curLeftPos * 1.0f / getGroupContentMaxWidth(), false);
             }
         }
 
@@ -661,8 +761,19 @@ public class HorizontalThumbnailListView extends FrameLayout {
             curLeftPos -= size;
 
             Logger.d(TAG, "Adjust image group, expand left, progress: " + curLeftPos * 1.0f / getGroupContentMaxWidth());
+            int index = 0;
+            for (int i = 0; i < mImageGroupList.size(); i++) {
+                ImageGroup imageGroup = mImageGroupList.get(i);
+                if (imageGroup == this) {
+                    break;
+                }
+                if (!mImageGroupList.get(i).isHidden) {
+                    index++;
+                }
+            }
             if (mImageGroupListener != null) {
-                mImageGroupListener.onImageGroupLeftExpand(mImageGroupList.indexOf(this), curLeftPos * 1.0f / getGroupContentMaxWidth());
+                mImageGroupListener.onImageGroupLeftExpand(index,
+                        curLeftPos * 1.0f / getGroupContentMaxWidth(), false);
             }
         }
 
@@ -700,8 +811,19 @@ public class HorizontalThumbnailListView extends FrameLayout {
             curRightPos -= size;
 
             Logger.d(TAG, "Adjust image group, shrink right, progress: " + curRightPos * 1.0f / getGroupContentMaxWidth());
+            int index = 0;
+            for (int i = 0; i < mImageGroupList.size(); i++) {
+                ImageGroup imageGroup = mImageGroupList.get(i);
+                if (imageGroup == this) {
+                    break;
+                }
+                if (!mImageGroupList.get(i).isHidden) {
+                    index++;
+                }
+            }
             if (mImageGroupListener != null) {
-                mImageGroupListener.onImageGroupRightShrink(mImageGroupList.indexOf(this), curRightPos * 1.0f / getGroupContentMaxWidth());
+                mImageGroupListener.onImageGroupRightShrink(index,
+                        curRightPos * 1.0f / getGroupContentMaxWidth(), false);
             }
         }
 
@@ -740,8 +862,18 @@ public class HorizontalThumbnailListView extends FrameLayout {
             curRightPos += size;
 
             Logger.d(TAG, "Adjust image group, expand right, progress: " + curRightPos * 1.0f / getGroupContentMaxWidth());
+            int index = 0;
+            for (int i = 0; i < mImageGroupList.size(); i++) {
+                ImageGroup imageGroup = mImageGroupList.get(i);
+                if (imageGroup == this) {
+                    break;
+                }
+                if (!mImageGroupList.get(i).isHidden) {
+                    index++;
+                }
+            }
             if (mImageGroupListener != null) {
-                mImageGroupListener.onImageGroupRightExpand(mImageGroupList.indexOf(this), curRightPos * 1.0f / getGroupContentMaxWidth());
+                mImageGroupListener.onImageGroupRightExpand(index, curRightPos * 1.0f / getGroupContentMaxWidth(), false);
             }
         }
 
@@ -891,19 +1023,19 @@ public class HorizontalThumbnailListView extends FrameLayout {
     }
 
     public static class ImageGroupListener {
-        public void onImageGroupLeftShrink(int index, float leftProgress) {
+        public void onImageGroupLeftShrink(int index, float leftProgress, boolean isLast) {
 
         }
 
-        public void onImageGroupLeftExpand(int index, float leftProgress) {
+        public void onImageGroupLeftExpand(int index, float leftProgress, boolean isLast) {
 
         }
 
-        public void onImageGroupRightShrink(int index, float rightProgress) {
+        public void onImageGroupRightShrink(int index, float rightProgress, boolean isLast) {
 
         }
 
-        public void onImageGroupRightExpand(int index, float rightProgress) {
+        public void onImageGroupRightExpand(int index, float rightProgress, boolean isLast) {
 
         }
 
