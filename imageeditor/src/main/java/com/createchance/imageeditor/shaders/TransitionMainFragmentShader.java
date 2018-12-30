@@ -8,7 +8,7 @@ import android.opengl.GLES20;
  * @author createchance
  * @date 2018/12/23
  */
-class TransitionMainFragmentShader extends AbstractShader {
+public class TransitionMainFragmentShader extends AbstractShader {
 
     private static final String TAG = "TransitionMainFragmentS";
 

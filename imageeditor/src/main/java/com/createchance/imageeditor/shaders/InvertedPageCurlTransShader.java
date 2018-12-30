@@ -3,7 +3,7 @@ package com.createchance.imageeditor.shaders;
 import android.opengl.GLES20;
 
 /**
- * ${DESC}
+ * Inverted page curl transition shader.
  *
  * @author createchance
  * @date 2018/12/23
