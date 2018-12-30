@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -204,6 +205,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                         1920,
                         0,
                         new File(Constants.mBaseDir, System.currentTimeMillis() + ".mp4"),
+                        TextUtils.isEmpty(mSelectAudioFilePath) ? null : new File(mSelectAudioFilePath),
                         new SaveListener() {
                             @Override
                             public void onSaveFailed() {

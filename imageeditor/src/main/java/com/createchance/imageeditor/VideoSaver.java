@@ -27,6 +27,7 @@ public class VideoSaver implements IRenderTarget {
     private static final String TAG = "VideoSaver";
 
     private File mOutputFile;
+    private File mBgmFile;
     private int mSurfaceWidth, mSurfaceHeight;
     private int mOrientation;
 
@@ -39,19 +40,19 @@ public class VideoSaver implements IRenderTarget {
     private MediaCodec mEncoder;
     private int mVideoTrackId = -1;
     private boolean mRequestStop;
-    private boolean mNeedDelete;
     private SaveListener mListener;
 
-    private int mBitRate = 3000000;
+    private int mBitRate = 10000000;
     private int mFrameRate = 30;
 
     private SaverThread mSaveThread;
 
-    public VideoSaver(int width, int height, int orientation, File outputFile, SaveListener listener) {
+    public VideoSaver(int width, int height, int orientation, File outputFile, File bgmFile, SaveListener listener) {
         mSurfaceWidth = width;
         mSurfaceHeight = height;
         mOrientation = orientation;
         mOutputFile = outputFile;
+        mBgmFile = bgmFile;
         mListener = listener;
     }
 
@@ -231,12 +232,14 @@ public class VideoSaver implements IRenderTarget {
 //            }
             doMux();
             release();
-            if (mNeedDelete) {
-                mNeedDelete = false;
-                if (mOutputFile != null) {
-                    mOutputFile.delete();
+            UiThreadUtil.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mListener != null) {
+                        mListener.onSaved(mOutputFile);
+                    }
                 }
-            }
+            });
             Logger.d(TAG, "Save worker done.");
         }
 
@@ -301,14 +304,6 @@ public class VideoSaver implements IRenderTarget {
                 }
                 mMuxer.release();
             }
-            UiThreadUtil.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mListener != null) {
-                        mListener.onSaved(mOutputFile);
-                    }
-                }
-            });
         }
     }
 }
