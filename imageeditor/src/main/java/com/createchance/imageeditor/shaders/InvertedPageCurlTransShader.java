@@ -21,5 +21,6 @@ public class InvertedPageCurlTransShader extends TransitionMainFragmentShader {
     @Override
     public void initLocation(int programId) {
         super.initLocation(programId);
+        loadLocation(programId);
     }
 }

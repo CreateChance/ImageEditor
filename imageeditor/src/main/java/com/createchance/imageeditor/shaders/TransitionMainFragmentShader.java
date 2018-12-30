@@ -18,34 +18,32 @@ public class TransitionMainFragmentShader extends AbstractShader {
     private final String U_INPUT_TEXTURE2 = "u_InputTexture2";
     private final String U_PROGRESS = "progress";
 
-    private int mUInputTexture, mUInputTexture2, mUProgress;
-
     TransitionMainFragmentShader() {
 
     }
 
     @Override
     public void initLocation(int programId) {
-        mUInputTexture = GLES20.glGetUniformLocation(programId, U_INPUT_TEXTURE);
-        mUInputTexture2 = GLES20.glGetUniformLocation(programId, U_INPUT_TEXTURE2);
-        mUProgress = GLES20.glGetUniformLocation(programId, U_PROGRESS);
+        addLocation(U_INPUT_TEXTURE, true);
+        addLocation(U_INPUT_TEXTURE2, true);
+        addLocation(U_PROGRESS, true);
     }
 
     public void setUInputTexture(int textureTarget, int textureId) {
         // bind texture
         GLES20.glActiveTexture(textureTarget);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-        GLES20.glUniform1i(mUInputTexture, textureTarget - GLES20.GL_TEXTURE0);
+        setUniform(U_INPUT_TEXTURE, textureTarget - GLES20.GL_TEXTURE0);
     }
 
     public void setUInputTexture2(int textureTarget, int textureId) {
         // bind texture
         GLES20.glActiveTexture(textureTarget);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-        GLES20.glUniform1i(mUInputTexture2, textureTarget - GLES20.GL_TEXTURE0);
+        setUniform(U_INPUT_TEXTURE2, textureTarget - GLES20.GL_TEXTURE0);
     }
 
     public void setUProgress(float progress) {
-        GLES20.glUniform1f(mUProgress, progress);
+        setUniform(U_PROGRESS, progress);
     }
 }

@@ -13,6 +13,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_WINDOW_SLICE = 0;
     public static final int TRANS_INVERTED_PAGE_CURL = 1;
     public static final int TRANS_ANGULAR = 2;
+    public static final int TRANS_BOUNCE = 3;
 
     protected final String mName;
 
