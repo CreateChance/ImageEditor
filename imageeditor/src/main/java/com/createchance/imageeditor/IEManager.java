@@ -725,7 +725,7 @@ public class IEManager {
             return false;
         }
 
-        mSaveTarget = new VideoSaver(width, height, orientation, target, bgmFile, saveListener);
+        mSaveTarget = new VideoSaver(width, height, orientation, target, bgmFile, 0, saveListener);
         for (IEClip clip : mClipList) {
             clip.setRenderTarget(mSaveTarget);
             // reload image.
