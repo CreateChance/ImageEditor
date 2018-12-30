@@ -20,12 +20,14 @@ import android.widget.Toast;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.IEPreviewView;
+import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.transitions.AbstractTransition;
 import com.createchance.imageeditor.transitions.InvertedPageCurlTransition;
 import com.createchance.imageeditor.transitions.WindowSliceTransition;
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.utils.DensityUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,7 +197,29 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                 onBackPressed();
                 break;
             case R.id.btn_done:
+                final OutputDialog dialog = OutputDialog.start(this);
                 // real generate video here.
+                IEManager.getInstance().saveAsVideo(
+                        1080,
+                        1920,
+                        0,
+                        new File(Constants.mBaseDir, System.currentTimeMillis() + ".mp4"),
+                        new SaveListener() {
+                            @Override
+                            public void onSaveFailed() {
+                                Toast.makeText(VideoGenerateActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                Log.d(TAG, "onSaveFailed: " + Thread.currentThread().getName());
+                            }
+
+                            @Override
+                            public void onSaved(File target) {
+                                Toast.makeText(VideoGenerateActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                Log.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
+                            }
+                        }
+                );
                 break;
             case R.id.iv_play_control:
                 // play or pause it.

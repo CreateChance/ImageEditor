@@ -711,6 +711,55 @@ public class IEManager {
         return true;
     }
 
+    public boolean saveAsVideo(int width, int height, int orientation, File target, SaveListener saveListener) {
+        if (width <= 0 || height <= 0) {
+            Logger.e(TAG, "Output size invalid, width: " + width + ", height: " + height);
+        }
+        if (target == null) {
+            Logger.e(TAG, "Target file can not be null!");
+            return false;
+        }
+
+        mSaveTarget = new VideoSaver(width, height, orientation, target, saveListener);
+        for (IEClip clip : mClipList) {
+            clip.setRenderTarget(mSaveTarget);
+            // reload image.
+            clip.releaseImage();
+            clip.loadImage();
+        }
+        mRenderThread.post(new Runnable() {
+            @Override
+            public void run() {
+                mSaveTarget.init(mRenderThread.getEglCore());
+                mSaveTarget.makeCurrent();
+                // reload texture
+                long curTime = 0;
+                for (IEClip clip : mClipList) {
+                    clip.releaseTexture();
+                    clip.loadTexture();
+                    curTime = clip.getStartTime();
+                    do {
+                        clip.render(true, curTime - clip.getStartTime());
+                        curTime += 30;
+                    } while (curTime <= clip.getEndTime());
+                }
+                mSaveTarget.release();
+                mSaveTarget = null;
+
+                mPreviewTarget.makeCurrent();
+                for (IEClip clip : mClipList) {
+                    clip.setRenderTarget(mPreviewTarget);
+                    clip.releaseImage();
+                    clip.loadImage();
+                    clip.releaseTexture();
+                    clip.loadTexture();
+                }
+            }
+        });
+
+        return true;
+    }
+
     public boolean generatorHistogram(final int clipIndex, final IHistogramGenerateListener listener) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
