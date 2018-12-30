@@ -36,10 +36,10 @@ public class StickerDrawer extends AbstractDrawer {
 
         mTextureCoordinateBuffer = createFloatBuffer(
                 new float[]{
-                        0.0f, 1.0f,
                         0.0f, 0.0f,
-                        1.0f, 1.0f,
+                        0.0f, 1.0f,
                         1.0f, 0.0f,
+                        1.0f, 1.0f,
                 }
         );
         mVertexPositionBuffer = createFloatBuffer(
