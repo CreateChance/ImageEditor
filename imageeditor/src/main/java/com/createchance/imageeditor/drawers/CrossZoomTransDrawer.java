@@ -7,7 +7,7 @@ import com.createchance.imageeditor.shaders.CrossZoomTransShader;
 /**
  * Cross zoom transition drawer.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/31
  */
 public class CrossZoomTransDrawer extends AbstractTransDrawer {

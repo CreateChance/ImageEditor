@@ -7,7 +7,7 @@ import com.createchance.imageeditor.shaders.DirectionalTransShader;
 /**
  * Directional transition drawer.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/31
  */
 public class DirectionalTransDrawer extends AbstractTransDrawer {

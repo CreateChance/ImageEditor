@@ -5,7 +5,7 @@ import com.createchance.imageeditor.drawers.DirectionalWarpTransDrawer;
 /**
  * Directional warp transition.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/31
  */
 public class DirectionalWarpTransition extends AbstractTransition {

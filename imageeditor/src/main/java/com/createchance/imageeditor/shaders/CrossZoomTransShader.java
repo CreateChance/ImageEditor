@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 /**
  * Cross zoom transition shader.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/31
  */
 public class CrossZoomTransShader extends TransitionMainFragmentShader {
