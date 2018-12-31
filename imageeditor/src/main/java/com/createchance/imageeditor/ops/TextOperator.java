@@ -52,7 +52,7 @@ public class TextOperator extends AbstractOperator {
 
     @Override
     public void exec() {
-        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getInputTextureIndex()]);
+        mContext.attachOffScreenTexture(mContext.getInputTextureId());
         if (mDrawer == null) {
             mDrawer = new TextDrawer();
         }
@@ -63,15 +63,15 @@ public class TextOperator extends AbstractOperator {
         }
 
         // adjust position
-        if (mPosX > mWorker.getImgShowRight() - mDrawer.getWidth()) {
-            mPosX = mWorker.getImgShowRight() - mDrawer.getWidth();
-        } else if (mPosX < mWorker.getImgShowLeft()) {
-            mPosX = mWorker.getImgShowLeft();
+        if (mPosX > mContext.getRenderRight() - mDrawer.getWidth()) {
+            mPosX = mContext.getRenderRight() - mDrawer.getWidth();
+        } else if (mPosX < mContext.getRenderLeft()) {
+            mPosX = mContext.getRenderLeft();
         }
-        if (mPosY > mWorker.getImgShowTop() - mDrawer.getHeight()) {
-            mPosY = mWorker.getImgShowTop() - mDrawer.getHeight();
-        } else if (mPosY < mWorker.getImgShowBottom()) {
-            mPosY = mWorker.getImgShowBottom();
+        if (mPosY > mContext.getRenderTop() - mDrawer.getHeight()) {
+            mPosY = mContext.getRenderTop() - mDrawer.getHeight();
+        } else if (mPosY < mContext.getRenderBottom()) {
+            mPosY = mContext.getRenderBottom();
         }
 
         mDrawer.setTextAlpha(mAlpha);
@@ -84,7 +84,6 @@ public class TextOperator extends AbstractOperator {
             mDrawer.setTextColor(mRed, mGreen, mBlue);
         }
         mDrawer.draw(mPosX, mPosY);
-        mWorker.bindDefaultFrameBuffer();
     }
 
     public String getText() {

@@ -1,9 +1,9 @@
 package com.createchance.imageeditor.ops;
 
-import com.createchance.imageeditor.IEWorker;
+import com.createchance.imageeditor.RenderContext;
 
 /**
- * ${DESC}
+ * Base class of all operators.
  *
  * @author createchance
  * @date 2018/10/28
@@ -35,19 +35,19 @@ public abstract class AbstractOperator {
     public static final int OP_BOKEH_FILTER = 22;
     public static final int OP_COLOR_BALANCE_FILTER = 23;
 
-    // transition operators
-    public static final int OP_TRANS_WINDOW_SLICE = 500;
-    public static final int OP_TRANS_INVERTED_PAGE_CURL = 501;
-
     protected final String mName;
 
     protected final int mType;
 
-    protected IEWorker mWorker;
+    protected RenderContext mContext;
 
     public AbstractOperator(String name, int type) {
         mName = name;
         mType = type;
+    }
+
+    public void setRenderContext(RenderContext context) {
+        mContext = context;
     }
 
     public String getName() {
@@ -56,10 +56,6 @@ public abstract class AbstractOperator {
 
     public int getType() {
         return mType;
-    }
-
-    public void setWorker(IEWorker worker) {
-        mWorker = worker;
     }
 
     public abstract boolean checkRational();

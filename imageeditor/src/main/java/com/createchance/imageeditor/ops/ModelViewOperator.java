@@ -3,7 +3,7 @@ package com.createchance.imageeditor.ops;
 import com.createchance.imageeditor.drawers.ModelViewDrawer;
 
 /**
- * ${DESC}
+ * Model view operator, adjust image space position.
  *
  * @author createchance
  * @date 2018/11/9
@@ -102,7 +102,7 @@ public class ModelViewOperator extends AbstractOperator {
 
     @Override
     public void exec() {
-        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getOutputTextureIndex()]);
+        mContext.attachOffScreenTexture(mContext.getOutputTextureId());
         if (mDrawer == null) {
             mDrawer = new ModelViewDrawer();
         }
@@ -117,13 +117,12 @@ public class ModelViewOperator extends AbstractOperator {
         }
         mDrawer.setModel(mTranslateX, mTranslateY, mTranslateZ, mRotateX, mRotateY, mRotateZ);
         // do transform.
-        mDrawer.draw(mWorker.getTextures()[mWorker.getInputTextureIndex()],
+        mDrawer.draw(mContext.getInputTextureId(),
                 0,
                 0,
-                mWorker.getSurfaceWidth(),
-                mWorker.getSurfaceHeight());
-        mWorker.bindDefaultFrameBuffer();
-        mWorker.swapTexture();
+                mContext.getSurfaceWidth(),
+                mContext.getSurfaceHeight());
+        mContext.swapTexture();
     }
 
     public static class Builder {

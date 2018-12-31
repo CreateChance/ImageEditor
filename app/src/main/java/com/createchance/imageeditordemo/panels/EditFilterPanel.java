@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * ${DESC}
+ * Filter edit panel.
  *
  * @author createchance
  * @date 2018/11/2
@@ -92,7 +92,7 @@ public class EditFilterPanel extends AbstractPanel implements
 
         if (discard && mCurOp != null) {
             mOpAdded = false;
-            IEManager.getInstance().removeOperator(mCurOp);
+            IEManager.getInstance().removeOperator(0, mCurOp, true);
             mFilterListAdapter.resetSelect();
         }
     }
@@ -115,7 +115,7 @@ public class EditFilterPanel extends AbstractPanel implements
         mFilterAdjustBar.setProgress((int) (mCurFilter.mAdjust[0] * mFilterAdjustBar.getMax()));
         if (mFilterList.indexOf(mCurFilter) == 0) {
             mFilterAdjustBar.setEnabled(false);
-            IEManager.getInstance().removeOperator(mCurOp);
+            IEManager.getInstance().removeOperator(0, mCurOp, true);
             mOpAdded = false;
         } else {
             if (mCurOp == null) {
@@ -139,10 +139,10 @@ public class EditFilterPanel extends AbstractPanel implements
             }
 
             if (mOpAdded) {
-                IEManager.getInstance().updateOperator(mCurOp);
+                IEManager.getInstance().updateOperator(0, mCurOp, true);
             } else {
                 mOpAdded = true;
-                IEManager.getInstance().addOperator(mCurOp);
+                IEManager.getInstance().addOperator(0, mCurOp, true);
             }
         }
     }
@@ -155,7 +155,7 @@ public class EditFilterPanel extends AbstractPanel implements
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser && mCurFilter != null) {
             mCurOp.setIntensity(progress * 1.0f / seekBar.getMax());
-            IEManager.getInstance().updateOperator(mCurOp);
+            IEManager.getInstance().updateOperator(0, mCurOp, true);
             mAdjustValue.setText(String.valueOf(progress * 1.0f / seekBar.getMax()));
         }
     }

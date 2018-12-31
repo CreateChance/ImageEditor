@@ -21,13 +21,14 @@ public class BaseImageDrawer extends AbstractDrawer {
     private FloatBuffer mVertexPositionBuffer;
 
     private FloatBuffer mTextureCoordinateBuffer;
+    private FloatBuffer mTextureCoordinateBufferFlipped;
 
     private ModelViewVertexShader mVertexShader;
     private BaseFragmentShader mFragmentShader;
 
     private float[] mModelMatrix, mViewMatrix, mProjectionMatrix;
 
-    public BaseImageDrawer(float widthScaleFactor, float heightScaleFactor, boolean flipY) {
+    public BaseImageDrawer() {
         mVertexShader = new ModelViewVertexShader();
         mFragmentShader = new BaseFragmentShader();
         loadProgram(mVertexShader.getShaderId(), mFragmentShader.getShaderId());
@@ -36,13 +37,13 @@ public class BaseImageDrawer extends AbstractDrawer {
 
         mVertexPositionBuffer = createFloatBuffer(
                 new float[]{
-                        -1.0f * widthScaleFactor, 1.0f * heightScaleFactor,
-                        -1.0f * widthScaleFactor, -1.0f * heightScaleFactor,
-                        1.0f * widthScaleFactor, 1.0f * heightScaleFactor,
-                        1.0f * widthScaleFactor, -1.0f * heightScaleFactor,
+                        -1.0f, 1.0f,
+                        -1.0f, -1.0f,
+                        1.0f, 1.0f,
+                        1.0f, -1.0f,
                 }
         );
-        mTextureCoordinateBuffer = createFloatBuffer(
+        mTextureCoordinateBufferFlipped = createFloatBuffer(
                 new float[]{
                         0.0f, 0.0f,
                         0.0f, 1.0f,
@@ -50,32 +51,48 @@ public class BaseImageDrawer extends AbstractDrawer {
                         1.0f, 1.0f,
                 }
         );
+        mTextureCoordinateBuffer = createFloatBuffer(
+                new float[]{
+                        0.0f, 1.0f,
+                        0.0f, 0.0f,
+                        1.0f, 1.0f,
+                        1.0f, 0.0f,
+                }
+        );
 
         mModelMatrix = new float[16];
         mViewMatrix = new float[16];
         mProjectionMatrix = new float[16];
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.setIdentityM(mViewMatrix, 0);
-        Matrix.setIdentityM(mProjectionMatrix, 0);
-        if (flipY) {
-            Matrix.rotateM(mModelMatrix, 0, 180, 1, 0, 0);
-        }
     }
 
     public void draw(int inputTexture,
                      int posX,
                      int posY,
                      int width,
-                     int height) {
+                     int height,
+                     boolean flipY,
+                     float scaleX,
+                     float scaleY,
+                     float translateX,
+                     float translateY) {
         GLES20.glUseProgram(mProgramId);
 
         GLES20.glViewport(posX, posY, width, height);
 
+        Matrix.setIdentityM(mModelMatrix, 0);
+        Matrix.setIdentityM(mViewMatrix, 0);
+        Matrix.setIdentityM(mProjectionMatrix, 0);
+        Matrix.scaleM(mModelMatrix, 0, scaleX, scaleY, 1.0f);
+        Matrix.translateM(mViewMatrix, 0, translateX, translateY, 0);
         mVertexShader.setUModelMatrix(mModelMatrix);
         mVertexShader.setUViewMatrix(mViewMatrix);
         mVertexShader.setUProjectionMatrix(mProjectionMatrix);
         mVertexShader.setAPosition(mVertexPositionBuffer);
-        mVertexShader.setATextureCoordinates(mTextureCoordinateBuffer);
+        if (flipY) {
+            mVertexShader.setATextureCoordinates(mTextureCoordinateBufferFlipped);
+        } else {
+            mVertexShader.setATextureCoordinates(mTextureCoordinateBuffer);
+        }
         mFragmentShader.setUInputTexture(GLES20.GL_TEXTURE0, inputTexture);
 
         // draw it.

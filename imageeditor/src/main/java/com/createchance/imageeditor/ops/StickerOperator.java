@@ -6,7 +6,7 @@ import com.createchance.imageeditor.drawers.StickerDrawer;
 import com.createchance.imageeditor.utils.OpenGlUtils;
 
 /**
- * ${DESC}
+ * Sticker operator.
  *
  * @author createchance
  * @date 2018/11/4
@@ -39,12 +39,12 @@ public class StickerOperator extends AbstractOperator {
     public void setScaleFactor(float scaleFactor) {
         this.mScaleFactor = scaleFactor;
 
-        if (mPosX > mWorker.getImgShowRight() - mWidth * mScaleFactor) {
-            mPosX = (int) (mWorker.getImgShowRight() - mWidth * mScaleFactor);
+        if (mPosX > mContext.getRenderRight() - mWidth * mScaleFactor) {
+            mPosX = (int) (mContext.getRenderRight() - mWidth * mScaleFactor);
         }
 
-        if (mPosY > mWorker.getImgShowTop() - mHeight * mScaleFactor) {
-            mPosY = (int) (mWorker.getImgShowTop() - mHeight * mScaleFactor);
+        if (mPosY > mContext.getRenderTop() - mHeight * mScaleFactor) {
+            mPosY = (int) (mContext.getRenderTop() - mHeight * mScaleFactor);
         }
     }
 
@@ -115,7 +115,7 @@ public class StickerOperator extends AbstractOperator {
 
     @Override
     public void exec() {
-        mWorker.bindOffScreenFrameBuffer(mWorker.getTextures()[mWorker.getInputTextureIndex()]);
+        mContext.attachOffScreenTexture(mContext.getInputTextureId());
         if (mDrawer == null) {
             mDrawer = new StickerDrawer();
         }
@@ -133,7 +133,6 @@ public class StickerOperator extends AbstractOperator {
                 mPosY,
                 (int) (mWidth * mScaleFactor),
                 (int) (mHeight * mScaleFactor));
-        mWorker.bindDefaultFrameBuffer();
     }
 
     public static class Builder {

@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".ImageEditorApplication"
@@ -12,7 +13,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,6 +24,7 @@
         </activity>
         <activity
             android:name=".ImageEditActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
 
         <provider
@@ -33,7 +37,9 @@
                 android:resource="@xml/file_path" />
         </provider>
 
-        <activity android:name=".VideoGenerateActivity" />
+        <activity
+            android:name=".VideoGenerateActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

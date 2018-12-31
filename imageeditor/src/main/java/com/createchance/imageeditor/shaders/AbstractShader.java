@@ -10,6 +10,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Abstract opengl shader class.
@@ -24,6 +27,8 @@ public abstract class AbstractShader {
     protected final String TRANSITION_FOLDER = "transitions/";
 
     protected int mShaderId;
+
+    private Map<String, Location> mLocationMap = new HashMap<>();
 
     protected boolean initShader(String shaderSource, int type) {
         return initShader(new String[]{SHADER_FOLDER + shaderSource}, type);
@@ -44,6 +49,58 @@ public abstract class AbstractShader {
         return true;
     }
 
+    protected final void addLocation(String name, boolean isUniform) {
+        mLocationMap.put(name, new Location(isUniform));
+    }
+
+    protected void loadLocation(int programId) {
+        Set<String> nameSet = mLocationMap.keySet();
+        for (String name : nameSet) {
+            Location location = mLocationMap.get(name);
+            if (location.isUniform) {
+                location.location = GLES20.glGetUniformLocation(programId, name);
+            } else {
+                location.location = GLES20.glGetAttribLocation(programId, name);
+            }
+        }
+    }
+
+    protected final void setUniform(String name, float value) {
+        GLES20.glUniform1f(mLocationMap.get(name).location, value);
+    }
+
+    protected final void setUniform(String name, int value) {
+        GLES20.glUniform1i(mLocationMap.get(name).location, value);
+    }
+
+    protected final void setUniform(String name, boolean value) {
+        GLES20.glUniform1i(mLocationMap.get(name).location, value ? 1 : 0);
+    }
+
+    protected final void setUniform(String name, float v1, float v2) {
+        float[] values = new float[2];
+        values[0] = v1;
+        values[1] = v2;
+        GLES20.glUniform2fv(mLocationMap.get(name).location, 1, values, 0);
+    }
+
+    protected final void setUniform(String name, float v1, float v2, float v3) {
+        float[] values = new float[3];
+        values[0] = v1;
+        values[1] = v2;
+        values[2] = v3;
+        GLES20.glUniform3fv(mLocationMap.get(name).location, 1, values, 0);
+    }
+
+    protected final void setUniform(String name, float v1, float v2, float v3, float v4) {
+        float[] values = new float[4];
+        values[0] = v1;
+        values[1] = v2;
+        values[2] = v3;
+        values[3] = v4;
+        GLES20.glUniform4fv(mLocationMap.get(name).location, 1, values, 0);
+    }
+
     public int getShaderId() {
         return mShaderId;
     }
@@ -53,7 +110,7 @@ public abstract class AbstractShader {
     private String loadShader(String[] assetPathList) {
         String result = null;
         InputStream in = null;
-        BufferedReader bufferedReader;
+        BufferedReader bufferedReader = null;
         StringBuilder stringBuilder = new StringBuilder();
         try {
             for (String assetPath : assetPathList) {
@@ -72,12 +129,26 @@ public abstract class AbstractShader {
             e.printStackTrace();
         } finally {
             try {
-                in.close();
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         return result;
+    }
+
+    private class Location {
+        int location = -1;
+        boolean isUniform;
+
+        Location(boolean isUniform) {
+            this.isUniform = isUniform;
+        }
     }
 }

@@ -14,7 +14,6 @@ import android.widget.SeekBar;
 
 import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.ops.StickerOperator;
-import com.createchance.imageeditordemo.Constants;
 import com.createchance.imageeditordemo.R;
 import com.createchance.imageeditordemo.StickerListAdapter;
 import com.createchance.imageeditordemo.model.Sticker;
@@ -75,23 +74,27 @@ public class EditStickerPanel extends AbstractPanel implements
             case MotionEvent.ACTION_MOVE:
                 int curX = (int) (mCurOp.getPosX() + (event.getX() - mLastX));
                 int curY = (int) (mCurOp.getPosY() - (event.getY() - mLastY));
-                if (curX < IEManager.getInstance().getImgShowLeft()) {
-                    curX = IEManager.getInstance().getImgShowLeft();
-                } else if (curX > IEManager.getInstance().getImgShowRight() - mCurOp.getWidth() * mCurOp.getScaleFactor()) {
-                    curX = (int) (IEManager.getInstance().getImgShowRight() - mCurOp.getWidth() * mCurOp.getScaleFactor());
+                if (curX < IEManager.getInstance().getScissorX(0)) {
+                    curX = IEManager.getInstance().getScissorX(0);
+                } else if (curX > IEManager.getInstance().getScissorX(0) +
+                        IEManager.getInstance().getScissorWidth(0) - mCurOp.getWidth() * mCurOp.getScaleFactor()) {
+                    curX = (int) (IEManager.getInstance().getScissorX(0) +
+                            IEManager.getInstance().getScissorWidth(0) - mCurOp.getWidth() * mCurOp.getScaleFactor());
                 }
 
-                if (curY < IEManager.getInstance().getImgShowBottom()) {
-                    curY = IEManager.getInstance().getImgShowBottom();
-                } else if (curY > IEManager.getInstance().getImgShowTop() - mCurOp.getHeight() * mCurOp.getScaleFactor()) {
-                    curY = (int) (IEManager.getInstance().getImgShowTop() - mCurOp.getHeight() * mCurOp.getScaleFactor());
+                if (curY < IEManager.getInstance().getScissorY(0)) {
+                    curY = IEManager.getInstance().getScissorY(0);
+                } else if (curY > IEManager.getInstance().getScissorY(0) +
+                        IEManager.getInstance().getScissorHeight(0) - mCurOp.getHeight() * mCurOp.getScaleFactor()) {
+                    curY = (int) (IEManager.getInstance().getScissorY(0) +
+                            IEManager.getInstance().getScissorHeight(0) - mCurOp.getHeight() * mCurOp.getScaleFactor());
                 }
 
                 mCurOp.setPosX(curX);
                 mCurOp.setPosY(curY);
                 mLastX = (int) event.getX();
                 mLastY = (int) event.getY();
-                IEManager.getInstance().updateOperator(mCurOp);
+                IEManager.getInstance().updateOperator(0, mCurOp, true);
                 break;
             default:
                 break;
@@ -112,7 +115,7 @@ public class EditStickerPanel extends AbstractPanel implements
         super.close(discard);
 
         if (discard && mCurOp != null) {
-            IEManager.getInstance().removeOperator(mCurOp);
+            IEManager.getInstance().removeOperator(0, mCurOp, true);
             mCurOp = null;
             mCurSticker = null;
         }
@@ -134,14 +137,14 @@ public class EditStickerPanel extends AbstractPanel implements
             mCurOp = new StickerOperator.Builder()
                     .sticker(stickerImg)
                     .scaleFactor(0.5f)
-                    .position((Constants.mSurfaceWidth - (int) (stickerImg.getWidth() * 0.5f)) / 2,
-                            (Constants.mSurfaceHeight - (int) (stickerImg.getHeight() * 0.5f)) / 2)
+                    .position((IEManager.getInstance().getSurfaceWidth(0) - (int) (stickerImg.getWidth() * 0.5f)) / 2,
+                            (IEManager.getInstance().getSurfaceHeight(0) - (int) (stickerImg.getHeight() * 0.5f)) / 2)
 
                     .build();
-            IEManager.getInstance().addOperator(mCurOp);
+            IEManager.getInstance().addOperator(0, mCurOp, true);
         } else {
             mCurOp.setSticker(BitmapFactory.decodeFile(new File(mContext.getFilesDir(), sticker.mAsset).getAbsolutePath()));
-            IEManager.getInstance().updateOperator(mCurOp);
+            IEManager.getInstance().updateOperator(0, mCurOp, true);
         }
     }
 
@@ -201,7 +204,7 @@ public class EditStickerPanel extends AbstractPanel implements
                 break;
         }
 
-        IEManager.getInstance().updateOperator(mCurOp);
+        IEManager.getInstance().updateOperator(0, mCurOp, true);
     }
 
     @Override
