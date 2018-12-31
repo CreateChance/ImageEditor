@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Thumbnail list view.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/6
  */
 public class HorizontalThumbnailListView extends FrameLayout {
