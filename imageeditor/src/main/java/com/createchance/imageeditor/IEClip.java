@@ -133,6 +133,7 @@ class IEClip implements RenderContext {
 
     @Override
     public int getFromTextureId() {
+        // TODO: return origin base texture, no op render result.
         return mBaseTextureId;
     }
 
@@ -145,6 +146,7 @@ class IEClip implements RenderContext {
                 textureId = IEManager.getInstance().getClip(i + 1).getBaseTextureId();
             }
         }
+        // TODO: return origin base texture, no op render result.
         return textureId;
     }
 

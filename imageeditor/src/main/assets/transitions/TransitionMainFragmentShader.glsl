@@ -18,9 +18,9 @@ void main() {
 }
 
 vec4 getFromColor(vec2 coordinate) {
-    return texture2D(u_InputTexture, coordinate);
+    return texture2D(u_InputTexture, vec2(coordinate.x, 1.0 - coordinate.y));
 }
 
 vec4 getToColor(vec2 coordinate) {
-    return texture2D(u_InputTexture2, coordinate);
+    return texture2D(u_InputTexture2, vec2(coordinate.x, 1.0 - coordinate.y));
 }
