@@ -106,7 +106,7 @@ public abstract class AbstractShader {
     private String loadShader(String[] assetPathList) {
         String result = null;
         InputStream in = null;
-        BufferedReader bufferedReader;
+        BufferedReader bufferedReader = null;
         StringBuilder stringBuilder = new StringBuilder();
         try {
             for (String assetPath : assetPathList) {
@@ -125,7 +125,12 @@ public abstract class AbstractShader {
             e.printStackTrace();
         } finally {
             try {
-                in.close();
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

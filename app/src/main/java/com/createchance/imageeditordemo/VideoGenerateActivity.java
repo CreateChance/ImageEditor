@@ -23,6 +23,7 @@ import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.IEPreviewView;
 import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.transitions.AbstractTransition;
+import com.createchance.imageeditor.transitions.CircleCropTransition;
 import com.createchance.imageeditor.transitions.CircleTransition;
 import com.createchance.imageeditor.transitions.InvertedPageCurlTransition;
 import com.createchance.imageeditor.utils.Logger;
@@ -249,7 +250,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
             if (i % 2 == 0) {
                 transition = new InvertedPageCurlTransition();
             } else {
-                transition = new CircleTransition();
+                transition = new CircleCropTransition();
             }
             IEManager.getInstance().setTransition(i,
                     transition,

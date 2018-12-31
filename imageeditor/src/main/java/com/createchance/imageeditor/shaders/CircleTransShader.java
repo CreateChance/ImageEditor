@@ -27,7 +27,7 @@ public class CircleTransShader extends TransitionMainFragmentShader {
     }
 
     public void setUCenter(float centerX, float centerY) {
-        setUniform(U_CENTER, centerX, centerX);
+        setUniform(U_CENTER, centerX, centerY);
     }
 
     public void setUBackColor(float red, float green, float blue) {
