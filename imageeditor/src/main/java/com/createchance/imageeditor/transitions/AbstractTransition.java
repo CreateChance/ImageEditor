@@ -20,6 +20,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_BURN = 6;
     public static final int TRANS_BUTTERFLY_WAVE_SCRAWLER = 7;
     public static final int TRANS_CANNABIS_LEAF = 8;
+    public static final int TRANS_CIRCLE = 9;
 
     protected final String mName;
 
