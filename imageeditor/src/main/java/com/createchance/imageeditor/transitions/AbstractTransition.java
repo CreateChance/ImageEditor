@@ -26,6 +26,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_COLOR_PHASE = 12;
     public static final int TRANS_COLOR_DISTANCE = 13;
     public static final int TRANS_CRAZY_PARAMETRIC_FUN = 14;
+    public static final int TRANS_CROSS_HATCH = 15;
 
     protected final String mName;
 

@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 /**
  * Crazy parametric fun transition shader.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/31
  */
 public class CrazyParametricFunTransShader extends TransitionMainFragmentShader {
