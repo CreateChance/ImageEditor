@@ -23,7 +23,7 @@ import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.IEPreviewView;
 import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.transitions.AbstractTransition;
-import com.createchance.imageeditor.transitions.DirectionalWipeTransition;
+import com.createchance.imageeditor.transitions.DoomScreenTransition;
 import com.createchance.imageeditor.transitions.InvertedPageCurlTransition;
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.utils.DensityUtil;
@@ -249,7 +249,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
             if (i % 2 == 0) {
                 transition = new InvertedPageCurlTransition();
             } else {
-                transition = new DirectionalWipeTransition();
+                transition = new DoomScreenTransition();
             }
             IEManager.getInstance().setTransition(i,
                     transition,

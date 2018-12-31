@@ -33,6 +33,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_DIRECTIONAL = 19;
     public static final int TRANS_DIRECTIONAL_WARP = 20;
     public static final int TRANS_DIRECTIONAL_WIPE = 21;
+    public static final int TRANS_DOOM_SCREEN = 22;
 
     protected final String mName;
 
