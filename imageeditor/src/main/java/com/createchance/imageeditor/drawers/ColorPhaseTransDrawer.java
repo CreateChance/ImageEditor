@@ -7,7 +7,7 @@ import com.createchance.imageeditor.shaders.ColorPhaseTransShader;
 /**
  * Color phase transition drawer
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/31
  */
 public class ColorPhaseTransDrawer extends AbstractTransDrawer {

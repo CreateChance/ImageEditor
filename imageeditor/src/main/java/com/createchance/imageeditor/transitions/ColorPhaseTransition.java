@@ -5,7 +5,7 @@ import com.createchance.imageeditor.drawers.ColorPhaseTransDrawer;
 /**
  * Color phase transition.
  *
- * @author gaochao02
+ * @author createchance
  * @date 2018/12/31
  */
 public class ColorPhaseTransition extends AbstractTransition {

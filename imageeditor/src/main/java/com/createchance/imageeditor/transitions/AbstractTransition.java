@@ -24,6 +24,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_CIRCLE_CORP = 10;
     public static final int TRANS_CIRCLE_OPEN = 11;
     public static final int TRANS_COLOR_PHASE = 12;
+    public static final int TRANS_COLOR_DISTANCE = 13;
 
     protected final String mName;
 
