@@ -19,6 +19,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_BOW_TIE_VERTICAL = 5;
     public static final int TRANS_BURN = 6;
     public static final int TRANS_BUTTERFLY_WAVE_SCRAWLER = 7;
+    public static final int TRANS_CANNABIS_LEAF = 8;
 
     protected final String mName;
 
