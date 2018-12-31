@@ -36,7 +36,8 @@ public abstract class AbstractTransition {
     public static final int TRANS_DOOM_SCREEN = 22;
     public static final int TRANS_DOOR_WAY = 23;
     public static final int TRANS_DREAMY = 24;
-    public static final int TRANS_DREAMY_ZOOM = 24;
+    public static final int TRANS_DREAMY_ZOOM = 25;
+    public static final int TRANS_FADE = 26;
 
     protected final String mName;
 

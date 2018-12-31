@@ -27,6 +27,7 @@ import com.createchance.imageeditor.transitions.DoomScreenTransition;
 import com.createchance.imageeditor.transitions.DoorWayTransition;
 import com.createchance.imageeditor.transitions.DreamyTransition;
 import com.createchance.imageeditor.transitions.DreamyZoomTransition;
+import com.createchance.imageeditor.transitions.FadeTransition;
 import com.createchance.imageeditor.transitions.InvertedPageCurlTransition;
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.utils.DensityUtil;
@@ -252,7 +253,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
             if (i % 2 == 0) {
                 transition = new InvertedPageCurlTransition();
             } else {
-                transition = new DreamyZoomTransition();
+                transition = new FadeTransition();
             }
             IEManager.getInstance().setTransition(i,
                     transition,
