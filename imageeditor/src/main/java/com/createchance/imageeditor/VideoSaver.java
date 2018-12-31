@@ -251,8 +251,14 @@ public class VideoSaver implements IRenderTarget {
 
         @Override
         public void run() {
-            if (doMuxVideo() && doMuxAudio()) {
-                mergeFile();
+            if (mBgmFile != null) {
+                if (doMuxVideo() && doMuxAudio()) {
+                    mergeFile();
+                }
+            } else {
+                if (doMuxVideo()) {
+                    mVideoFile.renameTo(mOutputFile);
+                }
             }
             if (isFinished) {
                 UiThreadUtil.post(new Runnable() {
@@ -263,6 +269,13 @@ public class VideoSaver implements IRenderTarget {
                         }
                     }
                 });
+                // delete temp file.
+                if (mVideoFile.exists()) {
+                    mVideoFile.delete();
+                }
+                if (mAudioFile.exists()) {
+                    mAudioFile.delete();
+                }
                 Logger.d(TAG, "Save worker done.");
             } else {
                 Logger.e(TAG, "Save worker failed.");
@@ -275,10 +288,6 @@ public class VideoSaver implements IRenderTarget {
                     }
                 });
             }
-
-            // delete temp file.
-            mVideoFile.delete();
-            mAudioFile.delete();
 
             release();
         }
@@ -337,6 +346,9 @@ public class VideoSaver implements IRenderTarget {
 
                 mVideoDuration = nowPts;
                 Logger.d(TAG, "Mux video done!");
+                if (mBgmFile == null) {
+                    isFinished = true;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
