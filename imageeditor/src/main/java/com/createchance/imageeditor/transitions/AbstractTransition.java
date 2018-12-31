@@ -15,6 +15,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_ANGULAR = 2;
     public static final int TRANS_BOUNCE = 3;
     public static final int TRANS_BOW_TIE_HORIZONTAL = 4;
+    public static final int TRANS_BOW_TIE_VERTICAL = 5;
 
     protected final String mName;
 
