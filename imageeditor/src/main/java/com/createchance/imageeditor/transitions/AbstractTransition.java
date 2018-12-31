@@ -1,6 +1,7 @@
 package com.createchance.imageeditor.transitions;
 
 import com.createchance.imageeditor.RenderContext;
+import com.createchance.imageeditor.drawers.AbstractTransDrawer;
 
 /**
  * Abstract transition class.
@@ -17,6 +18,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_BOW_TIE_HORIZONTAL = 4;
     public static final int TRANS_BOW_TIE_VERTICAL = 5;
     public static final int TRANS_BURN = 6;
+    public static final int TRANS_BUTTERFLY_WAVE_SCRAWLER = 7;
 
     protected final String mName;
 
@@ -25,6 +27,8 @@ public abstract class AbstractTransition {
     protected float mProgress;
 
     protected RenderContext mContext;
+
+    protected AbstractTransDrawer mDrawer;
 
     public AbstractTransition(String name, int type) {
         mName = name;
@@ -39,13 +43,41 @@ public abstract class AbstractTransition {
         return mType;
     }
 
-    public abstract boolean checkRational();
+    public boolean checkRational() {
+        return true;
+    }
 
-    public abstract void exec();
+    protected abstract void getDrawer();
+
+    protected void setDrawerParams() {
+
+    }
+
+    public void exec() {
+        int texture2 = mContext.getToTextureId();
+        if (texture2 != -1) {
+            mContext.attachOffScreenTexture(mContext.getOutputTextureId());
+            if (mDrawer == null) {
+                getDrawer();
+            }
+
+            mDrawer.setProgress(mProgress);
+            setDrawerParams();
+
+            mDrawer.draw(mContext.getFromTextureId(),
+                    texture2,
+                    mContext.getRenderLeft(),
+                    mContext.getRenderBottom(),
+                    mContext.getRenderWidth(),
+                    mContext.getRenderHeight());
+            mContext.swapTexture();
+        }
+    }
 
     public void setProgress(float progress) {
         mProgress = progress;
     }
+
 
     @Override
     public String toString() {

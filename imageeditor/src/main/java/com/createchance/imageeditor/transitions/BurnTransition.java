@@ -1,7 +1,6 @@
 package com.createchance.imageeditor.transitions;
 
 import com.createchance.imageeditor.drawers.BurnTransDrawer;
-import com.createchance.imageeditor.utils.Logger;
 
 /**
  * Burn transition.
@@ -12,8 +11,6 @@ import com.createchance.imageeditor.utils.Logger;
 public class BurnTransition extends AbstractTransition {
 
     private static final String TAG = "BurnTransition";
-
-    private BurnTransDrawer mDrawer;
 
     private float mRed = 0.9f, mGreen = 0.4f, mBlue = 0.2f;
 
@@ -27,26 +24,13 @@ public class BurnTransition extends AbstractTransition {
     }
 
     @Override
-    public void exec() {
-        int texture2 = mContext.getToTextureId();
-        if (texture2 != -1) {
-            mContext.attachOffScreenTexture(mContext.getOutputTextureId());
-            if (mDrawer == null) {
-                mDrawer = new BurnTransDrawer();
-            }
+    protected void getDrawer() {
+        mDrawer = new BurnTransDrawer();
+    }
 
-            mDrawer.setProgress(mProgress);
-            mDrawer.setColor(mRed, mGreen, mBlue);
-
-            mDrawer.draw(mContext.getFromTextureId(),
-                    texture2,
-                    mContext.getRenderLeft(),
-                    mContext.getRenderBottom(),
-                    mContext.getRenderWidth(),
-                    mContext.getRenderHeight());
-            mContext.swapTexture();
-        } else {
-            Logger.e(TAG, "Can not get texture 2 id.");
-        }
+    @Override
+    protected void setDrawerParams() {
+        super.setDrawerParams();
+        ((BurnTransDrawer) mDrawer).setColor(mRed, mGreen, mBlue);
     }
 }

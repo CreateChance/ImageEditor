@@ -1,7 +1,6 @@
 package com.createchance.imageeditor.transitions;
 
 import com.createchance.imageeditor.drawers.WindowSliceTransDrawer;
-import com.createchance.imageeditor.utils.Logger;
 
 /**
  * Window slice trans.
@@ -13,8 +12,6 @@ public class WindowSliceTransition extends AbstractTransition {
 
     private static final String TAG = "WindowSliceTransition";
 
-    private WindowSliceTransDrawer mDrawer;
-
     private float mCount = 10.0f;
     private float mSmoothness = 0.5f;
 
@@ -23,32 +20,14 @@ public class WindowSliceTransition extends AbstractTransition {
     }
 
     @Override
-    public boolean checkRational() {
-        return true;
+    protected void getDrawer() {
+        mDrawer = new WindowSliceTransDrawer();
     }
 
     @Override
-    public void exec() {
-        int texture2 = mContext.getToTextureId();
-        if (texture2 != -1) {
-            mContext.attachOffScreenTexture(mContext.getOutputTextureId());
-            if (mDrawer == null) {
-                mDrawer = new WindowSliceTransDrawer();
-            }
-
-            mDrawer.setProgress(mProgress);
-            mDrawer.setCount(mCount);
-            mDrawer.setSmoothness(mSmoothness);
-
-            mDrawer.draw(mContext.getFromTextureId(),
-                    texture2,
-                    mContext.getRenderLeft(),
-                    mContext.getRenderBottom(),
-                    mContext.getRenderWidth(),
-                    mContext.getRenderHeight());
-            mContext.swapTexture();
-        } else {
-            Logger.e(TAG, "Can not get texture 2 id.");
-        }
+    protected void setDrawerParams() {
+        super.setDrawerParams();
+        ((WindowSliceTransDrawer) mDrawer).setCount(mCount);
+        ((WindowSliceTransDrawer) mDrawer).setSmoothness(mSmoothness);
     }
 }

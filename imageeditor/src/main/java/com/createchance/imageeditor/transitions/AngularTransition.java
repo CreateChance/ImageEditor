@@ -1,7 +1,6 @@
 package com.createchance.imageeditor.transitions;
 
 import com.createchance.imageeditor.drawers.AngularTransDrawer;
-import com.createchance.imageeditor.utils.Logger;
 
 /**
  * Angular transition.
@@ -12,8 +11,6 @@ import com.createchance.imageeditor.utils.Logger;
 public class AngularTransition extends AbstractTransition {
 
     private static final String TAG = "AngularTransition";
-
-    private AngularTransDrawer mDrawer;
 
     private float mStartAngle = 90.0f;
 
@@ -27,25 +24,12 @@ public class AngularTransition extends AbstractTransition {
     }
 
     @Override
-    public void exec() {
-        int texture2 = mContext.getToTextureId();
-        if (texture2 != -1) {
-            mContext.attachOffScreenTexture(mContext.getOutputTextureId());
-            if (mDrawer == null) {
-                mDrawer = new AngularTransDrawer();
-            }
+    protected void getDrawer() {
+        mDrawer = new AngularTransDrawer();
+    }
 
-            mDrawer.setProgress(mProgress);
-
-            mDrawer.draw(mContext.getFromTextureId(),
-                    texture2,
-                    mContext.getRenderLeft(),
-                    mContext.getRenderBottom(),
-                    mContext.getRenderWidth(),
-                    mContext.getRenderHeight());
-            mContext.swapTexture();
-        } else {
-            Logger.e(TAG, "Can not get texture 2 id.");
-        }
+    @Override
+    protected void setDrawerParams() {
+        ((AngularTransDrawer) mDrawer).setStartAngular(mStartAngle);
     }
 }
