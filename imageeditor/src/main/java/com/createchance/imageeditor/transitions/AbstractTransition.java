@@ -28,6 +28,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_CRAZY_PARAMETRIC_FUN = 14;
     public static final int TRANS_CROSS_HATCH = 15;
     public static final int TRANS_CROSS_WARP = 16;
+    public static final int TRANS_CROSS_ZOOM = 17;
 
     protected final String mName;
 
