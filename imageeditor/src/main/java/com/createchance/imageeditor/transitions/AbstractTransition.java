@@ -30,6 +30,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_CROSS_WARP = 16;
     public static final int TRANS_CROSS_ZOOM = 17;
     public static final int TRANS_CUBE = 18;
+    public static final int TRANS_DIRECTIONAL = 19;
 
     protected final String mName;
 
