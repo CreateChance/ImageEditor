@@ -63,6 +63,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_ROTATE_SCALE_FADE = 49;
     public static final int TRANS_SIMPLE_ZOOM = 50;
     public static final int TRANS_SQUARES_WIRE = 51;
+    public static final int TRANS_SQUEEZE = 52;
 
     protected final String mName;
 
