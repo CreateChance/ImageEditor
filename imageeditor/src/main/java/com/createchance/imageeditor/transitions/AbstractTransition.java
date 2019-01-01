@@ -49,6 +49,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_KALEIDO_SCOPE = 35;
     public static final int TRANS_LINEAR_BLUR = 36;
     public static final int TRANS_LUMINANCE_MELT = 37;
+    public static final int TRANS_MORPH = 38;
 
     protected final String mName;
 
