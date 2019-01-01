@@ -75,6 +75,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_WIPE_UP = 61;
     public static final int TRANS_WIPE_LEFT = 62;
     public static final int TRANS_WIPE_RIGHT = 63;
+    public static final int TRANS_ZOOM_IN_CIRCLES = 64;
 
     protected final String mName;
 
