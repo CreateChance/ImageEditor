@@ -56,6 +56,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_PIN_WHEEL = 42;
     public static final int TRANS_PIXELIZE = 43;
     public static final int TRANS_POLAR_FUNCTION = 44;
+    public static final int TRANS_POLKA_DOTS_CURTAIN = 45;
 
     protected final String mName;
 
