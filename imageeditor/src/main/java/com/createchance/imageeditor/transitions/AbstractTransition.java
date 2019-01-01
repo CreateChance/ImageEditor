@@ -60,6 +60,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_RADIAL = 46;
     public static final int TRANS_RANDOM_SQUARES = 47;
     public static final int TRANS_RIPPLE = 48;
+    public static final int TRANS_ROTATE_SCALE_FADE = 49;
 
     protected final String mName;
 
