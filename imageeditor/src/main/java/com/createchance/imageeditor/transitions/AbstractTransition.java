@@ -39,6 +39,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_DREAMY_ZOOM = 25;
     public static final int TRANS_FADE = 26;
     public static final int TRANS_FADE_COLOR = 27;
+    public static final int TRANS_FADE_GRAY_SCALE = 28;
 
     protected final String mName;
 
