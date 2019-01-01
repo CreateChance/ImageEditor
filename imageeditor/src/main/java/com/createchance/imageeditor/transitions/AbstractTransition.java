@@ -55,6 +55,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_PERLIN = 41;
     public static final int TRANS_PIN_WHEEL = 42;
     public static final int TRANS_PIXELIZE = 43;
+    public static final int TRANS_POLAR_FUNCTION = 44;
 
     protected final String mName;
 
