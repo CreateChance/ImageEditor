@@ -59,6 +59,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_POLKA_DOTS_CURTAIN = 45;
     public static final int TRANS_RADIAL = 46;
     public static final int TRANS_RANDOM_SQUARES = 47;
+    public static final int TRANS_RIPPLE = 48;
 
     protected final String mName;
 
