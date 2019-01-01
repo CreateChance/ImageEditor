@@ -48,6 +48,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_HEXAGONAL = 34;
     public static final int TRANS_KALEIDO_SCOPE = 35;
     public static final int TRANS_LINEAR_BLUR = 36;
+    public static final int TRANS_LUMINANCE_MELT = 37;
 
     protected final String mName;
 
