@@ -45,6 +45,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_GLITCH_MEMORIES = 31;
     public static final int TRANS_GRID_FLIP = 32;
     public static final int TRANS_HEART = 33;
+    public static final int TRANS_HEXAGONAL = 34;
 
     protected final String mName;
 
