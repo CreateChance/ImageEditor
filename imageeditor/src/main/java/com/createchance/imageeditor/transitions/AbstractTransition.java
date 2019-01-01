@@ -53,6 +53,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_MOSAIC = 39;
     public static final int TRANS_MULTIPLY_BLEND = 40;
     public static final int TRANS_PERLIN = 41;
+    public static final int TRANS_PIN_WHEEL = 42;
 
     protected final String mName;
 
