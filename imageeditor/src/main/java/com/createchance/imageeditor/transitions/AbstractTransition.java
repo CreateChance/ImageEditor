@@ -43,6 +43,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_FLY_EYE = 29;
     public static final int TRANS_GLITCH_DISPLACE = 30;
     public static final int TRANS_GLITCH_MEMORIES = 31;
+    public static final int TRANS_GRID_FLIP = 32;
 
     protected final String mName;
 

@@ -77,6 +77,13 @@ public abstract class AbstractShader {
         GLES20.glUniform1i(mLocationMap.get(name).location, value ? 1 : 0);
     }
 
+    protected final void setUniform(String name, int v1, int v2) {
+        int[] values = new int[2];
+        values[0] = v1;
+        values[1] = v2;
+        GLES20.glUniform2iv(mLocationMap.get(name).location, 1, values, 0);
+    }
+
     protected final void setUniform(String name, float v1, float v2) {
         float[] values = new float[2];
         values[0] = v1;
