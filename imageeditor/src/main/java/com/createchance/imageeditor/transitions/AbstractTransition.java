@@ -69,6 +69,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_SWIRL = 55;
     public static final int TRANS_UNDULATING_BURN_OUT = 56;
     public static final int TRANS_WATER_DROP = 57;
+    public static final int TRANS_WIND = 58;
 
     protected final String mName;
 
