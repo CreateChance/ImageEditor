@@ -51,6 +51,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_LUMINANCE_MELT = 37;
     public static final int TRANS_MORPH = 38;
     public static final int TRANS_MOSAIC = 39;
+    public static final int TRANS_MULTIPLY_BLEND = 40;
 
     protected final String mName;
 
