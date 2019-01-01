@@ -71,6 +71,10 @@ public abstract class AbstractTransition {
     public static final int TRANS_WATER_DROP = 57;
     public static final int TRANS_WIND = 58;
     public static final int TRANS_WINDOW_BLINDS = 59;
+    public static final int TRANS_WIPE_DOWN = 60;
+    public static final int TRANS_WIPE_TOP = 61;
+    public static final int TRANS_WIPE_LEFT = 62;
+    public static final int TRANS_WIPE_RIGHT = 63;
 
     protected final String mName;
 
