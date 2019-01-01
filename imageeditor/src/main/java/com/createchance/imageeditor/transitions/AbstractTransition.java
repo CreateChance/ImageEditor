@@ -66,6 +66,7 @@ public abstract class AbstractTransition {
     public static final int TRANS_SQUEEZE = 52;
     public static final int TRANS_STEREO_VIEWER = 53;
     public static final int TRANS_SWAP = 54;
+    public static final int TRANS_SWIRL = 55;
 
     protected final String mName;
 

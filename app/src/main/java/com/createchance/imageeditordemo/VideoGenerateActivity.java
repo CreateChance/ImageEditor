@@ -24,7 +24,7 @@ import com.createchance.imageeditor.IEPreviewView;
 import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.transitions.AbstractTransition;
 import com.createchance.imageeditor.transitions.InvertedPageCurlTransition;
-import com.createchance.imageeditor.transitions.SwapTransition;
+import com.createchance.imageeditor.transitions.SwirlTransition;
 import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditordemo.utils.DensityUtil;
 
@@ -249,7 +249,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
             if (i % 2 == 0) {
                 transition = new InvertedPageCurlTransition();
             } else {
-                transition = new SwapTransition();
+                transition = new SwirlTransition();
             }
             IEManager.getInstance().setTransition(i,
                     transition,
