@@ -285,13 +285,13 @@ public class IEManager {
             return false;
         }
 
-        mClipList.get(clipIndex).undo();
+        boolean ret = mClipList.get(clipIndex).undo();
 
         if (render) {
             renderClip(clipIndex);
         }
 
-        return true;
+        return ret;
     }
 
     public boolean redo(int clipIndex, boolean render) {
@@ -300,13 +300,13 @@ public class IEManager {
             return false;
         }
 
-        mClipList.get(clipIndex).redo();
+        boolean ret = mClipList.get(clipIndex).redo();
 
         if (render) {
             renderClip(clipIndex);
         }
 
-        return true;
+        return ret;
     }
 
     public boolean removeOperator(int clipIndex, AbstractOperator operator, boolean render) {

@@ -42,6 +42,7 @@ class IEClip implements RenderContext {
     private int mBaseTextureId = -1;
 
     private final List<AbstractOperator> mOpList = new ArrayList<>();
+    private final List<AbstractOperator> mRemovedOpList = new ArrayList<>();
     private AbstractTransition mTransition;
 
     private IRenderTarget mRenderTarget;
@@ -200,15 +201,33 @@ class IEClip implements RenderContext {
     void addOperator(AbstractOperator operator) {
         operator.setRenderContext(this);
         mOpList.add(operator);
+        // remove removed op list when add operator.
+        mRemovedOpList.clear();
     }
 
     void updateOperator(AbstractOperator operator) {
     }
 
-    void undo() {
+    boolean undo() {
+        if (mOpList.size() > 0) {
+            mRemovedOpList.add(mOpList.get(mOpList.size() - 1));
+            mOpList.remove(mOpList.size() - 1);
+        } else {
+            Logger.e(TAG, "Can not undo.");
+        }
+
+        return !mOpList.isEmpty();
     }
 
-    void redo() {
+    boolean redo() {
+        if (mRemovedOpList.size() > 0) {
+            mOpList.add(mRemovedOpList.get(mRemovedOpList.size() - 1));
+            mRemovedOpList.remove(mRemovedOpList.size() - 1);
+        } else {
+            Logger.e(TAG, "Can not redo.");
+        }
+
+        return !mRemovedOpList.isEmpty();
     }
 
     void removeOperator(AbstractOperator operator) {
