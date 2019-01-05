@@ -15,6 +15,10 @@
     <string name="dialog_delete_confirm">确定要删除吗？</string>
     <string name="info_delete_done">删除成功</string>
 
+    <string name="image_save_done">保存完毕!</string>
+    <string name="exit_save_done">退出编辑</string>
+    <string name="continue_save_done">继续编辑</string>
+
     <string name="main_bottom_selection_preview">查看</string>
     <string name="main_bottom_selection_edit">编辑</string>
     <string name="main_bottom_selection_share">分享</string>

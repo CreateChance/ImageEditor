@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private WorkListAdapter mWorkListAdapter;
     private List<WorkListAdapter.WorkItem> mWorkList = new ArrayList<>();
 
-    private BottomSelectionWindow mVwBottomSelection;
+    private MainSelectionWindow mVwBottomSelection;
 
     private File mImageFromCamera;
 
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void showBottomSelectionView() {
         if (mVwBottomSelection == null) {
-            mVwBottomSelection = new BottomSelectionWindow(this, new BottomSelectionWindow.BottomSelectionListener() {
+            mVwBottomSelection = new MainSelectionWindow(this, new MainSelectionWindow.MainSelectionListener() {
                 @Override
                 public void onPreview() {
                     Intent intent = new Intent(Intent.ACTION_VIEW);

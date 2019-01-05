@@ -15,6 +15,7 @@
     <color name="theme_white">#FFFFFF</color>
 
     <color name="font_white">#FFFFFF</color>
+    <color name="font_green">#66ff66</color>
     <color name="font_grey">#838383</color>
     <color name="font_red">#FF4240</color>
 </resources>

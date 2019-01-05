@@ -12,17 +12,17 @@ import android.widget.PopupWindow;
  * @author createchance
  * @date 2019/1/5
  */
-public class BottomSelectionWindow extends PopupWindow implements View.OnClickListener {
+public class MainSelectionWindow extends PopupWindow implements View.OnClickListener {
 
-    private static final String TAG = "BottomSelectionWindow";
+    private static final String TAG = "MainSelectionWindow";
 
     private Context mContext;
 
     private View mRootView;
 
-    private BottomSelectionListener mListener;
+    private MainSelectionListener mListener;
 
-    public BottomSelectionWindow(Context context, BottomSelectionListener listener) {
+    public MainSelectionWindow(Context context, MainSelectionListener listener) {
         super(context);
         mContext = context;
         mListener = listener;
@@ -74,7 +74,7 @@ public class BottomSelectionWindow extends PopupWindow implements View.OnClickLi
         }
     }
 
-    public interface BottomSelectionListener {
+    public interface MainSelectionListener {
         void onPreview();
 
         void onEdit();

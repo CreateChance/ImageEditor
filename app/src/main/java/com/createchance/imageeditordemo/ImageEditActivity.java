@@ -3,17 +3,23 @@ package com.createchance.imageeditordemo;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -56,6 +62,10 @@ public class ImageEditActivity extends AppCompatActivity implements
     private GestureDetector mGestureDetector;
     private float mCurScale = 1.0f;
 
+    private EditSaveDoneWindow mVwSaveDone;
+
+    private File mOutputFile;
+
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         private int mLastX, mLastY;
         private int mDownX, mDownY;
@@ -69,8 +79,10 @@ public class ImageEditActivity extends AppCompatActivity implements
                     mCurrentPanel.onTouchEvent(event);
                 }
             } else {
-                mScaleGestureDetector.onTouchEvent(event);
-                mGestureDetector.onTouchEvent(event);
+                if (mVwSaveDone == null || !mVwSaveDone.isShowing()) {
+                    mScaleGestureDetector.onTouchEvent(event);
+                    mGestureDetector.onTouchEvent(event);
+                }
             }
 
             return true;
@@ -330,6 +342,10 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
+        if (mVwSaveDone != null && mVwSaveDone.isShowing()) {
+            return;
+        }
+
         if (mVwHistogramContainer.getVisibility() == View.VISIBLE) {
             mVwHistogramContainer.setVisibility(View.GONE);
         } else if (mCurrentPanel != null) {
@@ -447,10 +463,11 @@ public class ImageEditActivity extends AppCompatActivity implements
                 break;
             case R.id.tv_save:
                 final OutputDialog dialog = OutputDialog.start(this);
+                mOutputFile = new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg");
                 IEManager.getInstance().saveAsImage(0,
                         IEManager.getInstance().getOriginWidth(0),
                         IEManager.getInstance().getOriginHeight(0),
-                        new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg"),
+                        mOutputFile,
                         new SaveListener() {
                             @Override
                             public void onSaveFailed() {
@@ -464,6 +481,7 @@ public class ImageEditActivity extends AppCompatActivity implements
                                 Toast.makeText(ImageEditActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                                 Log.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
+                                showSaveDoneWindow();
                             }
                         });
                 break;
@@ -574,5 +592,44 @@ public class ImageEditActivity extends AppCompatActivity implements
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
 
+    }
+
+    private void showSaveDoneWindow() {
+        if (mVwSaveDone == null) {
+            mVwSaveDone = new EditSaveDoneWindow(this, new EditSaveDoneWindow.EditSaveDoneListener() {
+                @Override
+                public void onShare() {
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(ImageEditActivity.this,
+                                "com.createchance.imageeditordemo.fileprovider",
+                                mOutputFile));
+                    } else {
+                        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mOutputFile));
+                    }
+                    intent.setType("image/*");
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onExit() {
+                    finish();
+                }
+            });
+            mVwSaveDone.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    WindowManager.LayoutParams lp = getWindow().getAttributes();
+                    lp.alpha = 1f;
+                    getWindow().setAttributes(lp);
+                }
+            });
+        }
+        mVwSaveDone.showAtLocation(findViewById(R.id.vw_root),
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+        // set dark background color.
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.7f;
+        getWindow().setAttributes(lp);
     }
 }
