@@ -7,6 +7,14 @@ package com.createchance.imageeditor;
  * @date 2018/12/24
  */
 public interface RenderContext {
+
+    /**
+     * Get scale factor of preview and saver.
+     *
+     * @return scale factor.
+     */
+    float getScaleFactor();
+
     int getSurfaceWidth();
 
     int getSurfaceHeight();

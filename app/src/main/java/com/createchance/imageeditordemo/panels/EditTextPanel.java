@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ${DESC}
+ * Text edit panel, add text to image.
  *
  * @author createchance
  * @date 2018/10/31
@@ -48,7 +48,7 @@ public class EditTextPanel extends AbstractPanel implements
     List<AbstractOperator> mTextOpList;
     private int mCurOp;
 
-    private int mCurTextPosX = 0, mCurTextPosY;
+    private float mCurTextPosX = 0.5f, mCurTextPosY = 0.5f;
 
     private int mLastPosX, mLastPosY;
     private GestureDetector mGestureDetector;
@@ -170,8 +170,8 @@ public class EditTextPanel extends AbstractPanel implements
                                 .position(mCurTextPosX, mCurTextPosY)
                                 .build();
                         IEManager.getInstance().addOperator(0, textOperator, true);
-                        mCurTextPosX += 50;
-                        mCurTextPosY -= 50;
+                        mCurTextPosX += 0.1f;
+                        mCurTextPosY -= 0.1f;
                         mTextOpList.add(textOperator);
                         mCurOp = mTextOpList.size() - 1;
                     }
@@ -211,8 +211,8 @@ public class EditTextPanel extends AbstractPanel implements
                             .position(mCurTextPosX, mCurTextPosY)
                             .build();
                     IEManager.getInstance().addOperator(0, textOperator, true);
-                    mCurTextPosX += 50;
-                    mCurTextPosY -= 50;
+                    mCurTextPosX += 0.1f;
+                    mCurTextPosY -= 0.1f;
                     mTextOpList.add(textOperator);
                     mCurOp = mTextOpList.size() - 1;
                 }
@@ -249,14 +249,8 @@ public class EditTextPanel extends AbstractPanel implements
             return;
         }
         TextOperator textOperator = (TextOperator) mTextOpList.get(mCurOp);
-        int curX = textOperator.getPosX() + deltaX;
-        int curY = textOperator.getPosY() - deltaY;
-        if (curX < 0) {
-            curX = 0;
-        }
-        if (curY < 0) {
-            curY = 0;
-        }
+        float curX = textOperator.getPosX() + deltaX * 1.0f / IEManager.getInstance().getRenderWidth(0);
+        float curY = textOperator.getPosY() - deltaY * 1.0f / IEManager.getInstance().getRenderHeight(0);
         textOperator.setPosX(curX);
         textOperator.setPosY(curY);
         IEManager.getInstance().updateOperator(0, textOperator, true);

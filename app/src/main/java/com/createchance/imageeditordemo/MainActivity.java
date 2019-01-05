@@ -247,9 +247,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void tryCopyFontFile() {
         File fontDir = new File(getFilesDir(), "fonts");
-        if (fontDir.exists()) {
-            return;
-        }
         fontDir.mkdir();
 
         InputStream is = null;
@@ -315,9 +312,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void tryCopyStickerFile() {
         File stickerDir = new File(getFilesDir(), "stickers");
-        if (stickerDir.exists()) {
-            return;
-        }
         stickerDir.mkdir();
         InputStream is = null;
         OutputStream os = null;

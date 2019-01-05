@@ -41,6 +41,8 @@ class IEClip implements RenderContext {
 
     private int mBaseTextureId = -1;
 
+    private float mScaleFactor = 1.0f;
+
     private final List<AbstractOperator> mOpList = new ArrayList<>();
     private final List<AbstractOperator> mRemovedOpList = new ArrayList<>();
     private AbstractTransition mTransition;
@@ -60,6 +62,11 @@ class IEClip implements RenderContext {
         mEndTime = endTime;
         mDuration = endTime - startTime;
         getOriginSize();
+    }
+
+    @Override
+    public float getScaleFactor() {
+        return mScaleFactor;
     }
 
     @Override
@@ -176,6 +183,9 @@ class IEClip implements RenderContext {
     }
 
     void setRenderTarget(IRenderTarget target) {
+        if (mRenderTarget != null) {
+            mScaleFactor = target.getSurfaceHeight() * 1.0f / mRenderTarget.getSurfaceHeight();
+        }
         mRenderTarget = target;
     }
 

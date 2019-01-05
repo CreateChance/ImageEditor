@@ -20,7 +20,7 @@ public class TextOperator extends AbstractOperator {
 
     private String mFontPath;
 
-    private int mPosX, mPosY;
+    private float mPosX = 0.5f, mPosY = 0.5f;
 
     private int mSize;
 
@@ -41,13 +41,10 @@ public class TextOperator extends AbstractOperator {
     public boolean checkRational() {
         return !TextUtils.isEmpty(mText)
                 && !TextUtils.isEmpty(mFontPath)
-                && mPosX >= 0
-                && mPosY >= 0
                 && mSize >= 0
                 && mRed >= 0.0f
                 && mGreen >= 0.0f
                 && mBlue >= 0.0f;
-
     }
 
     @Override
@@ -59,19 +56,7 @@ public class TextOperator extends AbstractOperator {
 
         if (mReloadText) {
             mReloadText = false;
-            mDrawer.setText(mFontPath, mText, mSize);
-        }
-
-        // adjust position
-        if (mPosX > mContext.getRenderRight() - mDrawer.getWidth()) {
-            mPosX = mContext.getRenderRight() - mDrawer.getWidth();
-        } else if (mPosX < mContext.getRenderLeft()) {
-            mPosX = mContext.getRenderLeft();
-        }
-        if (mPosY > mContext.getRenderTop() - mDrawer.getHeight()) {
-            mPosY = mContext.getRenderTop() - mDrawer.getHeight();
-        } else if (mPosY < mContext.getRenderBottom()) {
-            mPosY = mContext.getRenderBottom();
+            mDrawer.setText(mFontPath, mText, (int) (mSize * mContext.getScaleFactor()));
         }
 
         mDrawer.setTextAlpha(mAlpha);
@@ -83,7 +68,9 @@ public class TextOperator extends AbstractOperator {
         } else {
             mDrawer.setTextColor(mRed, mGreen, mBlue);
         }
-        mDrawer.draw(mPosX, mPosY);
+        int posX = mContext.getRenderLeft() + (int) (mPosX * mContext.getRenderWidth());
+        int posY = mContext.getRenderBottom() + (int) (mPosY * mContext.getRenderHeight());
+        mDrawer.draw(posX, posY);
     }
 
     public String getText() {
@@ -112,20 +99,20 @@ public class TextOperator extends AbstractOperator {
         mReloadText = true;
     }
 
-    public int getPosX() {
+    public float getPosX() {
         return mPosX;
     }
 
-    public void setPosX(int mPosX) {
-        this.mPosX = mPosX;
+    public void setPosX(float posX) {
+        this.mPosX = posX;
     }
 
-    public int getPosY() {
+    public float getPosY() {
         return mPosY;
     }
 
-    public void setPosY(int mPosY) {
-        this.mPosY = mPosY;
+    public void setPosY(float posY) {
+        this.mPosY = posY;
     }
 
     public int getSize() {
@@ -215,7 +202,7 @@ public class TextOperator extends AbstractOperator {
             return this;
         }
 
-        public Builder position(int x, int y) {
+        public Builder position(float x, float y) {
             operator.mPosX = x;
             operator.mPosY = y;
 
