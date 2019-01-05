@@ -41,8 +41,6 @@ class IEClip implements RenderContext {
 
     private int mBaseTextureId = -1;
 
-    private float mScaleFactor = 1.0f;
-
     private final List<AbstractOperator> mOpList = new ArrayList<>();
     private final List<AbstractOperator> mRemovedOpList = new ArrayList<>();
     private AbstractTransition mTransition;
@@ -66,7 +64,7 @@ class IEClip implements RenderContext {
 
     @Override
     public float getScaleFactor() {
-        return mScaleFactor;
+        return (mRenderRight - mRenderLeft) * 1.0f / mOriginWidth;
     }
 
     @Override
@@ -183,9 +181,6 @@ class IEClip implements RenderContext {
     }
 
     void setRenderTarget(IRenderTarget target) {
-        if (mRenderTarget != null) {
-            mScaleFactor = target.getSurfaceHeight() * 1.0f / mRenderTarget.getSurfaceHeight();
-        }
         mRenderTarget = target;
     }
 
@@ -463,16 +458,22 @@ class IEClip implements RenderContext {
         int imgHeight = mBitmap.getHeight();
         float scale = 1.0f;
         if (imgWidth > imgHeight) {
-            scale = mRenderTarget.getSurfaceWidth() * 1.0f / imgWidth;
-            imgWidth = mRenderTarget.getSurfaceWidth();
-            imgHeight = (int) (imgHeight * scale);
+            if (imgWidth > mRenderTarget.getSurfaceWidth()) {
+                scale = mRenderTarget.getSurfaceWidth() * 1.0f / imgWidth;
+                imgWidth = mRenderTarget.getSurfaceWidth();
+                imgHeight = (int) (imgHeight * scale);
+            }
         } else if (imgWidth == imgHeight) {
-            imgWidth = mRenderTarget.getSurfaceWidth();
-            imgHeight = imgWidth;
+            if (imgWidth > mRenderTarget.getSurfaceWidth()) {
+                imgWidth = mRenderTarget.getSurfaceWidth();
+                imgHeight = imgWidth;
+            }
         } else {
-            scale = mRenderTarget.getSurfaceHeight() * 1.0f / imgHeight;
-            imgHeight = mRenderTarget.getSurfaceHeight();
-            imgWidth = (int) (imgWidth * scale);
+            if (imgHeight > mRenderTarget.getSurfaceHeight()) {
+                scale = mRenderTarget.getSurfaceHeight() * 1.0f / imgHeight;
+                imgHeight = mRenderTarget.getSurfaceHeight();
+                imgWidth = (int) (imgWidth * scale);
+            }
         }
 
         mRenderLeft = (mRenderTarget.getSurfaceWidth() - imgWidth) / 2;

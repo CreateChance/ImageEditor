@@ -19,7 +19,7 @@ public class StickerOperator extends AbstractOperator {
 
     private float mScaleFactor = 1.0f;
     private Bitmap mSticker;
-    private int mPosX, mPosY;
+    private float mPosX = 0.5f, mPosY = 0.5f;
     private int mWidth, mHeight;
     private boolean mNeedReload = true;
     private int mTextureId;
@@ -38,14 +38,6 @@ public class StickerOperator extends AbstractOperator {
 
     public void setScaleFactor(float scaleFactor) {
         this.mScaleFactor = scaleFactor;
-
-        if (mPosX > mContext.getRenderRight() - mWidth * mScaleFactor) {
-            mPosX = (int) (mContext.getRenderRight() - mWidth * mScaleFactor);
-        }
-
-        if (mPosY > mContext.getRenderTop() - mHeight * mScaleFactor) {
-            mPosY = (int) (mContext.getRenderTop() - mHeight * mScaleFactor);
-        }
     }
 
     public Bitmap getSticker() {
@@ -59,19 +51,19 @@ public class StickerOperator extends AbstractOperator {
         mHeight = mSticker.getHeight();
     }
 
-    public int getPosX() {
+    public float getPosX() {
         return mPosX;
     }
 
-    public void setPosX(int posX) {
+    public void setPosX(float posX) {
         this.mPosX = posX;
     }
 
-    public int getPosY() {
+    public float getPosY() {
         return mPosY;
     }
 
-    public void setPosY(int posY) {
+    public void setPosY(float posY) {
         this.mPosY = posY;
     }
 
@@ -108,9 +100,7 @@ public class StickerOperator extends AbstractOperator {
         return mSticker != null &&
                 mScaleFactor >= 0 &&
                 mWidth >= 0 &&
-                mHeight >= 0 &&
-                mPosX >= 0 &&
-                mPosY >= 0;
+                mHeight >= 0;
     }
 
     @Override
@@ -128,17 +118,19 @@ public class StickerOperator extends AbstractOperator {
         mDrawer.setColor(mRed, mGreen, mBlue);
         mDrawer.setAlphaFactor(mAlphaFactor);
         mDrawer.setRotate(mRotateX, mRotateY, mRotateZ);
+        int posX = mContext.getRenderLeft() + (int) (mPosX * mContext.getRenderWidth());
+        int posY = mContext.getRenderBottom() + (int) (mPosY * mContext.getRenderHeight());
         mDrawer.draw(mTextureId,
-                mPosX,
-                mPosY,
-                (int) (mWidth * mScaleFactor),
-                (int) (mHeight * mScaleFactor));
+                posX,
+                posY,
+                (int) (mWidth * mScaleFactor * mContext.getScaleFactor()),
+                (int) (mHeight * mScaleFactor * mContext.getScaleFactor()));
     }
 
     public static class Builder {
         private StickerOperator operator = new StickerOperator();
 
-        public Builder position(int x, int y) {
+        public Builder position(float x, float y) {
             operator.mPosX = x;
             operator.mPosY = y;
 

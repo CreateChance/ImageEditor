@@ -688,6 +688,11 @@ public class IEManager {
         // reload image.
         mClipList.get(clipIndex).releaseImage();
         mClipList.get(clipIndex).loadImage();
+        // reset clip's translate and scale.
+        mClipList.get(clipIndex).setTranslateX(0);
+        mClipList.get(clipIndex).setTranslateY(0);
+        mClipList.get(clipIndex).setScaleX(1.0f);
+        mClipList.get(clipIndex).setScaleY(1.0f);
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {

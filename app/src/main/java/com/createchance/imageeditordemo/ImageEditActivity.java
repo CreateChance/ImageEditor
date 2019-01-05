@@ -62,14 +62,15 @@ public class ImageEditActivity extends AppCompatActivity implements
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            mScaleGestureDetector.onTouchEvent(event);
-            mGestureDetector.onTouchEvent(event);
             if (mCurrentPanel != null) {
                 if (mCurrentPanel.getType() == AbstractPanel.TYPE_CUT) {
                     handleScissor(event);
                 } else {
                     mCurrentPanel.onTouchEvent(event);
                 }
+            } else {
+                mScaleGestureDetector.onTouchEvent(event);
+                mGestureDetector.onTouchEvent(event);
             }
 
             return true;
@@ -221,14 +222,12 @@ public class ImageEditActivity extends AppCompatActivity implements
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 Logger.d(TAG, "Scroll, dis x: " + distanceX + ", dis y: " + distanceY);
-                if (mCurrentPanel == null) {
-                    int surfaceWidth = IEManager.getInstance().getSurfaceWidth(0);
-                    int surfaceHeight = IEManager.getInstance().getSurfaceHeight(0);
-                    IEManager.getInstance().setTranslateX(0,
-                            (-distanceX * 2.0f / surfaceWidth) + IEManager.getInstance().getTranslateX(0), false);
-                    IEManager.getInstance().setTranslateY(0,
-                            (distanceY * 2.0f / surfaceHeight) + IEManager.getInstance().getTranslateY(0), true);
-                }
+                int surfaceWidth = IEManager.getInstance().getSurfaceWidth(0);
+                int surfaceHeight = IEManager.getInstance().getSurfaceHeight(0);
+                IEManager.getInstance().setTranslateX(0,
+                        (-distanceX * 2.0f / surfaceWidth) + IEManager.getInstance().getTranslateX(0), false);
+                IEManager.getInstance().setTranslateY(0,
+                        (distanceY * 2.0f / surfaceHeight) + IEManager.getInstance().getTranslateY(0), true);
                 return true;
             }
 
@@ -528,6 +527,13 @@ public class ImageEditActivity extends AppCompatActivity implements
             default:
                 break;
         }
+
+        // reset image translate and scale.
+        IEManager.getInstance().setTranslateX(0, 0, false);
+        IEManager.getInstance().setTranslateY(0, 0, false);
+        IEManager.getInstance().setScaleX(0, 1.0f, false);
+        IEManager.getInstance().setScaleY(0, 1.0f, true);
+        mCurScale = 1.0f;
     }
 
     @Override

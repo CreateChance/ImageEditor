@@ -72,23 +72,8 @@ public class EditStickerPanel extends AbstractPanel implements
                 mLastY = (int) event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                int curX = (int) (mCurOp.getPosX() + (event.getX() - mLastX));
-                int curY = (int) (mCurOp.getPosY() - (event.getY() - mLastY));
-                if (curX < IEManager.getInstance().getScissorX(0)) {
-                    curX = IEManager.getInstance().getScissorX(0);
-                } else if (curX > IEManager.getInstance().getScissorX(0) +
-                        IEManager.getInstance().getScissorWidth(0) - mCurOp.getWidth() * mCurOp.getScaleFactor()) {
-                    curX = (int) (IEManager.getInstance().getScissorX(0) +
-                            IEManager.getInstance().getScissorWidth(0) - mCurOp.getWidth() * mCurOp.getScaleFactor());
-                }
-
-                if (curY < IEManager.getInstance().getScissorY(0)) {
-                    curY = IEManager.getInstance().getScissorY(0);
-                } else if (curY > IEManager.getInstance().getScissorY(0) +
-                        IEManager.getInstance().getScissorHeight(0) - mCurOp.getHeight() * mCurOp.getScaleFactor()) {
-                    curY = (int) (IEManager.getInstance().getScissorY(0) +
-                            IEManager.getInstance().getScissorHeight(0) - mCurOp.getHeight() * mCurOp.getScaleFactor());
-                }
+                float curX = mCurOp.getPosX() + (event.getX() - mLastX) * 1.0f / IEManager.getInstance().getRenderWidth(0);
+                float curY = mCurOp.getPosY() - (event.getY() - mLastY) * 1.0f / IEManager.getInstance().getRenderHeight(0);
 
                 mCurOp.setPosX(curX);
                 mCurOp.setPosY(curY);
@@ -136,10 +121,7 @@ public class EditStickerPanel extends AbstractPanel implements
             Bitmap stickerImg = BitmapFactory.decodeFile(new File(mContext.getFilesDir(), sticker.mAsset).getAbsolutePath());
             mCurOp = new StickerOperator.Builder()
                     .sticker(stickerImg)
-                    .scaleFactor(0.5f)
-                    .position((IEManager.getInstance().getSurfaceWidth(0) - (int) (stickerImg.getWidth() * 0.5f)) / 2,
-                            (IEManager.getInstance().getSurfaceHeight(0) - (int) (stickerImg.getHeight() * 0.5f)) / 2)
-
+                    .position(0.5f, 0.5f)
                     .build();
             IEManager.getInstance().addOperator(0, mCurOp, true);
         } else {

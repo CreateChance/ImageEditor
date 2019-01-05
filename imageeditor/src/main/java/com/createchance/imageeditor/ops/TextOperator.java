@@ -23,6 +23,7 @@ public class TextOperator extends AbstractOperator {
     private float mPosX = 0.5f, mPosY = 0.5f;
 
     private int mSize;
+    private float mScaleFactor;
 
     private float mRed = 1.0f, mGreen = 1.0f, mBlue = 1.0f;
 
@@ -54,8 +55,9 @@ public class TextOperator extends AbstractOperator {
             mDrawer = new TextDrawer();
         }
 
-        if (mReloadText) {
+        if (mReloadText || mContext.getScaleFactor() != mScaleFactor) {
             mReloadText = false;
+            mScaleFactor = mContext.getScaleFactor();
             mDrawer.setText(mFontPath, mText, (int) (mSize * mContext.getScaleFactor()));
         }
 
