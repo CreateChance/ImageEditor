@@ -193,6 +193,7 @@ class IEClip implements RenderContext {
         if (mBitmap == null) {
             Logger.d(TAG, "Clip load image, index: " + IEManager.getInstance().getClipList().indexOf(this));
             mBitmap = loadBitmap(mImageFilePath, mRenderTarget.getSurfaceWidth(), mRenderTarget.getSurfaceHeight());
+            Logger.d(TAG, "Loaded image width: " + mBitmap.getWidth() + ", height: " + mBitmap.getHeight());
             adjustSize();
         }
     }
@@ -523,7 +524,7 @@ class IEClip implements RenderContext {
     private int getSampleSize(int originalWidth, int originalHeight, int width, int height) {
         int sampleSize = 1;
 
-        if (originalWidth > originalHeight && originalWidth > width) {
+        if (originalWidth >= originalHeight && originalWidth > width) {
             sampleSize = originalWidth / width;
         } else if (originalWidth < originalHeight && originalHeight > height) {
             sampleSize = originalHeight / height;
