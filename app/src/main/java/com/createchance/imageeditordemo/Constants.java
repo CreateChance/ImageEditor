@@ -1,6 +1,6 @@
 package com.createchance.imageeditordemo;
 
-import android.os.Environment;
+import android.content.Context;
 
 import java.io.File;
 
@@ -12,7 +12,11 @@ import java.io.File;
  */
 public class Constants {
 
-    public static final File mBaseDir = new File(Environment.getExternalStorageDirectory(), "imageeditor");
+    public static File mBaseDir;
 
     public static int mScreenWidth, mScreenHeight;
+
+    public static void setConstants(Context context) {
+        mBaseDir = new File(context.getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES), "outputs");
+    }
 }

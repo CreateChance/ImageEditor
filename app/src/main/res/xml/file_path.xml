@@ -3,4 +3,7 @@
     <external-path
         name="image_cache"
         path="Android/data/com.createchance.imageeditordemo/files/Pictures" />
+    <external-path
+        name="image_output"
+        path="Android/data/com.createchance.imageeditordemo/files/Pictures/outputs" />
 </paths>

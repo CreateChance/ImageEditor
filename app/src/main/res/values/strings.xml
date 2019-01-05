@@ -11,6 +11,16 @@
     <string name="main_page_work_size_format_k_byte">%1$.2f KB</string>
     <string name="main_page_work_size_format_m_byte">%1$.2f MB</string>
 
+    <string name="dialog_warning">警告</string>
+    <string name="dialog_delete_confirm">确定要删除吗？</string>
+    <string name="info_delete_done">删除成功</string>
+
+    <string name="main_bottom_selection_preview">查看</string>
+    <string name="main_bottom_selection_edit">编辑</string>
+    <string name="main_bottom_selection_share">分享</string>
+    <string name="main_bottom_selection_delete">删除</string>
+    <string name="main_bottom_selection_cancel">取消</string>
+
     <string name="goto_work_list">作品列表</string>
     <string name="save_work">保存</string>
     <string name="histogram_view">直方图</string>

@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -17,7 +18,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.createchance.imageeditor.utils.Logger;
@@ -56,7 +60,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private WorkListAdapter mWorkListAdapter;
     private List<WorkListAdapter.WorkItem> mWorkList = new ArrayList<>();
 
+    private BottomSelectionWindow mVwBottomSelection;
+
     private File mImageFromCamera;
+
+    private WorkListAdapter.WorkItem mCurWorkItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mWorkListAdapter = new WorkListAdapter(this, mWorkList, new WorkListAdapter.OnWorkSelectListener() {
             @Override
             public void onWorkSelected(WorkListAdapter.WorkItem workItem) {
-
+                mCurWorkItem = workItem;
+                showBottomSelectionView();
             }
         });
         mWorkListView.setLayoutManager(new LinearLayoutManager(this));
@@ -346,5 +355,83 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
+    }
+
+    private void showBottomSelectionView() {
+        if (mVwBottomSelection == null) {
+            mVwBottomSelection = new BottomSelectionWindow(this, new BottomSelectionWindow.BottomSelectionListener() {
+                @Override
+                public void onPreview() {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        intent.setDataAndType(FileProvider.getUriForFile(MainActivity.this,
+                                "com.createchance.imageeditordemo.fileprovider",
+                                mCurWorkItem.mImage), "image/*");
+                    } else {
+                        intent.setDataAndType(Uri.fromFile(mCurWorkItem.mImage), "image/*");
+                    }
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                    mVwBottomSelection.dismiss();
+                }
+
+                @Override
+                public void onEdit() {
+                    ImageEditActivity.start(MainActivity.this, mCurWorkItem.mImage.getAbsolutePath());
+                    mVwBottomSelection.dismiss();
+                }
+
+                @Override
+                public void onShare() {
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(MainActivity.this,
+                                "com.createchance.imageeditordemo.fileprovider",
+                                mCurWorkItem.mImage));
+                    } else {
+                        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mCurWorkItem.mImage));
+                    }
+                    intent.setType("image/*");
+                    startActivity(intent);
+                    mVwBottomSelection.dismiss();
+                }
+
+                @Override
+                public void onDelete() {
+                    // show dialog to confirm
+                    DeleteConfirmDialog.start(MainActivity.this, new DeleteConfirmDialog.DeleteConformListener() {
+                        @Override
+                        public void onDeleteFile() {
+                            mCurWorkItem.mImage.delete();
+                            Toast.makeText(MainActivity.this, R.string.info_delete_done, Toast.LENGTH_SHORT).show();
+                            mWorkList.remove(mCurWorkItem);
+                            mCurWorkItem = null;
+                            mWorkListAdapter.refresh(mWorkList);
+                        }
+                    });
+                    mVwBottomSelection.dismiss();
+                }
+
+                @Override
+                public void onCancel() {
+                    mVwBottomSelection.dismiss();
+                }
+            });
+            mVwBottomSelection.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    WindowManager.LayoutParams lp = getWindow().getAttributes();
+                    lp.alpha = 1f;
+                    getWindow().setAttributes(lp);
+                }
+            });
+        }
+
+        mVwBottomSelection.showAtLocation(findViewById(R.id.vw_root),
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+        // set dark background color.
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.7f;
+        getWindow().setAttributes(lp);
     }
 }

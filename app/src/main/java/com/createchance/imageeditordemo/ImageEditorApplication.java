@@ -11,10 +11,13 @@ import com.createchance.imageeditor.IEManager;
  * @date 2018/11/10
  */
 public class ImageEditorApplication extends Application {
+
     @Override
     public void onCreate() {
         super.onCreate();
 
         IEManager.getInstance().init(this);
+
+        Constants.setConstants(this);
     }
 }

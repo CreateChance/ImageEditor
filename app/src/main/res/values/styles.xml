@@ -19,4 +19,9 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
+    <style name="BottomPopupWindow">
+        <item name="android:windowEnterAnimation">@anim/main_bottom_enter</item>
+        <item name="android:windowExitAnimation">@anim/main_bottom_exit</item>
+    </style>
+
 </resources>
