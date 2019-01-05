@@ -363,12 +363,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onPreview() {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
+                    String type;
+                    if (mCurWorkItem.mImage.getName().endsWith("jpg") || mCurWorkItem.mImage.getName().endsWith("png")) {
+                        type = "image/*";
+                    } else {
+                        type = "video/*";
+                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         intent.setDataAndType(FileProvider.getUriForFile(MainActivity.this,
                                 "com.createchance.imageeditordemo.fileprovider",
-                                mCurWorkItem.mImage), "image/*");
+                                mCurWorkItem.mImage), type);
                     } else {
-                        intent.setDataAndType(Uri.fromFile(mCurWorkItem.mImage), "image/*");
+                        intent.setDataAndType(Uri.fromFile(mCurWorkItem.mImage), type);
                     }
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(intent);
