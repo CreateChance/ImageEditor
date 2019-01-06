@@ -306,13 +306,14 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                 break;
             case R.id.btn_edit_bgm:
                 // show start position selection dialog.
-                BgmStartPosDialog.start(this, mBgmStartPos, mBgmDuration, new BgmStartPosDialog.BgmStartPosSelectedListener() {
-                    @Override
-                    public void onBgmStartSelected(long position) {
-                        mBgmStartPos = position;
-                        Logger.d(TAG, "Bgm start position change to: " + mBgmStartPos);
-                    }
-                });
+                BgmStartPosDialog.start(this, mSelectAudioFilePath,
+                        mBgmStartPos, mBgmDuration, new BgmStartPosDialog.BgmStartPosSelectedListener() {
+                            @Override
+                            public void onBgmStartSelected(long position) {
+                                mBgmStartPos = position;
+                                Logger.d(TAG, "Bgm start position change to: " + mBgmStartPos);
+                            }
+                        });
                 break;
             case R.id.btn_delete_bgm:
                 mSelectAudioFilePath = null;

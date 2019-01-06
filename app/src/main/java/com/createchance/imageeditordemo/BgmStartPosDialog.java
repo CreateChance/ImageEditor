@@ -2,12 +2,15 @@ package com.createchance.imageeditordemo;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -30,15 +33,29 @@ public class BgmStartPosDialog extends Dialog implements
     // views
     private TextView mTvStartPos, mTvDuration;
 
-    public static BgmStartPosDialog start(Context context, long startTime, long duration, BgmStartPosSelectedListener listener) {
-        BgmStartPosDialog dialog = new BgmStartPosDialog(context, startTime, duration, listener);
+    private String mBgmFile;
+
+    // media player
+    private MediaPlayer mBgmPlayer;
+
+    public static BgmStartPosDialog start(Context context,
+                                          String bgmFile,
+                                          long startTime,
+                                          long duration,
+                                          BgmStartPosSelectedListener listener) {
+        BgmStartPosDialog dialog = new BgmStartPosDialog(context, bgmFile, startTime, duration, listener);
         dialog.show();
         return dialog;
     }
 
-    private BgmStartPosDialog(@NonNull Context context, long startTime, long duration, BgmStartPosSelectedListener listener) {
+    private BgmStartPosDialog(@NonNull Context context,
+                              String bgmFile,
+                              long startTime,
+                              long duration,
+                              BgmStartPosSelectedListener listener) {
         super(context);
 
+        mBgmFile = bgmFile;
         mCurStartPos = startTime;
         mDuration = duration;
         mListener = listener;
@@ -58,6 +75,38 @@ public class BgmStartPosDialog extends Dialog implements
         ((SeekBar) findViewById(R.id.sb_bgm_start_pos)).setOnSeekBarChangeListener(this);
         ((SeekBar) findViewById(R.id.sb_bgm_start_pos)).setProgress((int) (mCurStartPos * 1.0f * 5000 / mDuration));
 
+        // init mBgmPlayer.
+        try {
+            mBgmPlayer = new MediaPlayer();
+            mBgmPlayer.setDataSource(mBgmFile);
+            mBgmPlayer.prepare();
+            mBgmPlayer.setLooping(false);
+            mBgmPlayer.seekTo((int) mCurStartPos);
+            mBgmPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    // play it again
+                    mBgmPlayer.seekTo((int) mCurStartPos);
+                    mBgmPlayer.start();
+                }
+            });
+            mBgmPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Music init failed!", Toast.LENGTH_SHORT).show();
+            dismiss();
+        }
+    }
+
+    @Override
+    public void dismiss() {
+        // stop playing first.
+        if (mBgmPlayer.isPlaying()) {
+            mBgmPlayer.stop();
+        }
+        mBgmPlayer.release();
+
+        super.dismiss();
     }
 
     @Override
@@ -89,12 +138,15 @@ public class BgmStartPosDialog extends Dialog implements
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-
+        if (mBgmPlayer.isPlaying()) {
+            mBgmPlayer.pause();
+        }
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        mBgmPlayer.seekTo((int) mCurStartPos);
+        mBgmPlayer.start();
     }
 
     public interface BgmStartPosSelectedListener {
