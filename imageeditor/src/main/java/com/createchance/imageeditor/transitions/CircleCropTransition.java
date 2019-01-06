@@ -12,7 +12,7 @@ public class CircleCropTransition extends AbstractTransition {
 
     private static final String TAG = "CircleCropTransition";
 
-    private float mBackRed = 1.0f, mBackGreen, mBackBlue, mBackAlpha = 1.0f;
+    private float mBackRed = 0.0f, mBackGreen, mBackBlue, mBackAlpha = 1.0f;
 
     public CircleCropTransition() {
         super(CircleCropTransition.class.getSimpleName(), TRANS_CIRCLE_CORP);
@@ -28,6 +28,6 @@ public class CircleCropTransition extends AbstractTransition {
         super.setDrawerParams();
 
         ((CircleCropTransDrawer) mDrawer).setBackColor(mBackRed, mBackGreen, mBackBlue, mBackAlpha);
-        ((CircleCropTransDrawer) mDrawer).setRatio(mContext.getRenderWidth() / mContext.getRenderHeight());
+        ((CircleCropTransDrawer) mDrawer).setRatio(mContext.getRenderWidth() * 1.0f / mContext.getRenderHeight());
     }
 }
