@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.tv_generate_video:
                 // choose image from local.
-                chooseImages(REQUEST_CHOOSE_IMAGE_FOR_VIDEO, 9);
+                chooseImages(REQUEST_CHOOSE_IMAGE_FOR_VIDEO, 100);
                 break;
             case R.id.tv_choose_photo:
                 chooseImages(REQUEST_CHOOSE_IMAGE_FOR_EDIT, 1);
