@@ -4,6 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.widget.TextView;
+
+import java.util.Locale;
 
 /**
  * OutputDialog
@@ -14,6 +17,8 @@ import android.support.annotation.NonNull;
 public class OutputDialog extends Dialog {
 
     private static final String TAG = "OutputDialog";
+
+    private TextView mTvProgress;
 
     public static OutputDialog start(Context context) {
         OutputDialog dialog = new OutputDialog(context);
@@ -31,5 +36,10 @@ public class OutputDialog extends Dialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.dialog_output);
+        mTvProgress = findViewById(R.id.tv_progress);
+    }
+
+    public void setProgress(float progress) {
+        mTvProgress.setText(String.format(Locale.getDefault(), "%.1f%%", progress * 100));
     }
 }

@@ -2,8 +2,16 @@ package com.createchance.imageeditor;
 
 import java.io.File;
 
-public interface SaveListener {
-    void onSaveFailed();
+public class SaveListener {
+    public void onSaveFailed() {
 
-    void onSaved(File target);
+    }
+
+    public void onSaveProgress(float progress) {
+
+    }
+
+    public void onSaved(File target) {
+
+    }
 }

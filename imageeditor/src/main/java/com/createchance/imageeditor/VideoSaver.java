@@ -38,7 +38,7 @@ public class VideoSaver implements IRenderTarget {
     private int[] mOffScreenTextureIds = new int[2];
     private int mInputTextureIndex = 0, mOutputTextureIndex = 1;
 
-    private long mVideoDuration;
+    private final long mVideoDuration;
 
     private WindowSurface mWindowSurface;
     private MediaCodec mVideoEncoder;
@@ -47,13 +47,14 @@ public class VideoSaver implements IRenderTarget {
     private SaveListener mListener;
 
     private int mBitRate = 10000000;
-    private int mFrameRate = 30;
+    private int mFrameRate = 25;
 
     private SaverThread mSaveThread;
 
     public VideoSaver(int width,
                       int height,
                       int orientation,
+                      long videoDurationMs,
                       File outputFile,
                       File bgmFile,
                       long bgmStartTime,
@@ -61,6 +62,7 @@ public class VideoSaver implements IRenderTarget {
         mSurfaceWidth = width;
         mSurfaceHeight = height;
         mOrientation = orientation;
+        mVideoDuration = videoDurationMs * 1000;
         mOutputFile = outputFile;
         mVideoFile = new File(outputFile.getParent(), "video_track_only.mp4");
         mAudioFile = new File(outputFile.getParent(), "audio_track_only.aac");
@@ -268,6 +270,18 @@ public class VideoSaver implements IRenderTarget {
                         bufferInfo.presentationTimeUs = nowPts;
                         nowPts += framePts;
                         Logger.i(TAG, "doMux..........., pts: " + bufferInfo.presentationTimeUs);
+                        if (mListener != null) {
+                            UiThreadUtil.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mBgmFile == null) {
+                                        mListener.onSaveProgress(bufferInfo.presentationTimeUs * 1.0f / mVideoDuration);
+                                    } else {
+                                        mListener.onSaveProgress(bufferInfo.presentationTimeUs * 0.5f / mVideoDuration);
+                                    }
+                                }
+                            });
+                        }
                         muxer.writeSampleData(tempVideoTrackId, buffer, bufferInfo);
                         mVideoEncoder.releaseOutputBuffer(outputBufferId, false);
 //                    if (mListener != null) {
@@ -286,7 +300,6 @@ public class VideoSaver implements IRenderTarget {
                     }
                 }
 
-                mVideoDuration = nowPts;
                 Logger.d(TAG, "Mux video done!");
                 if (mBgmFile == null) {
                     UiThreadUtil.post(new Runnable() {
@@ -336,8 +349,16 @@ public class VideoSaver implements IRenderTarget {
                     .build();
             audioTransCoder.start(new AudioTransCoder.Callback() {
                 @Override
-                public void onProgress(float progress) {
+                public void onProgress(final float progress) {
                     Log.d(TAG, "onProgress: " + progress);
+                    if (mListener != null) {
+                        UiThreadUtil.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mListener.onSaveProgress(0.5f + progress * 0.5f);
+                            }
+                        });
+                    }
                 }
 
                 @Override

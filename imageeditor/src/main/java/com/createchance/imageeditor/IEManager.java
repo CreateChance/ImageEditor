@@ -731,7 +731,11 @@ public class IEManager {
             return false;
         }
 
-        mSaveTarget = new VideoSaver(width, height, orientation, target, bgmFile, bgmStartTimeMs, saveListener);
+        long totalDuration = 0;
+        for (IEClip clip : mClipList) {
+            totalDuration += clip.getDuration();
+        }
+        mSaveTarget = new VideoSaver(width, height, orientation, totalDuration, target, bgmFile, bgmStartTimeMs, saveListener);
         for (IEClip clip : mClipList) {
             clip.setRenderTarget(mSaveTarget);
             // reload image.
@@ -751,7 +755,7 @@ public class IEManager {
                     curTime = clip.getStartTime();
                     do {
                         clip.render(true, curTime - clip.getStartTime());
-                        curTime += 30;
+                        curTime += 40;
                     } while (curTime <= clip.getEndTime());
                 }
                 mSaveTarget.release();

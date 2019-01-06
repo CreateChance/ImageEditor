@@ -216,6 +216,12 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                             }
 
                             @Override
+                            public void onSaveProgress(float progress) {
+                                super.onSaveProgress(progress);
+                                dialog.setProgress(progress);
+                            }
+
+                            @Override
                             public void onSaved(File target) {
                                 Toast.makeText(VideoGenerateActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
