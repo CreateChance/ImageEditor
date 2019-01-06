@@ -20,6 +20,7 @@
     <string name="continue_save_done">继续编辑</string>
 
     <string name="please_select_transition">请选择转场效果</string>
+    <string name="delete_transition">删除转场</string>
 
     <string name="main_bottom_selection_preview">查看</string>
     <string name="main_bottom_selection_edit">编辑</string>

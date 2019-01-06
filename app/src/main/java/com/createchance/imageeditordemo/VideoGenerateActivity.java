@@ -431,16 +431,27 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
 
     private void showTransitionSelection() {
         if (mVwTransitionSelect == null) {
-            mVwTransitionSelect = new TransitionSelectWindow(this, mTransitionList, new TransitionSelectWindow.TransitionSelectListener() {
-                @Override
-                public void onTransitionSelected(Transition transition) {
-                    Logger.d(TAG, "Transition selected: " + transition);
+            mVwTransitionSelect = new TransitionSelectWindow(this, mTransitionList,
+                    new TransitionSelectWindow.TransitionSelectListener() {
+                        @Override
+                        public void onTransitionSelected(Transition transition) {
+                            Logger.d(TAG, "Transition selected: " + transition);
 
-                    IEManager.getInstance().setTransition(mCurClipIndex, getTransitionById(transition.mId), 2000, false);
-                    mVwThumbnailList.getCurImageGroup().setStringExtra(transition.mName);
-                    mTvTransition.setText(transition.mName);
-                }
-            });
+                            IEManager.getInstance().setTransition(mCurClipIndex, getTransitionById(transition.mId), 2000, false);
+                            mVwThumbnailList.getCurImageGroup().setStringExtra(transition.mName);
+                            mTvTransition.setText(transition.mName);
+                        }
+
+                        @Override
+                        public void onTransitionDeleted() {
+                            Logger.d(TAG, "Transition deleted.");
+
+                            IEManager.getInstance().removeTransition(mCurClipIndex, false);
+                            mVwThumbnailList.getCurImageGroup().setStringExtra(null);
+                            mTvTransition.setText(null);
+                            Toast.makeText(VideoGenerateActivity.this, "Transition deleted!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
             mVwTransitionSelect.setOnDismissListener(new PopupWindow.OnDismissListener() {
                 @Override
                 public void onDismiss() {

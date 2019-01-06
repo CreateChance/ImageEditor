@@ -21,7 +21,7 @@ import java.util.List;
  * @author createchance
  * @date 2019/1/6
  */
-public class TransitionSelectWindow extends PopupWindow {
+public class TransitionSelectWindow extends PopupWindow implements View.OnClickListener {
     private static final String TAG = "TransitionSelectWindow";
 
     private Context mContext;
@@ -41,6 +41,7 @@ public class TransitionSelectWindow extends PopupWindow {
 
         mRootView = LayoutInflater.from(mContext).inflate(R.layout.video_generate_bottom_trans, null, false);
 
+        mRootView.findViewById(R.id.tv_delete_transition).setOnClickListener(this);
         mRcvTransList = mRootView.findViewById(R.id.rcv_trans_list);
         mTransListAdapter = new TransitionListAdapter();
         mRcvTransList.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
@@ -53,8 +54,24 @@ public class TransitionSelectWindow extends PopupWindow {
         setAnimationStyle(R.style.BottomPopupWindow);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_delete_transition:
+                if (mListener != null) {
+                    mListener.onTransitionDeleted();
+                }
+                dismiss();
+                break;
+            default:
+                break;
+        }
+    }
+
     public interface TransitionSelectListener {
-        void onTransitionSelected(Transition transitionItem);
+        void onTransitionSelected(Transition transition);
+
+        void onTransitionDeleted();
     }
 
     private class TransitionListAdapter extends RecyclerView.Adapter<TransitionListAdapter.ViewHolder> {
