@@ -14,8 +14,11 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,14 +26,80 @@ import com.createchance.imageeditor.IEManager;
 import com.createchance.imageeditor.IEPreviewView;
 import com.createchance.imageeditor.SaveListener;
 import com.createchance.imageeditor.transitions.AbstractTransition;
+import com.createchance.imageeditor.transitions.AngularTransition;
+import com.createchance.imageeditor.transitions.BounceTransition;
+import com.createchance.imageeditor.transitions.BowTieHorizontalTransition;
+import com.createchance.imageeditor.transitions.BowTieVerticalTransition;
+import com.createchance.imageeditor.transitions.BurnTransition;
+import com.createchance.imageeditor.transitions.ButterflyWaveScrawlerTransition;
+import com.createchance.imageeditor.transitions.CannabisLeafTransition;
+import com.createchance.imageeditor.transitions.CircleCropTransition;
+import com.createchance.imageeditor.transitions.CircleOpenTransition;
+import com.createchance.imageeditor.transitions.CircleTransition;
+import com.createchance.imageeditor.transitions.ColorDistanceTransition;
+import com.createchance.imageeditor.transitions.ColorPhaseTransition;
+import com.createchance.imageeditor.transitions.CrazyParametricFunTransition;
+import com.createchance.imageeditor.transitions.CrossHatchTransition;
+import com.createchance.imageeditor.transitions.CrossWarpTransition;
+import com.createchance.imageeditor.transitions.CrossZoomTransition;
+import com.createchance.imageeditor.transitions.CubeTransition;
+import com.createchance.imageeditor.transitions.DirectionalTransition;
+import com.createchance.imageeditor.transitions.DirectionalWarpTransition;
+import com.createchance.imageeditor.transitions.DirectionalWipeTransition;
+import com.createchance.imageeditor.transitions.DoomScreenTransition;
+import com.createchance.imageeditor.transitions.DoorWayTransition;
+import com.createchance.imageeditor.transitions.DreamyTransition;
+import com.createchance.imageeditor.transitions.DreamyZoomTransition;
+import com.createchance.imageeditor.transitions.FadeColorTransition;
+import com.createchance.imageeditor.transitions.FadeGrayScaleTransition;
+import com.createchance.imageeditor.transitions.FadeTransition;
+import com.createchance.imageeditor.transitions.FlyEyeTransition;
+import com.createchance.imageeditor.transitions.GlitchDisplaceTransition;
+import com.createchance.imageeditor.transitions.GlitchMemoriesTransition;
+import com.createchance.imageeditor.transitions.GridFlipTransition;
+import com.createchance.imageeditor.transitions.HeartTransition;
+import com.createchance.imageeditor.transitions.HexagonalTransition;
 import com.createchance.imageeditor.transitions.InvertedPageCurlTransition;
+import com.createchance.imageeditor.transitions.KaleidoScopeTransition;
+import com.createchance.imageeditor.transitions.LinearBlurTransition;
+import com.createchance.imageeditor.transitions.LuminanceMeltTransition;
+import com.createchance.imageeditor.transitions.MorphTransition;
+import com.createchance.imageeditor.transitions.MosaicTransition;
+import com.createchance.imageeditor.transitions.MultiplyBlendTransition;
+import com.createchance.imageeditor.transitions.PerlinTransition;
+import com.createchance.imageeditor.transitions.PinWheelTransition;
+import com.createchance.imageeditor.transitions.PixelizeTransition;
+import com.createchance.imageeditor.transitions.PolarFunctionTransition;
+import com.createchance.imageeditor.transitions.PolkaDotsCurtainTransition;
+import com.createchance.imageeditor.transitions.RadialTransition;
+import com.createchance.imageeditor.transitions.RandomSquaresTransition;
+import com.createchance.imageeditor.transitions.RippleTransition;
+import com.createchance.imageeditor.transitions.RotateScaleFadeTransition;
+import com.createchance.imageeditor.transitions.SimpleZoomTransition;
+import com.createchance.imageeditor.transitions.SquaresWireTransition;
+import com.createchance.imageeditor.transitions.SqueezeTransition;
+import com.createchance.imageeditor.transitions.StereoViewerTransition;
+import com.createchance.imageeditor.transitions.SwapTransition;
+import com.createchance.imageeditor.transitions.SwirlTransition;
+import com.createchance.imageeditor.transitions.UndulatingBurnOutTransition;
 import com.createchance.imageeditor.transitions.WaterDropTransition;
+import com.createchance.imageeditor.transitions.WindTransition;
+import com.createchance.imageeditor.transitions.WindowBlindsTransition;
+import com.createchance.imageeditor.transitions.WindowSliceTransition;
+import com.createchance.imageeditor.transitions.WipeDownTransition;
+import com.createchance.imageeditor.transitions.WipeLeftTransition;
+import com.createchance.imageeditor.transitions.WipeRightTransition;
+import com.createchance.imageeditor.transitions.WipeUpTransition;
+import com.createchance.imageeditor.transitions.ZoomInCirclesTransition;
 import com.createchance.imageeditor.utils.Logger;
+import com.createchance.imageeditordemo.model.Transition;
+import com.createchance.imageeditordemo.utils.AssetsUtil;
 import com.createchance.imageeditordemo.utils.DensityUtil;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Generate video by image.
@@ -50,63 +119,42 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
 
     private List<String> mImagePathList;
 
+    private List<Transition> mTransitionList;
+
+    private TransitionSelectWindow mVwTransitionSelect;
+
     // views
     private IEPreviewView mVwPreview;
     private ImageView mIvPlayControl;
-    private TextView mTvCurBgmFile, mTvTime;
+    private TextView mTvCurBgmFile, mTvTime, mTvTransition;
     private HorizontalThumbnailListView mVwThumbnailList;
 
     private String mSelectAudioFilePath;
 
+    private int mCurClipIndex = 0;
+
+    private long mTotalDuration;
+
     private HorizontalThumbnailListView.ImageGroupListener mImageGroupListener = new HorizontalThumbnailListView.ImageGroupListener() {
-        @Override
-        public void onImageGroupLeftShrink(int index, float leftProgress, boolean isLast) {
-            super.onImageGroupLeftShrink(index, leftProgress, isLast);
-
-            Log.d(TAG, "onImageGroupLeftShrink: " + index + ", left progress: " + leftProgress);
-        }
-
-        @Override
-        public void onImageGroupLeftExpand(int index, float leftProgress, boolean isLast) {
-            super.onImageGroupLeftExpand(index, leftProgress, isLast);
-
-            Log.d(TAG, "onImageGroupLeftExpand: " + index + ", left progress: " + leftProgress);
-        }
-
-        @Override
-        public void onImageGroupRightShrink(int index, float rightProgress, boolean isLast) {
-            super.onImageGroupRightShrink(index, rightProgress, isLast);
-
-            Log.d(TAG, "onImageGroupRightShrink: " + index + ", right progress: " + rightProgress);
-        }
-
-        @Override
-        public void onImageGroupRightExpand(int index, float rightProgress, boolean isLast) {
-            super.onImageGroupRightExpand(index, rightProgress, isLast);
-
-            Log.d(TAG, "onImageGroupRightExpand: " + index + ", right progress: " + rightProgress);
-        }
-
-        @Override
-        public void onImageGroupStart(int index, boolean isFromUser) {
-            super.onImageGroupStart(index, isFromUser);
-
-            Log.d(TAG, "onImageGroupStart: " + index + ", is from user: " + isFromUser);
-        }
-
         @Override
         public void onImageGroupProcess(int index, float progress, boolean isFromUser) {
             super.onImageGroupProcess(index, progress, isFromUser);
 
+            mCurClipIndex = index;
+
             Log.d(TAG, "onImageGroupProcess: " + index + ", progress: " + progress + ", is from user: " + isFromUser);
+            long position = (long) (progress * mTotalDuration);
             IEManager.getInstance().seek((long) (IEManager.getInstance().getTotalDuration() * progress));
+            mTvTime.setText(String.format(Locale.getDefault(), "%02d:%02d", position / (60 * 1000), (position / 1000) % 60));
+            mTvTransition.setText(mVwThumbnailList.getCurImageGroup().getStringExtra());
+
         }
 
         @Override
-        public void onImageGroupEnd(int index, boolean isFromUser) {
-            super.onImageGroupEnd(index, isFromUser);
-
-            Log.d(TAG, "onImageGroupEnd: " + index + ", is from user: " + isFromUser);
+        public void onImageGroupClicked(int index) {
+            super.onImageGroupClicked(index);
+            Logger.d(TAG, "onImageGroupClicked, index: " + index);
+            showTransitionSelection();
         }
     };
 
@@ -156,9 +204,12 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
         mVwThumbnailList = findViewById(R.id.vw_thumbnail_list);
         mTvCurBgmFile = findViewById(R.id.tv_current_bgm_file);
         mTvTime = findViewById(R.id.tv_time);
+        mTvTransition = findViewById(R.id.tv_transition);
         findViewById(R.id.btn_add_bgm).setOnClickListener(this);
 
         initThumbnailList();
+
+        initTransitionList();
 
         // init IE
         IEManager.getInstance().startEngine();
@@ -177,6 +228,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                 return;
             }
             mSelectAudioFilePath = getAbsolutePath(this, uri);
+            mTvCurBgmFile.setText(mSelectAudioFilePath);
             Logger.d(TAG, "Audio file selected: " + mSelectAudioFilePath);
         }
     }
@@ -252,16 +304,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
     private void initClipList() {
         for (int i = 0; i < mImagePathList.size(); i++) {
             IEManager.getInstance().addClip(mImagePathList.get(i), 3000);
-            AbstractTransition transition;
-            if (i % 2 == 0) {
-                transition = new InvertedPageCurlTransition();
-            } else {
-                transition = new WaterDropTransition();
-            }
-            IEManager.getInstance().setTransition(i,
-                    transition,
-                    2000,
-                    false);
+            mTotalDuration += 3000;
         }
     }
 
@@ -354,7 +397,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
      * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
-    public static boolean isExternalStorageDocument(Uri uri) {
+    private boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
@@ -362,7 +405,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    public static boolean isDownloadsDocument(Uri uri) {
+    private boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
@@ -370,7 +413,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
      * @param uri The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
-    public static boolean isMediaDocument(Uri uri) {
+    private boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
@@ -378,8 +421,246 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
      * @param uri The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
-    public static boolean isGooglePhotosUri(Uri uri) {
+    private boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
+    private void initTransitionList() {
+        mTransitionList = AssetsUtil.parseJsonToList(this, "transitions/transition_list.json", Transition.class);
+    }
+
+    private void showTransitionSelection() {
+        if (mVwTransitionSelect == null) {
+            mVwTransitionSelect = new TransitionSelectWindow(this, mTransitionList, new TransitionSelectWindow.TransitionSelectListener() {
+                @Override
+                public void onTransitionSelected(Transition transition) {
+                    Logger.d(TAG, "Transition selected: " + transition);
+
+                    IEManager.getInstance().setTransition(mCurClipIndex, getTransitionById(transition.mId), 2000, false);
+                    mVwThumbnailList.getCurImageGroup().setStringExtra(transition.mName);
+                    mTvTransition.setText(transition.mName);
+                }
+            });
+            mVwTransitionSelect.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    WindowManager.LayoutParams lp = getWindow().getAttributes();
+                    lp.alpha = 1f;
+                    getWindow().setAttributes(lp);
+                }
+            });
+        }
+        mVwTransitionSelect.showAtLocation(findViewById(R.id.vw_root),
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+        // set dark background color.
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.7f;
+        getWindow().setAttributes(lp);
+    }
+
+    private AbstractTransition getTransitionById(int id) {
+        AbstractTransition transition = null;
+
+        switch (id) {
+            case 0:
+                transition = new WindowSliceTransition();
+                break;
+            case 1:
+                transition = new InvertedPageCurlTransition();
+                break;
+            case 2:
+                transition = new AngularTransition();
+                break;
+            case 3:
+                transition = new BounceTransition();
+                break;
+            case 4:
+                transition = new BowTieHorizontalTransition();
+                break;
+            case 5:
+                transition = new BowTieVerticalTransition();
+                break;
+            case 6:
+                transition = new BurnTransition();
+                break;
+            case 7:
+                transition = new ButterflyWaveScrawlerTransition();
+                break;
+            case 8:
+                transition = new CannabisLeafTransition();
+                break;
+            case 9:
+                transition = new CircleTransition();
+                break;
+            case 10:
+                transition = new CircleCropTransition();
+                break;
+            case 11:
+                transition = new CircleOpenTransition();
+                break;
+            case 12:
+                transition = new ColorPhaseTransition();
+                break;
+            case 13:
+                transition = new ColorDistanceTransition();
+                break;
+            case 14:
+                transition = new CrazyParametricFunTransition();
+                break;
+            case 15:
+                transition = new CrossHatchTransition();
+                break;
+            case 16:
+                transition = new CrossWarpTransition();
+                break;
+            case 17:
+                transition = new CrossZoomTransition();
+                break;
+            case 18:
+                transition = new CubeTransition();
+                break;
+            case 19:
+                transition = new DirectionalTransition();
+                break;
+            case 20:
+                transition = new DirectionalWarpTransition();
+                break;
+            case 21:
+                transition = new DirectionalWipeTransition();
+                break;
+            case 22:
+                transition = new DoomScreenTransition();
+                break;
+            case 23:
+                transition = new DoorWayTransition();
+                break;
+            case 24:
+                transition = new DreamyTransition();
+                break;
+            case 25:
+                transition = new DreamyZoomTransition();
+                break;
+            case 26:
+                transition = new FadeTransition();
+                break;
+            case 27:
+                transition = new FadeColorTransition();
+                break;
+            case 28:
+                transition = new FadeGrayScaleTransition();
+                break;
+            case 29:
+                transition = new FlyEyeTransition();
+                break;
+            case 30:
+                transition = new GlitchDisplaceTransition();
+                break;
+            case 31:
+                transition = new GlitchMemoriesTransition();
+                break;
+            case 32:
+                transition = new GridFlipTransition();
+                break;
+            case 33:
+                transition = new HeartTransition();
+                break;
+            case 34:
+                transition = new HexagonalTransition();
+                break;
+            case 35:
+                transition = new KaleidoScopeTransition();
+                break;
+            case 36:
+                transition = new LinearBlurTransition();
+                break;
+            case 37:
+                transition = new LuminanceMeltTransition();
+                break;
+            case 38:
+                transition = new MorphTransition();
+                break;
+            case 39:
+                transition = new MosaicTransition();
+                break;
+            case 40:
+                transition = new MultiplyBlendTransition();
+                break;
+            case 41:
+                transition = new PerlinTransition();
+                break;
+            case 42:
+                transition = new PinWheelTransition();
+                break;
+            case 43:
+                transition = new PixelizeTransition();
+                break;
+            case 44:
+                transition = new PolarFunctionTransition();
+                break;
+            case 45:
+                transition = new PolkaDotsCurtainTransition();
+                break;
+            case 46:
+                transition = new RadialTransition();
+                break;
+            case 47:
+                transition = new RandomSquaresTransition();
+                break;
+            case 48:
+                transition = new RippleTransition();
+                break;
+            case 49:
+                transition = new RotateScaleFadeTransition();
+                break;
+            case 50:
+                transition = new SimpleZoomTransition();
+                break;
+            case 51:
+                transition = new SquaresWireTransition();
+                break;
+            case 52:
+                transition = new SqueezeTransition();
+                break;
+            case 53:
+                transition = new StereoViewerTransition();
+                break;
+            case 54:
+                transition = new SwapTransition();
+                break;
+            case 55:
+                transition = new SwirlTransition();
+                break;
+            case 56:
+                transition = new UndulatingBurnOutTransition();
+                break;
+            case 57:
+                transition = new WaterDropTransition();
+                break;
+            case 58:
+                transition = new WindTransition();
+                break;
+            case 59:
+                transition = new WindowBlindsTransition();
+                break;
+            case 60:
+                transition = new WipeDownTransition();
+                break;
+            case 61:
+                transition = new WipeUpTransition();
+                break;
+            case 62:
+                transition = new WipeLeftTransition();
+                break;
+            case 63:
+                transition = new WipeRightTransition();
+                break;
+            case 64:
+                transition = new ZoomInCirclesTransition();
+                break;
+            default:
+                break;
+        }
+
+        return transition;
+    }
 }

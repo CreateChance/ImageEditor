@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.annotations.Since;
 
 /**
- * ${DESC}
+ * Filter data class.
  *
  * @author createchance
  * @date 2018/9/16

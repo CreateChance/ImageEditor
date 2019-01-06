@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
@@ -56,7 +57,11 @@ public class HorizontalThumbnailListView extends FrameLayout {
     private boolean mFromLeftToRight;
     private boolean mIsScrollFromUser;
 
+    private boolean mAdjustable = false;
+
     private float mLastX;
+
+    private GestureDetector mGestureDetector;
 
     public HorizontalThumbnailListView(@NonNull Context context) {
         super(context);
@@ -143,23 +148,27 @@ public class HorizontalThumbnailListView extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        mGestureDetector.onTouchEvent(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mLastX = event.getRawX();
                 mIsScrollFromUser = true;
-                Logger.d(TAG, "Down pos x: " + mLastX +
-                        ", left bound: [" + (mCurImageGroup.measuredLeft - mGroupPaddingWidth - getScrollX()) +
-                        ", " + (mCurImageGroup.measuredLeft + mGroupPaddingWidth - getScrollX()) +
-                        "], right bound: [" + (mCurImageGroup.measuredRight - mGroupPaddingWidth - getScrollX()) +
-                        ", " + (mCurImageGroup.measuredRight + mGroupPaddingWidth - getScrollX()) + "].");
-                if (mLastX >= (mCurImageGroup.measuredLeft - mGroupPaddingWidth - getScrollX()) &&
-                        mLastX <= (mCurImageGroup.measuredLeft + mGroupPaddingWidth - getScrollX())) {
-                    mHoldScroll = true;
-                    mIsLeft = true;
-                } else if (mLastX >= (mCurImageGroup.measuredRight - mGroupPaddingWidth - getScrollX()) &&
-                        mLastX <= (mCurImageGroup.measuredRight + mGroupPaddingWidth - getScrollX())) {
-                    mHoldScroll = true;
-                    mIsLeft = false;
+
+                if (mAdjustable) {
+                    Logger.d(TAG, "Down pos x: " + mLastX +
+                            ", left bound: [" + (mCurImageGroup.measuredLeft - mGroupPaddingWidth - getScrollX()) +
+                            ", " + (mCurImageGroup.measuredLeft + mGroupPaddingWidth - getScrollX()) +
+                            "], right bound: [" + (mCurImageGroup.measuredRight - mGroupPaddingWidth - getScrollX()) +
+                            ", " + (mCurImageGroup.measuredRight + mGroupPaddingWidth - getScrollX()) + "].");
+                    if (mLastX >= (mCurImageGroup.measuredLeft - mGroupPaddingWidth - getScrollX()) &&
+                            mLastX <= (mCurImageGroup.measuredLeft + mGroupPaddingWidth - getScrollX())) {
+                        mHoldScroll = true;
+                        mIsLeft = true;
+                    } else if (mLastX >= (mCurImageGroup.measuredRight - mGroupPaddingWidth - getScrollX()) &&
+                            mLastX <= (mCurImageGroup.measuredRight + mGroupPaddingWidth - getScrollX())) {
+                        mHoldScroll = true;
+                        mIsLeft = false;
+                    }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -577,6 +586,41 @@ public class HorizontalThumbnailListView extends FrameLayout {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mImageDstRect = new Rect();
+
+        mGestureDetector = new GestureDetector(new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                if (mImageGroupListener != null) {
+                    mImageGroupListener.onImageGroupClicked(mImageGroupList.indexOf(mCurImageGroup));
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return true;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return true;
+            }
+        });
     }
 
     public static class ImageItem {
@@ -639,6 +683,8 @@ public class HorizontalThumbnailListView extends FrameLayout {
         private int curLeftPos, curRightPos;
         // 测量位置值
         private int measuredLeft, measuredRight;
+
+        private String mStringExtra;
 
         /**
          * 构建image group
@@ -951,6 +997,14 @@ public class HorizontalThumbnailListView extends FrameLayout {
             return RIGHT_BOUND * 1.0f / getGroupContentMaxWidth();
         }
 
+        public String getStringExtra() {
+            return mStringExtra;
+        }
+
+        public void setStringExtra(String stringExtra) {
+            this.mStringExtra = stringExtra;
+        }
+
         /**
          * 获得当前左边百分比位置
          *
@@ -1044,6 +1098,10 @@ public class HorizontalThumbnailListView extends FrameLayout {
         }
 
         public void onImageGroupHidden(int index) {
+
+        }
+
+        public void onImageGroupClicked(int index) {
 
         }
 
