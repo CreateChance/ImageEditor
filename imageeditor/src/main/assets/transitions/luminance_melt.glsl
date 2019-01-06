@@ -46,8 +46,7 @@ vec3 permute(vec3 x) {
   return mod289(((x*34.0)+1.0)*x);
 }
 
-float snoise(vec2 v)
-  {
+float snoise(vec2 v) {
   const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
                       0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
                      -0.577350269189626,  // -1.0 + 2.0 * C.x
@@ -102,10 +101,9 @@ float luminance(vec4 color){
   return color.r*0.299+color.g*0.587+color.b*0.114;
 }
 
-vec2 center = vec2(1.0, direction);
-
 vec4 transition(vec2 uv) {
   vec2 p = uv.xy / vec2(1.0).xy;
+  vec2 center = vec2(1.0, direction);
   if (progress == 0.0) {
     return getFromColor(p);
   } else if (progress == 1.0) {
