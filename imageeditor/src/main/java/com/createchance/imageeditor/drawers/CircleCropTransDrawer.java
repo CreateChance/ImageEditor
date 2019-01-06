@@ -20,9 +20,4 @@ public class CircleCropTransDrawer extends AbstractTransDrawer {
         GLES20.glUseProgram(mProgramId);
         ((CircleCropTransShader) mTransitionShader).setUBackColor(red, green, blue, alpha);
     }
-
-    public void setRatio(float ratio) {
-        GLES20.glUseProgram(mProgramId);
-        ((CircleCropTransShader) mTransitionShader).setURatio(ratio);
-    }
 }

@@ -52,6 +52,11 @@ public abstract class AbstractTransDrawer extends AbstractDrawer {
         mTransitionShader.setUProgress(progress);
     }
 
+    public void setRatio(float ratio) {
+        GLES20.glUseProgram(mProgramId);
+        mTransitionShader.setURatio(ratio);
+    }
+
     public void draw(int textureId,
                      int textureId2,
                      int posX,

@@ -28,6 +28,5 @@ public class CircleCropTransition extends AbstractTransition {
         super.setDrawerParams();
 
         ((CircleCropTransDrawer) mDrawer).setBackColor(mBackRed, mBackGreen, mBackBlue, mBackAlpha);
-        ((CircleCropTransDrawer) mDrawer).setRatio(mContext.getRenderWidth() * 1.0f / mContext.getRenderHeight());
     }
 }

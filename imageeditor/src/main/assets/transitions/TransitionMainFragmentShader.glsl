@@ -8,6 +8,7 @@ precision mediump float;
 uniform sampler2D u_InputTexture;
 uniform sampler2D u_InputTexture2;
 uniform float progress;
+uniform float ratio;
 
 varying vec2 v_TextureCoordinates;
 

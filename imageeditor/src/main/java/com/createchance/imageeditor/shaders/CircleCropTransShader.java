@@ -13,7 +13,6 @@ public class CircleCropTransShader extends TransitionMainFragmentShader {
     private final String TRANS_SHADER = "CircleCrop.glsl";
 
     private final String U_BACK_COLOR = "bgcolor";
-    private final String U_RATIO = "ratio";
 
     public CircleCropTransShader() {
         initShader(new String[]{TRANSITION_FOLDER + BASE_SHADER, TRANSITION_FOLDER + TRANS_SHADER}, GLES20.GL_FRAGMENT_SHADER);
@@ -23,15 +22,10 @@ public class CircleCropTransShader extends TransitionMainFragmentShader {
     public void initLocation(int programId) {
         super.initLocation(programId);
         addLocation(U_BACK_COLOR, true);
-        addLocation(U_RATIO, true);
         loadLocation(programId);
     }
 
     public void setUBackColor(float red, float green, float blue, float alpha) {
         setUniform(U_BACK_COLOR, red, green, blue, alpha);
-    }
-
-    public void setURatio(float ratio) {
-        setUniform(U_RATIO, ratio);
     }
 }
