@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -135,6 +136,8 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
 
     private long mTotalDuration;
 
+    private long mBgmStartPos, mBgmDuration;
+
     private HorizontalThumbnailListView.ImageGroupListener mImageGroupListener = new HorizontalThumbnailListView.ImageGroupListener() {
         @Override
         public void onImageGroupProcess(int index, float progress, boolean isFromUser) {
@@ -206,6 +209,10 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
         mTvTime = findViewById(R.id.tv_time);
         mTvTransition = findViewById(R.id.tv_transition);
         findViewById(R.id.btn_add_bgm).setOnClickListener(this);
+        findViewById(R.id.btn_edit_bgm).setOnClickListener(this);
+        findViewById(R.id.btn_delete_bgm).setOnClickListener(this);
+        findViewById(R.id.btn_edit_bgm).setEnabled(false);
+        findViewById(R.id.btn_delete_bgm).setEnabled(false);
 
         initThumbnailList();
 
@@ -229,7 +236,15 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
             }
             mSelectAudioFilePath = getAbsolutePath(this, uri);
             mTvCurBgmFile.setText(mSelectAudioFilePath);
-            Logger.d(TAG, "Audio file selected: " + mSelectAudioFilePath);
+            findViewById(R.id.btn_edit_bgm).setEnabled(true);
+            findViewById(R.id.btn_delete_bgm).setEnabled(true);
+
+            // get bgm file info.
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(mSelectAudioFilePath);
+            mBgmStartPos = 0;
+            mBgmDuration = Long.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            Logger.d(TAG, "Audio file selected: " + mSelectAudioFilePath + ", duration: " + mBgmDuration);
         }
     }
 
@@ -258,7 +273,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                         0,
                         new File(Constants.mBaseDir, System.currentTimeMillis() + ".mp4"),
                         TextUtils.isEmpty(mSelectAudioFilePath) ? null : new File(mSelectAudioFilePath),
-                        10000,
+                        mBgmStartPos,
                         new SaveListener() {
                             @Override
                             public void onSaveFailed() {
@@ -288,6 +303,22 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
             case R.id.btn_add_bgm:
                 // choose audio file here.
                 chooseAudioFile();
+                break;
+            case R.id.btn_edit_bgm:
+                // show start position selection dialog.
+                BgmStartPosDialog.start(this, mBgmStartPos, mBgmDuration, new BgmStartPosDialog.BgmStartPosSelectedListener() {
+                    @Override
+                    public void onBgmStartSelected(long position) {
+                        mBgmStartPos = position;
+                        Logger.d(TAG, "Bgm start position change to: " + mBgmStartPos);
+                    }
+                });
+                break;
+            case R.id.btn_delete_bgm:
+                mSelectAudioFilePath = null;
+                mTvCurBgmFile.setText(null);
+                findViewById(R.id.btn_edit_bgm).setEnabled(false);
+                findViewById(R.id.btn_delete_bgm).setEnabled(false);
                 break;
             default:
                 break;

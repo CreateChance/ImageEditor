@@ -2,6 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
 
     <item android:drawable="@color/theme_light_red" android:state_pressed="true" />
-    <item android:drawable="@color/theme_red" android:state_pressed="false" />
+    <item android:drawable="@color/theme_red" android:state_enabled="true" android:state_pressed="false" />
+    <item android:drawable="@color/theme_light_dark" android:state_enabled="false" />
 
 </selector>
