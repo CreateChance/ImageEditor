@@ -28,6 +28,7 @@ public class WindowSliceTransShader extends TransitionMainFragmentShader {
         super.initLocation(programId);
         mUCount = GLES20.glGetUniformLocation(programId, U_COUNT);
         mUSmoothness = GLES20.glGetUniformLocation(programId, U_SMOOTHNESS);
+        loadLocation(programId);
     }
 
     public void setUCount(float count) {
