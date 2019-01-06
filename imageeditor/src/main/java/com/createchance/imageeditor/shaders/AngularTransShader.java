@@ -26,6 +26,7 @@ public class AngularTransShader extends TransitionMainFragmentShader {
     public void initLocation(int programId) {
         super.initLocation(programId);
         mUStartAngle = GLES20.glGetUniformLocation(programId, U_START_ANGLE);
+        loadLocation(programId);
     }
 
     public void setUStartAngular(float startAngular) {
