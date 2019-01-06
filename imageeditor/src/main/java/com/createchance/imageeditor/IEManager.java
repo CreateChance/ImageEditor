@@ -721,6 +721,7 @@ public class IEManager {
                                int orientation,
                                File target,
                                File bgmFile,
+                               long bgmStartTimeMs,
                                SaveListener saveListener) {
         if (width <= 0 || height <= 0) {
             Logger.e(TAG, "Output size invalid, width: " + width + ", height: " + height);
@@ -730,7 +731,7 @@ public class IEManager {
             return false;
         }
 
-        mSaveTarget = new VideoSaver(width, height, orientation, target, bgmFile, 0, saveListener);
+        mSaveTarget = new VideoSaver(width, height, orientation, target, bgmFile, bgmStartTimeMs, saveListener);
         for (IEClip clip : mClipList) {
             clip.setRenderTarget(mSaveTarget);
             // reload image.

@@ -7,6 +7,7 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.opengl.GLES20;
 import android.os.Build;
+import android.util.Log;
 import android.view.Surface;
 
 import com.createchance.imageeditor.gles.EglCore;
@@ -41,7 +42,6 @@ public class VideoSaver implements IRenderTarget {
 
     private WindowSurface mWindowSurface;
     private MediaCodec mVideoEncoder;
-    private MediaCodec mAudioDecoder, mAudioEncoder;
     private int mVideoTrackId = -1, mAudioTrackId = -1;
     private boolean mRequestStop;
     private SaveListener mListener;
@@ -63,7 +63,7 @@ public class VideoSaver implements IRenderTarget {
         mOrientation = orientation;
         mOutputFile = outputFile;
         mVideoFile = new File(outputFile.getParent(), "video_track_only.mp4");
-        mAudioFile = new File(outputFile.getParent(), "audio_track_only.mp4");
+        mAudioFile = new File(outputFile.getParent(), "audio_track_only.aac");
         mBgmFile = bgmFile;
         mBgmStartTime = bgmStartTime;
         mListener = listener;
@@ -172,30 +172,6 @@ public class VideoSaver implements IRenderTarget {
             mWindowSurface = new WindowSurface(eglCore, inputSurface, true);
             mVideoEncoder.start();
 
-            // init bgm decoder and encoder.
-            if (mBgmFile != null) {
-                MediaExtractor mediaExtractor = new MediaExtractor();
-                mediaExtractor.setDataSource(mBgmFile.getAbsolutePath());
-                for (int i = 0; i < mediaExtractor.getTrackCount(); i++) {
-                    MediaFormat mediaFormat = mediaExtractor.getTrackFormat(i);
-                    String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
-                    Logger.d(TAG, "Found bgm file track mime: " + mime);
-                    if (mime.startsWith("audio")) {
-                        Logger.d(TAG, "Found bgm audio track, track index: " + i);
-                        // init audio decoder
-                        mAudioDecoder = MediaCodec.createDecoderByType(mime);
-                        mAudioDecoder.configure(mediaFormat, null, null, 0);
-                        mAudioDecoder.start();
-                        // init audio encoder
-                        mAudioEncoder = MediaCodec.createEncoderByType("audio/mp4a-latm");
-                        mAudioEncoder.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-                        mAudioEncoder.start();
-                        break;
-                    }
-                }
-                mediaExtractor.release();
-            }
-
             // init saver thread.
             mSaveThread = new SaverThread();
             mSaveThread.start();
@@ -247,49 +223,15 @@ public class VideoSaver implements IRenderTarget {
 
         private final long TIME_OUT = 5000;
 
-        private boolean isFinished = false;
-
         @Override
         public void run() {
             if (mBgmFile != null) {
-                if (doMuxVideo() && doMuxAudio()) {
-                    mergeFile();
-                }
-            } else {
                 if (doMuxVideo()) {
-                    mVideoFile.renameTo(mOutputFile);
+                    doMuxAudio();
                 }
-            }
-            if (isFinished) {
-                UiThreadUtil.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mListener != null) {
-                            mListener.onSaved(mOutputFile);
-                        }
-                    }
-                });
-                // delete temp file.
-                if (mVideoFile.exists()) {
-                    mVideoFile.delete();
-                }
-                if (mAudioFile.exists()) {
-                    mAudioFile.delete();
-                }
-                Logger.d(TAG, "Save worker done.");
             } else {
-                Logger.e(TAG, "Save worker failed.");
-                UiThreadUtil.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mListener != null) {
-                            mListener.onSaveFailed();
-                        }
-                    }
-                });
+                doMuxVideo();
             }
-
-            release();
         }
 
         private boolean doMuxVideo() {
@@ -347,184 +289,85 @@ public class VideoSaver implements IRenderTarget {
                 mVideoDuration = nowPts;
                 Logger.d(TAG, "Mux video done!");
                 if (mBgmFile == null) {
-                    isFinished = true;
+                    UiThreadUtil.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mListener != null) {
+                                mListener.onSaved(mOutputFile);
+                            }
+                        }
+                    });
+                    // rename output file.
+                    mVideoFile.renameTo(mOutputFile);
+                    Logger.d(TAG, "Save worker done.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                Logger.e(TAG, "Save worker failed.");
+                UiThreadUtil.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mListener != null) {
+                            mListener.onSaveFailed();
+                        }
+                    }
+                });
                 return false;
             } finally {
                 if (muxer != null) {
                     muxer.stop();
                     muxer.release();
+                }
+                if (mVideoEncoder != null) {
+                    mVideoEncoder.stop();
+                    mVideoEncoder.release();
                 }
             }
 
             return true;
         }
 
-        private boolean doMuxAudio() {
-            boolean readDone = false;
-            boolean decodeDone = false;
-            MediaCodec.BufferInfo decodeBufferInfo = new MediaCodec.BufferInfo();
-            MediaCodec.BufferInfo encodeBufferInfo = new MediaCodec.BufferInfo();
-            MediaMuxer muxer = null;
-            int audioTrackId = -1;
-            try {
-                muxer = new MediaMuxer(mAudioFile.getAbsolutePath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        private void doMuxAudio() {
+            AudioTransCoder audioTransCoder = new AudioTransCoder.Builder()
+                    .transcode(mBgmFile)
+                    .from(mBgmStartTime)
+                    .duration(mVideoDuration / 1000)
+                    .saveAs(mAudioFile)
+                    .build();
+            audioTransCoder.start(new AudioTransCoder.Callback() {
+                @Override
+                public void onProgress(float progress) {
+                    Log.d(TAG, "onProgress: " + progress);
+                }
 
-                // handle audio then.
-                MediaExtractor mediaExtractor = new MediaExtractor();
-                mediaExtractor.setDataSource(mBgmFile.getAbsolutePath());
-                int bgmAudioTrackIndex = -1;
-                for (int i = 0; i < mediaExtractor.getTrackCount(); i++) {
-                    MediaFormat mediaFormat = mediaExtractor.getTrackFormat(i);
-                    String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
-                    if (mime.startsWith("audio")) {
-                        Logger.d(TAG, "Found one audio track from bgm file, we will use this track as bgm.");
-                        bgmAudioTrackIndex = i;
-                        mediaExtractor.selectTrack(i);
-                        break;
+                @Override
+                public void onSucceed(File output) {
+                    Log.d(TAG, "onSucceed: ");
+                    mergeFile();
+                }
+
+                @Override
+                public void onFailed() {
+                    Log.d(TAG, "onFailed: ");
+                    Logger.e(TAG, "Save worker failed.");
+                    UiThreadUtil.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mListener != null) {
+                                mListener.onSaveFailed();
+                            }
+                        }
+                    });
+
+                    // delete temp files.
+                    if (mVideoFile.exists()) {
+                        mVideoFile.delete();
+                    }
+                    if (mAudioFile.exists()) {
+                        mAudioFile.delete();
                     }
                 }
-                if (bgmAudioTrackIndex != -1) {
-                    Logger.d(TAG, "Found audio track index: " + bgmAudioTrackIndex);
-                    while (true) {
-                        if (!readDone) {
-                            int decodeInputIndex = mAudioDecoder.dequeueInputBuffer(TIME_OUT);
-                            if (decodeInputIndex >= 0) {
-                                ByteBuffer decodeInputBuffer = mAudioDecoder.getInputBuffers()[decodeInputIndex];
-                                int sampleSize = mediaExtractor.readSampleData(decodeInputBuffer, 0);
-                                if (sampleSize >= 0) {
-                                    // send sample data to decoder
-                                    long sampleTime = mediaExtractor.getSampleTime();
-                                    Logger.d(TAG, "Sample time: " + sampleTime);
-                                    if (sampleTime - mBgmStartTime * 1000 >= mVideoDuration) {
-                                        Logger.d(TAG, "We reach end of bgm file.");
-                                        mAudioDecoder.queueInputBuffer(
-                                                decodeInputIndex,
-                                                0,
-                                                0,
-                                                0,
-                                                MediaCodec.BUFFER_FLAG_END_OF_STREAM
-                                        );
-                                        readDone = true;
-                                    } else {
-                                        mAudioDecoder.queueInputBuffer(
-                                                decodeInputIndex,
-                                                0,
-                                                sampleSize,
-                                                sampleTime,
-                                                0
-                                        );
-                                    }
-
-                                    // advance to next sample.
-                                    mediaExtractor.advance();
-                                } else if (sampleSize == -1) {
-                                    Logger.d(TAG, "We reach end of bgm file.");
-                                    mAudioDecoder.queueInputBuffer(
-                                            decodeInputIndex,
-                                            0,
-                                            0,
-                                            0,
-                                            MediaCodec.BUFFER_FLAG_END_OF_STREAM
-                                    );
-                                    readDone = true;
-                                }
-                            } else {
-                                Logger.e(TAG, "Get decoder's input buffer index failed!");
-                            }
-
-                            // read decoded audio data(pcm data), and then send it to encoder.
-                            if (!decodeDone) {
-                                // get encode input buffer
-                                int encodeInputIndex = mAudioEncoder.dequeueInputBuffer(TIME_OUT);
-                                if (encodeInputIndex >= 0) {
-                                    while (true) {
-                                        int decodeOutputIndex = mAudioDecoder.dequeueOutputBuffer(decodeBufferInfo, TIME_OUT);
-                                        if (decodeOutputIndex >= 0) {
-                                            if ((decodeBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) == 0) {
-                                                // get decode output buffer
-                                                ByteBuffer decodeOutputBuffer = mAudioDecoder.getOutputBuffers()[decodeOutputIndex];
-                                                ByteBuffer encodeInputBuffer = mAudioEncoder.getInputBuffers()[encodeInputIndex];
-                                                // put decoded buffer into encode buffer
-                                                encodeInputBuffer.put(decodeOutputBuffer);
-                                                // send data to encoder
-                                                mAudioEncoder.queueInputBuffer(
-                                                        encodeInputIndex,
-                                                        0,
-                                                        decodeBufferInfo.size,
-                                                        decodeBufferInfo.presentationTimeUs,
-                                                        0
-                                                );
-                                            } else {
-                                                Logger.d(TAG, "This is the last decode output buffer!");
-                                                decodeDone = true;
-                                                mAudioEncoder.queueInputBuffer(
-                                                        encodeInputIndex,
-                                                        0,
-                                                        0,
-                                                        0,
-                                                        MediaCodec.BUFFER_FLAG_END_OF_STREAM
-                                                );
-                                            }
-                                            // release decoder output index.
-                                            mAudioDecoder.releaseOutputBuffer(decodeOutputIndex, false);
-                                        } else if (decodeOutputIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                                            Logger.d(TAG, "No more data in the decode output buffer, so try again later.");
-                                            break;
-                                        }
-                                    }
-                                } else {
-                                    Logger.e(TAG, "Get encoder's input buffer index failed!");
-                                }
-                            }
-
-                            // read encoded buffer from encoder, and mux to output file's audio track.
-                            while (true) {
-                                int encodeOutputIndex = mAudioEncoder.dequeueOutputBuffer(encodeBufferInfo, TIME_OUT);
-                                if (encodeOutputIndex >= 0) {
-                                    Logger.d(TAG, "Get encode output buffer index: " + encodeOutputIndex);
-                                    ByteBuffer encodeOutputBuffer = mAudioEncoder.getOutputBuffers()[encodeOutputIndex];
-                                    // mux buffer to output file.
-                                    muxer.writeSampleData(audioTrackId, encodeOutputBuffer, encodeBufferInfo);
-                                    mAudioEncoder.releaseOutputBuffer(encodeOutputIndex, false);
-                                    if ((encodeBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                                        break;
-                                    }
-                                } else if (encodeOutputIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                                    Logger.d(TAG, "No more data in encode output buffer, so try again later!");
-                                    break;
-                                } else if (encodeOutputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                                    MediaFormat audioFormat = mAudioEncoder.getOutputFormat();
-                                    audioTrackId = muxer.addTrack(audioFormat);
-                                    muxer.start();
-                                    Logger.d(TAG, "Audio encode output format: " + audioFormat);
-                                }
-                            }
-                        } else {
-                            Logger.d(TAG, "Bgm file read done, so skip!");
-                        }
-
-                        if ((encodeBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                            Logger.d(TAG, "Mux audio done.");
-                            break;
-                        }
-                    }
-                } else {
-                    Logger.e(TAG, "No audio track found int bgm file, so exit!");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            } finally {
-                if (muxer != null) {
-                    muxer.stop();
-                    muxer.release();
-                }
-            }
-
-            return true;
+            });
         }
 
         private void mergeFile() {
@@ -584,9 +427,25 @@ public class VideoSaver implements IRenderTarget {
                     }
                 }
 
-                isFinished = true;
+                UiThreadUtil.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mListener != null) {
+                            mListener.onSaved(mOutputFile);
+                        }
+                    }
+                });
+                Logger.d(TAG, "Save worker done.");
             } catch (Exception e) {
                 e.printStackTrace();
+                UiThreadUtil.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mListener != null) {
+                            mListener.onSaveFailed();
+                        }
+                    }
+                });
             } finally {
                 if (videoExtractor != null) {
                     videoExtractor.release();
@@ -598,21 +457,14 @@ public class VideoSaver implements IRenderTarget {
                     muxer.stop();
                     muxer.release();
                 }
-            }
-        }
 
-        private void release() {
-            if (mVideoEncoder != null) {
-                mVideoEncoder.stop();
-                mVideoEncoder.release();
-            }
-            if (mAudioDecoder != null) {
-                mAudioDecoder.stop();
-                mAudioDecoder.release();
-            }
-            if (mAudioEncoder != null) {
-                mAudioEncoder.stop();
-                mAudioEncoder.release();
+                // delete temp files.
+                if (mVideoFile.exists()) {
+                    mVideoFile.delete();
+                }
+                if (mAudioFile.exists()) {
+                    mAudioFile.delete();
+                }
             }
         }
     }

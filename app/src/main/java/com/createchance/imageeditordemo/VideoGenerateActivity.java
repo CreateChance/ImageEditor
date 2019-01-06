@@ -206,6 +206,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                         0,
                         new File(Constants.mBaseDir, System.currentTimeMillis() + ".mp4"),
                         TextUtils.isEmpty(mSelectAudioFilePath) ? null : new File(mSelectAudioFilePath),
+                        10000,
                         new SaveListener() {
                             @Override
                             public void onSaveFailed() {
