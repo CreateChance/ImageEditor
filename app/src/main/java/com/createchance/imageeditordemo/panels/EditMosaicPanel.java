@@ -53,12 +53,18 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
             mMosaicOp = new MosaicOperator.Builder().strength(20).build();
             IEManager.getInstance().addOperator(0, mMosaicOp, false);
         }
+        int renderLeft = IEManager.getInstance().getRenderLeft(0);
+        int renderBottom = IEManager.getInstance().getRenderBottom(0);
+        int renderWidth = IEManager.getInstance().getRenderWidth(0);
+        int renderHeight = IEManager.getInstance().getRenderHeight(0);
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
                 if (mIsBrushMode) {
-                    mMosaicOp.addArea(event.getX(), event.getY());
+                    mMosaicOp.addArea((event.getX() - renderLeft) * 1.0f / renderWidth,
+                            1.0f - (event.getY() - renderBottom) * 1.0f / renderHeight);
                 } else {
-                    mMosaicOp.removeArea(event.getX(), event.getY());
+                    mMosaicOp.removeArea((event.getX() - renderLeft) * 1.0f / renderWidth,
+                            1.0f - (event.getY() - renderBottom) * 1.0f / renderHeight);
                 }
                 break;
             default:
@@ -117,7 +123,7 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
         }
 
         if (mMosaicOp == null) {
-            mMosaicOp = new MosaicOperator.Builder().strength(20).build();
+            mMosaicOp = new MosaicOperator.Builder().strength(50).build();
             IEManager.getInstance().addOperator(0, mMosaicOp, false);
         }
         switch (seekBar.getId()) {
@@ -125,7 +131,7 @@ public class EditMosaicPanel extends AbstractPanel implements View.OnClickListen
                 mMosaicOp.setSize(1 + progress * 9.0f / seekBar.getMax());
                 break;
             case R.id.sb_mosaic_strength:
-                mMosaicOp.setStrength(progress * 40.0f / seekBar.getMax());
+                mMosaicOp.setStrength(progress * 100.0f / seekBar.getMax());
                 break;
             default:
                 break;

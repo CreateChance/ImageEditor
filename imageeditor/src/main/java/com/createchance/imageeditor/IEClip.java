@@ -422,6 +422,19 @@ class IEClip implements RenderContext {
                 0,
                 0);
 
+        mRenderTarget.attachOffScreenTexture(mRenderTarget.getOutputTextureId());
+
+        mDrawer.draw(mBaseTextureId,
+                mRenderLeft,
+                mRenderBottom,
+                getRenderWidth(),
+                getRenderHeight(),
+                true,
+                1.0f,
+                1.0f,
+                0,
+                0);
+
         for (AbstractOperator operator : mOpList) {
             operator.exec();
         }
