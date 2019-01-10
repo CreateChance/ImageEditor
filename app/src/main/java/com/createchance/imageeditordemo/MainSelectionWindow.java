@@ -74,6 +74,11 @@ public class MainSelectionWindow extends PopupWindow implements View.OnClickList
         }
     }
 
+    public void setEditVisible(boolean visible) {
+        mRootView.findViewById(R.id.tv_bottom_edit).setVisibility(visible ? View.VISIBLE : View.GONE);
+        mRootView.findViewById(R.id.vw_edit_space).setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
     public interface MainSelectionListener {
         void onPreview();
 

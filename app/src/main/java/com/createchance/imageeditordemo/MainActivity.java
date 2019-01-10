@@ -442,6 +442,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
         }
 
+        if (mCurWorkItem.mImage.getName().substring(mCurWorkItem.mImage.getName().lastIndexOf(".") + 1).equals("mp4")) {
+            mVwBottomSelection.setEditVisible(false);
+        } else {
+            mVwBottomSelection.setEditVisible(true);
+        }
         mVwBottomSelection.showAtLocation(findViewById(R.id.vw_root),
                 Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
         // set dark background color.
