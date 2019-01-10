@@ -22,7 +22,7 @@ public class OutputDialog extends Dialog {
 
     public static OutputDialog start(Context context) {
         OutputDialog dialog = new OutputDialog(context);
-        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
         dialog.show();
         return dialog;
     }
