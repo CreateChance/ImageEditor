@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -197,9 +198,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             workItem.mImage = work;
             workItem.mSize = work.length();
             workItem.mTimeStamp = work.lastModified();
-            BitmapFactory.decodeFile(work.getAbsolutePath(), options);
-            workItem.mWidth = options.outWidth;
-            workItem.mHeight = options.outHeight;
+            if (work.getName().substring(work.getName().lastIndexOf(".") + 1).equals("mp4")) {
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(work.getAbsolutePath());
+                workItem.mWidth = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                workItem.mHeight = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                retriever.release();
+            } else {
+                BitmapFactory.decodeFile(work.getAbsolutePath(), options);
+                workItem.mWidth = options.outWidth;
+                workItem.mHeight = options.outHeight;
+            }
             mWorkList.add(workItem);
         }
     }
