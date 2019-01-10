@@ -31,13 +31,13 @@ public interface RenderContext {
 
     int getRenderBottom();
 
-    int getScissorX();
+    float getScissorX();
 
-    int getScissorY();
+    float getScissorY();
 
-    int getScissorWidth();
+    float getScissorWidth();
 
-    int getScissorHeight();
+    float getScissorHeight();
 
     int getInputTextureId();
 

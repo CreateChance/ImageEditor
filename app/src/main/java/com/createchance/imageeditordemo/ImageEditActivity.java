@@ -465,8 +465,8 @@ public class ImageEditActivity extends AppCompatActivity implements
                 final OutputDialog dialog = OutputDialog.start(this);
                 mOutputFile = new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg");
                 IEManager.getInstance().saveAsImage(0,
-                        IEManager.getInstance().getOriginWidth(0),
-                        IEManager.getInstance().getOriginHeight(0),
+//                        IEManager.getInstance().getOriginWidth(0),
+//                        IEManager.getInstance().getOriginHeight(0),
                         mOutputFile,
                         new SaveListener() {
                             @Override
@@ -504,28 +504,32 @@ public class ImageEditActivity extends AppCompatActivity implements
                 mVwRightScissor.setVisibility(View.VISIBLE);
                 mVwTopScissor.setVisibility(View.VISIBLE);
                 mVwBottomScissor.setVisibility(View.VISIBLE);
+                int renderLeft = IEManager.getInstance().getRenderLeft(0);
+                int renderBottom = IEManager.getInstance().getRenderBottom(0);
+                int renderWidth = IEManager.getInstance().getRenderWidth(0);
+                int renderHeight = IEManager.getInstance().getRenderHeight(0);
                 RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) mVwLeftScissor.getLayoutParams();
-                leftParams.width = IEManager.getInstance().getScissorX(0);
+                leftParams.width = (int) (IEManager.getInstance().getScissorX(0) * renderWidth) + renderLeft;
                 mVwLeftScissor.setLayoutParams(leftParams);
 
                 RelativeLayout.LayoutParams topParams = (RelativeLayout.LayoutParams) mVwTopScissor.getLayoutParams();
-                topParams.height = mVwPreview.getHeight() -
-                        (IEManager.getInstance().getScissorY(0) + IEManager.getInstance().getScissorHeight(0));
+                topParams.height = (int) (mVwPreview.getHeight() -
+                        IEManager.getInstance().getScissorHeight(0) * renderHeight - renderBottom);
                 mVwTopScissor.setLayoutParams(topParams);
 
                 RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) mVwRightScissor.getLayoutParams();
-                rightParams.width = mVwPreview.getWidth() -
-                        (IEManager.getInstance().getScissorX(0) + IEManager.getInstance().getScissorWidth(0));
+                rightParams.width = (int) (mVwPreview.getWidth() -
+                        IEManager.getInstance().getScissorWidth(0) * renderWidth - renderLeft);
                 mVwRightScissor.setLayoutParams(rightParams);
 
                 RelativeLayout.LayoutParams bottomParams = (RelativeLayout.LayoutParams) mVwBottomScissor.getLayoutParams();
-                bottomParams.height = IEManager.getInstance().getScissorY(0);
+                bottomParams.height = (int) (IEManager.getInstance().getScissorY(0) * renderHeight) + renderBottom;
                 mVwBottomScissor.setLayoutParams(bottomParams);
 
-                IEManager.getInstance().setScissorX(0, IEManager.getInstance().getRenderLeft(0), false);
-                IEManager.getInstance().setScissorY(0, IEManager.getInstance().getRenderBottom(0), false);
-                IEManager.getInstance().setScissorWidth(0, IEManager.getInstance().getRenderWidth(0), false);
-                IEManager.getInstance().setScissorHeight(0, IEManager.getInstance().getRenderHeight(0), true);
+                IEManager.getInstance().setScissorX(0, 0, false);
+                IEManager.getInstance().setScissorY(0, 0, false);
+                IEManager.getInstance().setScissorWidth(0, 1, false);
+                IEManager.getInstance().setScissorHeight(0, 1, true);
                 break;
             case AbstractPanel.TYPE_ROTATE:
 
@@ -559,13 +563,17 @@ public class ImageEditActivity extends AppCompatActivity implements
         mCurrentPanel = null;
         if (type == AbstractPanel.TYPE_CUT) {
             if (!discard) {
-                IEManager.getInstance().setScissorX(0, mVwLeftScissor.getWidth(), false);
-                IEManager.getInstance().setScissorY(0, mVwBottomScissor.getHeight(), false);
+                int renderLeft = IEManager.getInstance().getRenderLeft(0);
+                int renderBottom = IEManager.getInstance().getRenderBottom(0);
+                int renderWidth = IEManager.getInstance().getRenderWidth(0);
+                int renderHeight = IEManager.getInstance().getRenderHeight(0);
+                IEManager.getInstance().setScissorX(0, (mVwLeftScissor.getWidth() - renderLeft) * 1.0f / renderWidth, false);
+                IEManager.getInstance().setScissorY(0, (mVwBottomScissor.getHeight() - renderBottom) * 1.0f / renderHeight, false);
                 IEManager.getInstance().setScissorWidth(0,
-                        mVwPreview.getWidth() - mVwRightScissor.getWidth() - mVwLeftScissor.getWidth(),
+                        (mVwPreview.getWidth() - mVwRightScissor.getWidth() - mVwLeftScissor.getWidth()) * 1.0f / renderWidth,
                         false);
                 IEManager.getInstance().setScissorHeight(0,
-                        mVwPreview.getHeight() - mVwBottomScissor.getHeight() - mVwTopScissor.getHeight(),
+                        (mVwPreview.getHeight() - mVwBottomScissor.getHeight() - mVwTopScissor.getHeight()) * 1.0f / renderHeight,
                         true);
             }
 

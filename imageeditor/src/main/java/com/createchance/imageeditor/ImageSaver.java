@@ -35,12 +35,25 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
 
     private int mSurfaceWidth, mSurfaceHeight;
 
+    private int mSaveX, mSaveY, mSaveWidth, mSaveHeight;
+
     private File mOutputFile;
     private SaveListener mListener;
 
-    public ImageSaver(int width, int height, File outputFile, SaveListener saveListener) {
-        mSurfaceWidth = width;
-        mSurfaceHeight = height;
+    public ImageSaver(int surfaceWidth,
+                      int surfaceHeight,
+                      int saveX,
+                      int saveY,
+                      int saveWidth,
+                      int saveHeight,
+                      File outputFile,
+                      SaveListener saveListener) {
+        mSurfaceWidth = surfaceWidth;
+        mSurfaceHeight = surfaceHeight;
+        mSaveX = saveX;
+        mSaveY = saveY;
+        mSaveWidth = saveWidth;
+        mSaveHeight = saveHeight;
         mOutputFile = outputFile;
         mListener = saveListener;
     }
@@ -181,22 +194,22 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
         final Semaphore waiter = new Semaphore(0);
 
         // Take picture on OpenGL thread
-        final int[] pixelMirroredArray = new int[mSurfaceWidth * mSurfaceHeight];
-        final IntBuffer pixelBuffer = IntBuffer.allocate(mSurfaceWidth * mSurfaceHeight);
-        GLES20.glReadPixels(0,
-                0,
-                mSurfaceWidth,
-                mSurfaceHeight,
+        final int[] pixelMirroredArray = new int[mSaveWidth * mSaveHeight];
+        final IntBuffer pixelBuffer = IntBuffer.allocate(mSaveWidth * mSaveHeight);
+        GLES20.glReadPixels(mSaveX,
+                mSaveY,
+                mSaveWidth,
+                mSaveHeight,
                 GLES20.GL_RGBA,
                 GLES20.GL_UNSIGNED_BYTE,
                 pixelBuffer);
         int[] pixelArray = pixelBuffer.array();
 
         // Convert upside down mirror-reversed image to right-side up normal image.
-        for (int i = 0; i < mSurfaceHeight; i++) {
-            for (int j = 0; j < mSurfaceWidth; j++) {
-                pixelMirroredArray[(mSurfaceHeight - i - 1) * mSurfaceWidth + j] =
-                        pixelArray[i * mSurfaceWidth + j];
+        for (int i = 0; i < mSaveHeight; i++) {
+            for (int j = 0; j < mSaveWidth; j++) {
+                pixelMirroredArray[(mSaveHeight - i - 1) * mSaveWidth + j] =
+                        pixelArray[i * mSaveWidth + j];
             }
         }
         waiter.release();
@@ -215,7 +228,7 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
             return;
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(mSurfaceWidth, mSurfaceHeight, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(mSaveWidth, mSaveHeight, Bitmap.Config.ARGB_8888);
         bitmap.copyPixelsFromBuffer(IntBuffer.wrap(pixelMirroredArray));
         saveBitmap(bitmap, mOutputFile);
 

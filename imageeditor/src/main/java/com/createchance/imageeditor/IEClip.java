@@ -50,7 +50,7 @@ class IEClip implements RenderContext {
     private BaseImageDrawer mDrawer;
 
     private int mRenderLeft, mRenderTop, mRenderRight, mRenderBottom;
-    private int mScissorX, mScissorY, mScissorWidth, mScissorHeight;
+    private float mScissorX, mScissorY, mScissorWidth = 1.0f, mScissorHeight = 1.0f;
     private float mScaleX = 1.0f, mScaleY = 1.0f;
     private float mTranslateX, mTranslateY;
 
@@ -108,22 +108,22 @@ class IEClip implements RenderContext {
     }
 
     @Override
-    public int getScissorX() {
+    public float getScissorX() {
         return mScissorX;
     }
 
     @Override
-    public int getScissorY() {
+    public float getScissorY() {
         return mScissorY;
     }
 
     @Override
-    public int getScissorWidth() {
+    public float getScissorWidth() {
         return mScissorWidth;
     }
 
     @Override
-    public int getScissorHeight() {
+    public float getScissorHeight() {
         return mScissorHeight;
     }
 
@@ -184,7 +184,7 @@ class IEClip implements RenderContext {
         mRenderTarget = target;
     }
 
-    void loadImage() {
+    void loadImage(boolean reset) {
         if (mRenderTarget == null ||
                 mRenderTarget.getSurfaceWidth() == 0 ||
                 mRenderTarget.getSurfaceHeight() == 0) {
@@ -194,7 +194,7 @@ class IEClip implements RenderContext {
             Logger.d(TAG, "Clip load image, index: " + IEManager.getInstance().getClipList().indexOf(this));
             mBitmap = loadBitmap(mImageFilePath, mRenderTarget.getSurfaceWidth(), mRenderTarget.getSurfaceHeight());
             Logger.d(TAG, "Loaded image width: " + mBitmap.getWidth() + ", height: " + mBitmap.getHeight());
-            adjustSize();
+            adjustSize(reset);
         }
     }
 
@@ -282,19 +282,19 @@ class IEClip implements RenderContext {
         this.mDuration = duration;
     }
 
-    void setScissorX(int scissorX) {
+    void setScissorX(float scissorX) {
         this.mScissorX = scissorX;
     }
 
-    void setScissorY(int scissorY) {
+    void setScissorY(float scissorY) {
         this.mScissorY = scissorY;
     }
 
-    void setScissorWidth(int scissorWidth) {
+    void setScissorWidth(float scissorWidth) {
         this.mScissorWidth = scissorWidth;
     }
 
-    void setScissorHeight(int scissorHeight) {
+    void setScissorHeight(float scissorHeight) {
         this.mScissorHeight = scissorHeight;
     }
 
@@ -407,10 +407,10 @@ class IEClip implements RenderContext {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // scissor for output
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-        GLES20.glScissor(mScissorX,
-                mScissorY,
-                mScissorWidth,
-                mScissorHeight);
+        GLES20.glScissor((int) (mScissorX * getRenderWidth()) + mRenderLeft,
+                (int) (mScissorY * getRenderHeight()) + mRenderBottom,
+                (int) (mScissorWidth * getRenderWidth()),
+                (int) (mScissorHeight * getRenderHeight()));
         mDrawer.draw(mBaseTextureId,
                 mRenderLeft,
                 mRenderBottom,
@@ -467,7 +467,7 @@ class IEClip implements RenderContext {
         }
     }
 
-    private void adjustSize() {
+    private void adjustSize(boolean reset) {
         int imgWidth = mBitmap.getWidth();
         int imgHeight = mBitmap.getHeight();
         float scale = 1.0f;
@@ -494,10 +494,12 @@ class IEClip implements RenderContext {
         mRenderTop = (mRenderTarget.getSurfaceHeight() + imgHeight) / 2;
         mRenderRight = (mRenderTarget.getSurfaceWidth() + imgWidth) / 2;
         mRenderBottom = (mRenderTarget.getSurfaceHeight() - imgHeight) / 2;
-        mScissorX = mRenderLeft;
-        mScissorY = mRenderBottom;
-        mScissorWidth = mRenderRight - mRenderLeft;
-        mScissorHeight = mRenderTop - mRenderBottom;
+        if (reset) {
+            mScissorX = 0;
+            mScissorY = 0;
+            mScissorWidth = 1;
+            mScissorHeight = 1;
+        }
     }
 
     void releaseImage() {

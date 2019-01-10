@@ -87,7 +87,7 @@ public class IEManager {
                         // set render target
                         for (IEClip clip : mClipList) {
                             clip.setRenderTarget(mPreviewTarget);
-                            clip.loadImage();
+                            clip.loadImage(true);
                             clip.loadTexture();
                         }
 
@@ -148,7 +148,7 @@ public class IEManager {
         }
         IEClip clip = new IEClip(imagePath, startTime, startTime + duration);
         mClipList.add(clip);
-        clip.loadImage();
+        clip.loadImage(true);
         if (clip.getBitmap() != null) {
             mRenderThread.post(new Runnable() {
                 @Override
@@ -434,7 +434,7 @@ public class IEManager {
         return true;
     }
 
-    public boolean setScissorX(int clipIndex, int scissorX, boolean render) {
+    public boolean setScissorX(int clipIndex, float scissorX, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Set scissor x failed, clip index invalid: " + clipIndex);
             return false;
@@ -449,7 +449,7 @@ public class IEManager {
         return true;
     }
 
-    public boolean setScissorY(int clipIndex, int scissorY, boolean render) {
+    public boolean setScissorY(int clipIndex, float scissorY, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Set scissor y failed, clip index invalid: " + clipIndex);
             return false;
@@ -464,7 +464,7 @@ public class IEManager {
         return true;
     }
 
-    public boolean setScissorWidth(int clipIndex, int scissorWidth, boolean render) {
+    public boolean setScissorWidth(int clipIndex, float scissorWidth, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Set scissor width failed, clip index invalid: " + clipIndex);
             return false;
@@ -479,7 +479,7 @@ public class IEManager {
         return true;
     }
 
-    public boolean setScissorHeight(int clipIndex, int scissorHeight, boolean render) {
+    public boolean setScissorHeight(int clipIndex, float scissorHeight, boolean render) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Set scissor height failed, clip index invalid: " + clipIndex);
             return false;
@@ -566,7 +566,7 @@ public class IEManager {
         return mClipList.get(clipIndex).getSurfaceHeight();
     }
 
-    public int getScissorX(int clipIndex) {
+    public float getScissorX(int clipIndex) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Get scissor x failed, clip index invalid: " + clipIndex);
             return -1;
@@ -575,7 +575,7 @@ public class IEManager {
         return mClipList.get(clipIndex).getScissorX();
     }
 
-    public int getScissorY(int clipIndex) {
+    public float getScissorY(int clipIndex) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Get scissor y failed, clip index invalid: " + clipIndex);
             return -1;
@@ -584,7 +584,7 @@ public class IEManager {
         return mClipList.get(clipIndex).getScissorY();
     }
 
-    public int getScissorWidth(int clipIndex) {
+    public float getScissorWidth(int clipIndex) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Get scissor width failed, clip index invalid: " + clipIndex);
             return -1;
@@ -593,7 +593,7 @@ public class IEManager {
         return mClipList.get(clipIndex).getScissorWidth();
     }
 
-    public int getScissorHeight(int clipIndex) {
+    public float getScissorHeight(int clipIndex) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
             Logger.e(TAG, "Get scissor height failed, clip index invalid: " + clipIndex);
             return -1;
@@ -664,6 +664,15 @@ public class IEManager {
         return mClipList.get(clipIndex);
     }
 
+    public boolean saveAsImage(int clipIndex, File target, SaveListener listener) {
+        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
+            Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        return saveAsImage(clipIndex, -1, -1, target, listener);
+    }
+
     public boolean saveAsImage(final int clipIndex,
                                int width,
                                int height,
@@ -674,20 +683,32 @@ public class IEManager {
             return false;
         }
 
-        if (width <= 0 || height <= 0) {
-            Logger.e(TAG, "Output size invalid, width: " + width + ", height: " + height);
-        }
         if (target == null) {
             Logger.e(TAG, "Target file can not be null!");
             return false;
         }
 
-        mSaveTarget = new ImageSaver(width, height, target, listener);
-        // we can not do load image in gl thread, because do this will make gl thread memory used out.
+        int originWidth = getOriginWidth(clipIndex);
+        int originHeight = getOriginHeight(clipIndex);
+        if (width < 0) {
+            width = (int) (getScissorWidth(clipIndex) * originWidth);
+        }
+        if (height < 0) {
+            height = (int) (getScissorHeight(clipIndex) * originHeight);
+        }
+        mSaveTarget = new ImageSaver(originWidth,
+                originHeight,
+                (int) (getScissorX(clipIndex) * originWidth),
+                (int) (getScissorY(clipIndex) * originHeight),
+                width,
+                height,
+                target,
+                listener);
         mClipList.get(clipIndex).setRenderTarget(mSaveTarget);
+        // we can not do load image in gl thread, because do this will make gl thread memory used out.
         // reload image.
         mClipList.get(clipIndex).releaseImage();
-        mClipList.get(clipIndex).loadImage();
+        mClipList.get(clipIndex).loadImage(false);
         // reset clip's translate and scale.
         mClipList.get(clipIndex).setTranslateX(0);
         mClipList.get(clipIndex).setTranslateY(0);
@@ -707,7 +728,7 @@ public class IEManager {
                 mClipList.get(clipIndex).setRenderTarget(mPreviewTarget);
                 // reload image and texture.
                 mClipList.get(clipIndex).releaseImage();
-                mClipList.get(clipIndex).loadImage();
+                mClipList.get(clipIndex).loadImage(false);
                 mClipList.get(clipIndex).releaseTexture();
                 mClipList.get(clipIndex).loadTexture();
             }
@@ -740,7 +761,7 @@ public class IEManager {
             clip.setRenderTarget(mSaveTarget);
             // reload image.
             clip.releaseImage();
-            clip.loadImage();
+            clip.loadImage(false);
         }
         mRenderThread.post(new Runnable() {
             @Override
@@ -765,7 +786,7 @@ public class IEManager {
                 for (IEClip clip : mClipList) {
                     clip.setRenderTarget(mPreviewTarget);
                     clip.releaseImage();
-                    clip.loadImage();
+                    clip.loadImage(false);
                     clip.releaseTexture();
                     clip.loadTexture();
                 }

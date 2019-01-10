@@ -68,10 +68,10 @@ public class MosaicOperator extends AbstractOperator {
             }
         }
         GLES20.glScissor(
-                mContext.getScissorX(),
-                mContext.getScissorY(),
-                mContext.getScissorWidth(),
-                mContext.getScissorHeight()
+                (int) (mContext.getScissorX() * mContext.getSurfaceWidth()),
+                (int) (mContext.getScissorY() * mContext.getSurfaceHeight()),
+                (int) (mContext.getScissorWidth() * mContext.getSurfaceWidth()),
+                (int) (mContext.getScissorHeight() * mContext.getSurfaceHeight())
         );
         mContext.swapTexture();
     }
