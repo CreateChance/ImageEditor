@@ -2,6 +2,8 @@ package com.createchance.imageeditor;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.opengl.GLES20;
 
 import com.createchance.imageeditor.drawers.BaseImageDrawer;
@@ -11,6 +13,7 @@ import com.createchance.imageeditor.utils.Logger;
 import com.createchance.imageeditor.utils.OpenGlUtils;
 import com.createchance.imageeditor.utils.UiThreadUtil;
 
+import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,8 @@ class IEClip implements RenderContext {
     private long mTransitionDuration;
 
     private int mBaseTextureId = -1;
+
+    private ExifInterface mExifInterface;
 
     private final List<AbstractOperator> mOpList = new ArrayList<>();
     private final List<AbstractOperator> mRemovedOpList = new ArrayList<>();
@@ -517,6 +522,31 @@ class IEClip implements RenderContext {
     }
 
     private Bitmap loadBitmap(String filePath, int width, int height) {
+        int degree = 0;
+        try {
+            mExifInterface = new ExifInterface(mImageFilePath);
+            // read orientation info.
+            int orientation = mExifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
+            // get rotate degree.
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+                default:
+                    degree = 0;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -524,8 +554,14 @@ class IEClip implements RenderContext {
         // preload size
         BitmapFactory.decodeFile(filePath, options);
 
-        mOriginWidth = options.outWidth;
-        mOriginHeight = options.outHeight;
+        // get origin size by rotate degree.
+        if (degree == 0 || degree == 180) {
+            mOriginWidth = options.outWidth;
+            mOriginHeight = options.outHeight;
+        } else {
+            mOriginWidth = options.outHeight;
+            mOriginHeight = options.outWidth;
+        }
 
         // real load size
         options.inJustDecodeBounds = false;
@@ -533,7 +569,17 @@ class IEClip implements RenderContext {
         // get sample size by target size.
         options.inSampleSize = getSampleSize(mOriginWidth, mOriginHeight, width, height);
 
-        return BitmapFactory.decodeFile(filePath, options);
+        Bitmap rawBitmap = BitmapFactory.decodeFile(filePath, options);
+
+        if (degree != 0) {
+            // rotate image
+            Matrix m = new Matrix();
+            m.postRotate(degree);
+            rawBitmap = Bitmap.createBitmap(rawBitmap, 0, 0, rawBitmap.getWidth(),
+                    rawBitmap.getHeight(), m, true);
+        }
+
+        return rawBitmap;
     }
 
     private int getSampleSize(int originalWidth, int originalHeight, int width, int height) {
