@@ -107,12 +107,13 @@ public class IEManager {
 
             @Override
             public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                Logger.d(TAG, "onSurfaceTextureDestroyed: ");
                 return true;
             }
 
             @Override
             public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
+                Logger.d(TAG, "onSurfaceTextureUpdated: ");
             }
         });
     }
@@ -704,24 +705,28 @@ public class IEManager {
                 height,
                 target,
                 listener);
-        mClipList.get(clipIndex).setRenderTarget(mSaveTarget);
-        // we can not do load image in gl thread, because do this will make gl thread memory used out.
-        // reload image.
-        mClipList.get(clipIndex).releaseImage();
-        mClipList.get(clipIndex).loadImage(false);
-        // reset clip's translate and scale.
-        mClipList.get(clipIndex).setTranslateX(0);
-        mClipList.get(clipIndex).setTranslateY(0);
-        mClipList.get(clipIndex).setScaleX(1.0f);
-        mClipList.get(clipIndex).setScaleY(1.0f);
         mRenderThread.post(new Runnable() {
             @Override
             public void run() {
+                mClipList.get(clipIndex).setRenderTarget(mSaveTarget);
+                // reload image and texture
+                mClipList.get(clipIndex).releaseImage();
+                mClipList.get(clipIndex).releaseTexture();
+                long loadImageStart = System.currentTimeMillis();
+                mClipList.get(clipIndex).loadImage(false);
+                long loadTextureStart = System.currentTimeMillis();
+                mClipList.get(clipIndex).loadTexture();
+                long loadTextureEnd = System.currentTimeMillis();
+                Logger.e(TAG, "Load time, image: " + (loadTextureStart - loadImageStart) +
+                        ", texture: " + (loadTextureEnd - loadTextureStart));
+                // reset clip's translate and scale.
+                mClipList.get(clipIndex).setTranslateX(0);
+                mClipList.get(clipIndex).setTranslateY(0);
+                mClipList.get(clipIndex).setScaleX(1.0f);
+                mClipList.get(clipIndex).setScaleY(1.0f);
+
                 mSaveTarget.init(mRenderThread.getEglCore());
                 mSaveTarget.makeCurrent();
-                // reload texture.
-                mClipList.get(clipIndex).releaseTexture();
-                mClipList.get(clipIndex).loadTexture();
                 mClipList.get(clipIndex).render(true, 0);
 
                 mPreviewTarget.makeCurrent();

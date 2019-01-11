@@ -407,15 +407,20 @@ class IEClip implements RenderContext {
         // render base image
         mRenderTarget.bindOffScreenFrameBuffer();
         mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
-
         GLES20.glClearColor(0, 0, 0, 0);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        mRenderTarget.attachOffScreenTexture(mRenderTarget.getOutputTextureId());
+        GLES20.glClearColor(0, 0, 0, 0);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
         // scissor for output
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
         GLES20.glScissor((int) (mScissorX * getRenderWidth()) + mRenderLeft,
                 (int) (mScissorY * getRenderHeight()) + mRenderBottom,
                 (int) (mScissorWidth * getRenderWidth()),
                 (int) (mScissorHeight * getRenderHeight()));
+        mRenderTarget.attachOffScreenTexture(mRenderTarget.getInputTextureId());
         mDrawer.draw(mBaseTextureId,
                 mRenderLeft,
                 mRenderBottom,
@@ -428,7 +433,6 @@ class IEClip implements RenderContext {
                 0);
 
         mRenderTarget.attachOffScreenTexture(mRenderTarget.getOutputTextureId());
-
         mDrawer.draw(mBaseTextureId,
                 mRenderLeft,
                 mRenderBottom,

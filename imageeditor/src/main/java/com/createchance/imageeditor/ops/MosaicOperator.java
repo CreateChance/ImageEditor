@@ -52,14 +52,15 @@ public class MosaicOperator extends AbstractOperator {
         if (mMosaicAreaList.size() == 0) {
             return;
         }
+
+        mDrawer.setImageSize(mContext.getRenderWidth(), mContext.getRenderHeight());
+        mDrawer.setMosaicSize(mMosaicWidth * mContext.getScaleFactor(), mMosaicHeight * mContext.getScaleFactor());
         synchronized (mMosaicAreaList) {
             for (Area area : mMosaicAreaList) {
                 GLES20.glScissor((int) (area.x * mContext.getRenderWidth()) + mContext.getRenderLeft(),
                         (int) (area.y * mContext.getRenderHeight()) + mContext.getRenderBottom(),
                         (int) (area.width * mContext.getRenderWidth()),
                         (int) (area.height * mContext.getRenderHeight()));
-                mDrawer.setImageSize(mContext.getRenderWidth(), mContext.getRenderHeight());
-                mDrawer.setMosaicSize(mMosaicWidth * mContext.getScaleFactor(), mMosaicHeight * mContext.getScaleFactor());
                 mDrawer.draw(mContext.getInputTextureId(),
                         0,
                         0,
