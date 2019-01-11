@@ -84,5 +84,9 @@ vec4 hexagonStyle() {
 
 void main(void)
 {
-    gl_FragColor = blockStyle();
+    if (u_MosaicSize.x == 0.0 || u_MosaicSize.y == 0.0) {
+        gl_FragColor = texture2D(u_InputTexture, v_TextureCoordinates);
+    } else {
+        gl_FragColor = blockStyle();
+    }
 }

@@ -40,7 +40,6 @@ public class MosaicOperator extends AbstractOperator {
 
     @Override
     public void exec() {
-        mContext.attachOffScreenTexture(mContext.getOutputTextureId());
         if (mDrawer == null) {
             mDrawer = new MosaicDrawer();
         }
@@ -53,7 +52,16 @@ public class MosaicOperator extends AbstractOperator {
             return;
         }
 
+        // copy input texture to output texture, we will scissor to draw mosaic.
+        mContext.attachOffScreenTexture(mContext.getOutputTextureId());
         mDrawer.setImageSize(mContext.getRenderWidth(), mContext.getRenderHeight());
+        mDrawer.setMosaicSize(0, 0);
+        mDrawer.draw(mContext.getInputTextureId(),
+                0,
+                0,
+                mContext.getSurfaceWidth(),
+                mContext.getSurfaceHeight());
+
         mDrawer.setMosaicSize(mMosaicWidth * mContext.getScaleFactor(), mMosaicHeight * mContext.getScaleFactor());
         synchronized (mMosaicAreaList) {
             for (Area area : mMosaicAreaList) {
