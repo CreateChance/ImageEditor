@@ -71,6 +71,7 @@
         android:id="@+id/rcv_work_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/vw_title" />
+        android:layout_below="@id/vw_title"
+        android:scrollbars="vertical" />
 
 </RelativeLayout>
