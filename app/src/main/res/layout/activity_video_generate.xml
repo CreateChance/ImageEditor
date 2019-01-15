@@ -94,7 +94,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:padding="10dp"
-                android:src="@drawable/icon_small_play" />
+                android:src="@drawable/icon_small_play"
+                android:visibility="gone" />
 
         </RelativeLayout>
 
