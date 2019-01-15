@@ -9,6 +9,8 @@ Any contribution is welcome!
 # Thanks
 Part filter shader is from gpuimage: https://github.com/BradLarson/GPUImage
 
+Transitions are from gl-transition: https://gl-transitions.com/
+
 They did a great job!
 
 ImageEditor library use FreeType 2.9.1 to render text to opengl texture, freetype site: https://www.freetype.org
