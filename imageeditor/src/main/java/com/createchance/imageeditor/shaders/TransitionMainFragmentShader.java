@@ -18,6 +18,7 @@ public class TransitionMainFragmentShader extends AbstractShader {
     private final String U_INPUT_TEXTURE2 = "u_InputTexture2";
     private final String U_PROGRESS = "progress";
     private final String U_RATIO = "ratio";
+    private final String U_RATIO_2 = "ratio2";
 
     TransitionMainFragmentShader() {
 
@@ -29,6 +30,7 @@ public class TransitionMainFragmentShader extends AbstractShader {
         addLocation(U_INPUT_TEXTURE2, true);
         addLocation(U_PROGRESS, true);
         addLocation(U_RATIO, true);
+        addLocation(U_RATIO_2, true);
     }
 
     public void setUInputTexture(int textureTarget, int textureId) {
@@ -51,5 +53,9 @@ public class TransitionMainFragmentShader extends AbstractShader {
 
     public void setURatio(float ratio) {
         setUniform(U_RATIO, ratio);
+    }
+
+    public void setUToRatio(float ratio) {
+        setUniform(U_RATIO_2, ratio);
     }
 }

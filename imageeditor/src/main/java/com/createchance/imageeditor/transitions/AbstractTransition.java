@@ -120,6 +120,7 @@ public abstract class AbstractTransition {
 
             mDrawer.setProgress(mProgress);
             mDrawer.setRatio(mContext.getRenderWidth() * 1.0f / mContext.getRenderHeight());
+            mDrawer.setToRatio(mContext.getNextAspectRatio());
             setDrawerParams();
 
             mDrawer.draw(mContext.getFromTextureId(),

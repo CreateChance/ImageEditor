@@ -93,6 +93,20 @@ class IEClip implements RenderContext {
     }
 
     @Override
+    public float getNextAspectRatio() {
+        float aspectRatio = 1.0f;
+        for (int i = 0; i < IEManager.getInstance().getClipList().size(); i++) {
+            IEClip clip = IEManager.getInstance().getClip(i);
+            if (clip == IEClip.this && i < IEManager.getInstance().getClipList().size() - 1) {
+                aspectRatio = IEManager.getInstance().getClip(i + 1).getOriginWidth() * 1.0f /
+                        IEManager.getInstance().getClip(i + 1).getOriginHeight();
+            }
+        }
+
+        return aspectRatio;
+    }
+
+    @Override
     public int getRenderLeft() {
         return mRenderLeft;
     }

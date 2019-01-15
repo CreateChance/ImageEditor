@@ -23,6 +23,8 @@ public interface RenderContext {
 
     int getRenderHeight();
 
+    float getNextAspectRatio();
+
     int getRenderLeft();
 
     int getRenderTop();
