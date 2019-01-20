@@ -239,7 +239,7 @@ public class EditAdjustPanel extends AbstractPanel implements
                 }
                 mAdjustValue1.setText(String.valueOf(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax()));
                 mSharpenOp.setSharpness(((progress - seekBar.getMax() / 2) * 8.0f) / seekBar.getMax());
-                IEManager.getInstance().updateOperator(0, mShadowOp, true);
+                IEManager.getInstance().updateOperator(0, mSharpenOp, true);
                 break;
             case AdjustListAdapter.AdjustItem.TYPE_DARK_CORNER:
                 if (mVignetteOp == null) {
