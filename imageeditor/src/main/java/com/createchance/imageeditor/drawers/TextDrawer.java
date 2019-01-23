@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.opengl.GLES20.GL_BLEND;
-import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
-import static android.opengl.GLES20.GL_SRC_ALPHA;
 import static android.opengl.GLES20.glDeleteProgram;
 import static android.opengl.GLES20.glDrawArrays;
 
@@ -127,7 +125,7 @@ public class TextDrawer extends AbstractDrawer {
         GLES20.glUseProgram(mProgramId);
 
         GLES20.glEnable(GL_BLEND);
-        GLES20.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glBlendFuncSeparate(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA, GLES20.GL_ONE, GLES20.GL_ONE);
 
         int currentPosX = posX;
 

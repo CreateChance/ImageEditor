@@ -218,16 +218,6 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
             }
         }
 
-        // convert rgba to argb
-//        for (int i = 0; i < pixelMirroredArray.length; i++) {
-//            int pixel = pixelMirroredArray[i];
-//            int r = pixel & 0xFF;
-//            int g = (pixel >> 8) & 0xFF;
-//            int b = (pixel >> 16) & 0xFF;
-//            int a = (pixel >> 24) & 0xFF;
-//            int color = ((a << 24) | (r << 16) | (g << 8) | b);
-//            pixelMirroredArray[i] = color;
-//        }
         waiter.release();
         try {
             waiter.acquire();
