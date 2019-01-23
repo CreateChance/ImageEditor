@@ -36,6 +36,10 @@ public class IEManager {
 
     private GLRenderThread mRenderThread;
 
+    public static final int IMG_FORMAT_PNG = 1;
+    public static final int IMG_FORMAT_JPEG = 2;
+    public static final int IMG_FORMAT_WEBP = 3;
+
     private IEManager() {
         // init freetype
         FreeType.init();
@@ -665,22 +669,29 @@ public class IEManager {
         return mClipList.get(clipIndex);
     }
 
-    public boolean saveAsImage(int clipIndex, File target, SaveListener listener) {
-        if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
-            Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
-            return false;
-        }
-
-        return saveAsImage(clipIndex, -1, -1, target, listener);
+    public boolean saveAsImage(int clipIndex, File target, int format, int quality, SaveListener listener) {
+        return saveAsImage(clipIndex, -1, -1, format, quality, target, listener);
     }
 
     public boolean saveAsImage(final int clipIndex,
                                int width,
                                int height,
+                               int format,
+                               int quality,
                                File target,
                                SaveListener listener) {
         if (clipIndex < 0 || clipIndex > mClipList.size() - 1) {
-            Logger.e(TAG, "Generator histogram failed, clip index invalid: " + clipIndex);
+            Logger.e(TAG, "Save image failed, clip index invalid: " + clipIndex);
+            return false;
+        }
+
+        if (format != IMG_FORMAT_JPEG && format != IMG_FORMAT_PNG && format != IMG_FORMAT_WEBP) {
+            Logger.e(TAG, "Save image failed, format error, current format: " + format);
+            return false;
+        }
+
+        if (quality < 0 || quality > 100) {
+            Logger.e(TAG, "Save image failed, quality invalid: " + quality);
             return false;
         }
 
@@ -703,6 +714,8 @@ public class IEManager {
                 (int) (getScissorY(clipIndex) * originHeight),
                 width,
                 height,
+                format,
+                quality,
                 target,
                 listener);
         mRenderThread.post(new Runnable() {

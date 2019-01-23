@@ -462,28 +462,49 @@ public class ImageEditActivity extends AppCompatActivity implements
                 });
                 break;
             case R.id.tv_save:
-                final OutputDialog dialog = OutputDialog.start(this);
-                mOutputFile = new File(Constants.mBaseDir, System.currentTimeMillis() + ".jpg");
-                IEManager.getInstance().saveAsImage(0,
+                SaveConfirmDialog.start(this, new SaveConfirmDialog.SaveInfoListener() {
+                    @Override
+                    public void onConfirm(int saveFormat, int quality) {
+                        String suffix = "jpg";
+                        switch (saveFormat) {
+                            case IEManager.IMG_FORMAT_PNG:
+                                suffix = ".png";
+                                break;
+                            case IEManager.IMG_FORMAT_JPEG:
+                                suffix = ".jpg";
+                                break;
+                            case IEManager.IMG_FORMAT_WEBP:
+                                suffix = ".webp";
+                                break;
+                            default:
+                                break;
+                        }
+                        mOutputFile = new File(Constants.mBaseDir, System.currentTimeMillis() + suffix);
+                        final OutputDialog dialog = OutputDialog.start(ImageEditActivity.this);
+                        IEManager.getInstance().saveAsImage(0,
 //                        IEManager.getInstance().getOriginWidth(0),
 //                        IEManager.getInstance().getOriginHeight(0),
-                        mOutputFile,
-                        new SaveListener() {
-                            @Override
-                            public void onSaveFailed() {
-                                Toast.makeText(ImageEditActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                                Log.d(TAG, "onSaveFailed: " + Thread.currentThread().getName());
-                            }
+                                mOutputFile,
+                                saveFormat,
+                                quality,
+                                new SaveListener() {
+                                    @Override
+                                    public void onSaveFailed() {
+                                        Toast.makeText(ImageEditActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
+                                        Log.d(TAG, "onSaveFailed: " + Thread.currentThread().getName());
+                                    }
 
-                            @Override
-                            public void onSaved(File target) {
-                                Toast.makeText(ImageEditActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                                Log.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
-                                showSaveDoneWindow();
-                            }
-                        });
+                                    @Override
+                                    public void onSaved(File target) {
+                                        Toast.makeText(ImageEditActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
+                                        Log.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
+                                        showSaveDoneWindow();
+                                    }
+                                });
+                    }
+                });
                 break;
             default:
                 break;

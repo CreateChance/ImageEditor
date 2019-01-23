@@ -36,6 +36,7 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
     private int mSurfaceWidth, mSurfaceHeight;
 
     private int mSaveX, mSaveY, mSaveWidth, mSaveHeight;
+    private int mSaveFormat = IEManager.IMG_FORMAT_JPEG, mSaveQuality = 100;
 
     private File mOutputFile;
     private SaveListener mListener;
@@ -46,6 +47,8 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
                       int saveY,
                       int saveWidth,
                       int saveHeight,
+                      int saveFormat,
+                      int saveQuality,
                       File outputFile,
                       SaveListener saveListener) {
         mSurfaceWidth = surfaceWidth;
@@ -54,6 +57,8 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
         mSaveY = saveY;
         mSaveWidth = saveWidth;
         mSaveHeight = saveHeight;
+        mSaveFormat = saveFormat;
+        mSaveQuality = saveQuality;
         mOutputFile = outputFile;
         mListener = saveListener;
     }
@@ -212,6 +217,17 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
                         pixelArray[i * mSaveWidth + j];
             }
         }
+
+        // convert rgba to argb
+//        for (int i = 0; i < pixelMirroredArray.length; i++) {
+//            int pixel = pixelMirroredArray[i];
+//            int r = pixel & 0xFF;
+//            int g = (pixel >> 8) & 0xFF;
+//            int b = (pixel >> 16) & 0xFF;
+//            int a = (pixel >> 24) & 0xFF;
+//            int color = ((a << 24) | (r << 16) | (g << 8) | b);
+//            pixelMirroredArray[i] = color;
+//        }
         waiter.release();
         try {
             waiter.acquire();
@@ -237,7 +253,21 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
     private void saveBitmap(Bitmap bitmap, final File picFile) {
         try {
             FileOutputStream out = new FileOutputStream(picFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
+            switch (mSaveFormat) {
+                case IEManager.IMG_FORMAT_PNG:
+                    format = Bitmap.CompressFormat.PNG;
+                    break;
+                case IEManager.IMG_FORMAT_JPEG:
+                    format = Bitmap.CompressFormat.JPEG;
+                    break;
+                case IEManager.IMG_FORMAT_WEBP:
+                    format = Bitmap.CompressFormat.WEBP;
+                    break;
+                default:
+                    break;
+            }
+            bitmap.compress(format, mSaveQuality, out);
             out.flush();
             out.close();
             UiThreadUtil.post(new Runnable() {

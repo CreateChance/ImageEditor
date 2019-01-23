@@ -373,7 +373,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onPreview() {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     String type;
-                    if (mCurWorkItem.mImage.getName().endsWith("jpg") || mCurWorkItem.mImage.getName().endsWith("png")) {
+                    if (mCurWorkItem.mImage.getName().endsWith("jpg") ||
+                            mCurWorkItem.mImage.getName().endsWith("png") ||
+                            mCurWorkItem.mImage.getName().endsWith("webp")) {
                         type = "image/*";
                     } else {
                         type = "video/*";
