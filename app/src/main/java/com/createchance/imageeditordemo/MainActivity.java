@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             workItem.mImage = work;
             workItem.mSize = work.length();
             workItem.mTimeStamp = work.lastModified();
+            workItem.mFormat = work.getName().substring(work.getName().lastIndexOf(".") + 1).toUpperCase();
             if (work.getName().substring(work.getName().lastIndexOf(".") + 1).equals("mp4")) {
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(work.getAbsolutePath());

@@ -53,6 +53,7 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
         WorkItem workItem = mWorkList.get(position);
         Glide.with(mContext).load(workItem.mImage).into(holder.thumbnail);
         holder.timestamp.setText(getFormatTime(workItem.mTimeStamp));
+        holder.format.setText(workItem.mFormat);
         holder.resolution.setText(
                 String.format(mContext.getString(R.string.main_page_work_resolution_format), workItem.mWidth, workItem.mHeight));
         if (workItem.mSize < 1024) {
@@ -92,6 +93,7 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
         ImageView thumbnail;
         TextView timestamp;
         TextView resolution;
+        TextView format;
         TextView size;
 
         public ViewHolder(View itemView) {
@@ -100,6 +102,7 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
             thumbnail = itemView.findViewById(R.id.iv_work_thumbnail);
             timestamp = itemView.findViewById(R.id.tv_work_timestamp_value);
             resolution = itemView.findViewById(R.id.tv_work_resolution_value);
+            format = itemView.findViewById(R.id.tv_work_format);
             size = itemView.findViewById(R.id.tv_work_size_value);
             itemView.setOnClickListener(this);
         }
@@ -119,6 +122,7 @@ public class WorkListAdapter extends RecyclerView.Adapter<WorkListAdapter.ViewHo
         public File mImage;
         public long mTimeStamp;
         public int mWidth, mHeight;
+        public String mFormat;
         public long mSize;
 
 

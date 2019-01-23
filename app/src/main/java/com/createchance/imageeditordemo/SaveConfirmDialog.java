@@ -68,7 +68,7 @@ public class SaveConfirmDialog extends Dialog implements View.OnClickListener, S
                         break;
                     case R.id.rb_save_as_webp:
                         mSaveFormat = IEManager.IMG_FORMAT_WEBP;
-                        mSbSaveQuality.setEnabled(false);
+                        mSbSaveQuality.setEnabled(true);
                         break;
                     default:
                         break;
