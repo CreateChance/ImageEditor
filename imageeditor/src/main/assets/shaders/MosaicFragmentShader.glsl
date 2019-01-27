@@ -12,9 +12,6 @@ vec4 blockStyle() {
         floor(xy.y / u_MosaicSize.y) * u_MosaicSize.y )
         + 0.5*u_MosaicSize;
 
-    //第几块mosaic
-    vec2 xyFloor = vec2(floor(mod(xy.x, u_MosaicSize.x)),
-                 floor(mod(xy.y, u_MosaicSize.y)));
     vec2 uvMosaic = vec2(xyMosaic.x / u_ImageSize.x, xyMosaic.y / u_ImageSize.y);
     color = texture2D( u_InputTexture, uvMosaic );
 
