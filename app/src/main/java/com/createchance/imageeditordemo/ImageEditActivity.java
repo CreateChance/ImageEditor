@@ -1,6 +1,6 @@
 package com.createchance.imageeditordemo;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -65,6 +65,8 @@ public class ImageEditActivity extends AppCompatActivity implements
     private EditSaveDoneWindow mVwSaveDone;
 
     private File mOutputFile;
+
+    private boolean mSaveDone;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         private int mLastX, mLastY;
@@ -193,10 +195,10 @@ public class ImageEditActivity extends AppCompatActivity implements
 
     private IEPreviewView mVwPreview;
 
-    public static void start(Context context, String imagePath) {
+    public static void start(Activity context, int requestCode, String imagePath) {
         Intent intent = new Intent(context, ImageEditActivity.class);
         intent.putExtra(EXTRA_IMAGE_PATH, imagePath);
-        context.startActivity(intent);
+        context.startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -211,7 +213,7 @@ public class ImageEditActivity extends AppCompatActivity implements
 
         if (TextUtils.isEmpty(mImagePath)) {
             Logger.e(TAG, "We can not get image!");
-            finish();
+            onBackPressed();
         }
 
         mScaleGestureDetector = new ScaleGestureDetector(this, this);
@@ -351,6 +353,7 @@ public class ImageEditActivity extends AppCompatActivity implements
         } else if (mCurrentPanel != null) {
             mCurrentPanel.close(true);
         } else {
+            setResult(mSaveDone ? RESULT_OK : RESULT_CANCELED);
             super.onBackPressed();
         }
     }
@@ -497,6 +500,7 @@ public class ImageEditActivity extends AppCompatActivity implements
 
                                     @Override
                                     public void onSaved(File target) {
+                                        mSaveDone = true;
                                         Toast.makeText(ImageEditActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
                                         Log.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
@@ -642,6 +646,7 @@ public class ImageEditActivity extends AppCompatActivity implements
 
                 @Override
                 public void onExit() {
+                    setResult(RESULT_OK);
                     finish();
                 }
             });

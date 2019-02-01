@@ -26,6 +26,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.createchance.imageeditor.utils.Logger;
+import com.createchance.imageeditor.utils.UiThreadUtil;
 import com.createchance.imageeditordemo.model.Sticker;
 import com.createchance.imageeditordemo.utils.AssetsUtil;
 import com.zhihu.matisse.Matisse;
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_TAKE_PHOTO = 2;
     private static final int REQUEST_CHOOSE_IMAGE_FOR_VIDEO = 3;
     private static final int REQUEST_CODE_PERMISSION = 4;
+    private static final int REQUEST_CODE_IMAGE_EDIT = 5;
+    private static final int REQUEST_CODE_VIDEO_GENERATE = 6;
 
     private RecyclerView mWorkListView;
     private WorkListAdapter mWorkListAdapter;
@@ -91,11 +94,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Constants.mScreenWidth = getWindowManager().getDefaultDisplay().getWidth();
         Constants.mScreenHeight = getWindowManager().getDefaultDisplay().getHeight();
 
+        findViewById(R.id.pb_loading).setVisibility(View.VISIBLE);
+        mWorkListView.setVisibility(View.GONE);
         WorkRunner.addTaskToBackground(new Runnable() {
             @Override
             public void run() {
                 tryCopyFontFile();
                 tryCopyStickerFile();
+                initWorkList();
+                UiThreadUtil.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.pb_loading).setVisibility(View.GONE);
+                        mWorkListView.setVisibility(View.VISIBLE);
+                        mWorkListAdapter.refresh(mWorkList);
+                    }
+                });
             }
         });
 
@@ -116,14 +130,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Manifest.permission.CAMERA},
                     REQUEST_CODE_PERMISSION);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        initWorkList();
-        mWorkListAdapter.refresh(mWorkList);
     }
 
     @Override
@@ -156,19 +162,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case REQUEST_CHOOSE_IMAGE_FOR_EDIT:
                 if (data != null) {
                     List<String> mediaPathList = Matisse.obtainPathResult(data);
-                    ImageEditActivity.start(this, mediaPathList.get(0));
+                    ImageEditActivity.start(this, REQUEST_CODE_IMAGE_EDIT, mediaPathList.get(0));
                 }
                 break;
             case REQUEST_TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    ImageEditActivity.start(this, mImageFromCamera.getAbsolutePath());
+                    ImageEditActivity.start(this, REQUEST_CODE_IMAGE_EDIT, mImageFromCamera.getAbsolutePath());
                 }
                 break;
             case REQUEST_CHOOSE_IMAGE_FOR_VIDEO:
                 if (data != null) {
                     List<String> mediaPathList = Matisse.obtainPathResult(data);
                     Logger.d(TAG, "onActivityResult: " + mediaPathList);
-                    VideoGenerateActivity.start(this, mediaPathList);
+                    VideoGenerateActivity.start(this, REQUEST_CODE_VIDEO_GENERATE, mediaPathList);
+                }
+                break;
+            case REQUEST_CODE_IMAGE_EDIT:
+            case REQUEST_CODE_VIDEO_GENERATE:
+                if (resultCode == RESULT_OK) {
+                    // refresh work list if done.
+                    findViewById(R.id.pb_loading).setVisibility(View.VISIBLE);
+                    mWorkListView.setVisibility(View.GONE);
+                    WorkRunner.addTaskToBackground(new Runnable() {
+                        @Override
+                        public void run() {
+                            initWorkList();
+                            UiThreadUtil.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    findViewById(R.id.pb_loading).setVisibility(View.GONE);
+                                    mWorkListView.setVisibility(View.VISIBLE);
+                                    mWorkListAdapter.refresh(mWorkList);
+                                }
+                            });
+                        }
+                    });
                 }
                 break;
             default:
@@ -395,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @Override
                 public void onEdit() {
-                    ImageEditActivity.start(MainActivity.this, mCurWorkItem.mImage.getAbsolutePath());
+                    ImageEditActivity.start(MainActivity.this, REQUEST_CODE_IMAGE_EDIT, mCurWorkItem.mImage.getAbsolutePath());
                     mVwBottomSelection.dismiss();
                 }
 

@@ -1,5 +1,6 @@
 package com.createchance.imageeditordemo;
 
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -138,6 +139,8 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
 
     private long mBgmStartPos, mBgmDuration;
 
+    private boolean mSaveDone;
+
     private HorizontalThumbnailListView.ImageGroupListener mImageGroupListener = new HorizontalThumbnailListView.ImageGroupListener() {
         @Override
         public void onImageGroupProcess(int index, float progress, boolean isFromUser) {
@@ -161,7 +164,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
         }
     };
 
-    public static void start(Context context, List<String> imagePathList) {
+    public static void start(Activity context, int requestCode, List<String> imagePathList) {
         if (mIsStarted) {
             Logger.d(TAG, "VideoGenerateActivity started already, no need!");
             return;
@@ -172,7 +175,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
         ArrayList<String> copiedList = new ArrayList<>(imagePathList);
         Intent intent = new Intent(context, VideoGenerateActivity.class);
         intent.putStringArrayListExtra(EXTRA_IMAGE_PATH_LIST, copiedList);
-        context.startActivity(intent);
+        context.startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -188,7 +191,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
         if (mImagePathList == null || mImagePathList.size() == 0) {
             Logger.e(TAG, "Image path list can not be null or empty!");
             Toast.makeText(this, "Start failed!", Toast.LENGTH_SHORT).show();
-            finish();
+            onBackPressed();
         }
 
         // for debug
@@ -259,6 +262,12 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
+    public void onBackPressed() {
+        setResult(mSaveDone ? RESULT_OK : RESULT_CANCELED);
+        super.onBackPressed();
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_cancel:
@@ -279,7 +288,7 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
                             public void onSaveFailed() {
                                 Toast.makeText(VideoGenerateActivity.this, "Save failed!", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
-                                Log.d(TAG, "onSaveFailed: " + Thread.currentThread().getName());
+                                Logger.d(TAG, "onSaveFailed: " + Thread.currentThread().getName());
                             }
 
                             @Override
@@ -290,9 +299,10 @@ public class VideoGenerateActivity extends AppCompatActivity implements View.OnC
 
                             @Override
                             public void onSaved(File target) {
+                                mSaveDone = true;
                                 Toast.makeText(VideoGenerateActivity.this, "Save succeed!", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
-                                Log.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
+                                Logger.d(TAG, "onSaved: " + Thread.currentThread().getName() + ", file: " + target.getAbsolutePath());
                             }
                         }
                 );
