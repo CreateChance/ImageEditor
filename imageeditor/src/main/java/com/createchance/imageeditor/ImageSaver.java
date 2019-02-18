@@ -136,6 +136,7 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
     @Override
     public void release() {
         deleteOffScreenFrameBuffer();
+        GLES20.glDeleteTextures(mOffScreenTextureIds.length, mOffScreenTextureIds, 0);
         if (mWindowSurface != null) {
             mWindowSurface.release();
         }
@@ -268,6 +269,8 @@ public class ImageSaver implements IRenderTarget, SurfaceTexture.OnFrameAvailabl
                     }
                 }
             });
+            // save done, release resource now.
+            release();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             UiThreadUtil.post(new Runnable() {
