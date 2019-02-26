@@ -21,9 +21,7 @@ Demo's font(chinese and english) is from: https://www.freechinesefont.com/, and 
 
 # Demo Screenshot
 
-Main page:
-
-![](https://github.com/CreateChance/ImageEditor/blob/master/screenshot/main.png | width=100)
+[See This](https://github.com/CreateChance/ImageEditor/wiki/ScreenShot)
 
 # How to use?
 It's easy to use, you just send operators to IEManager instance, and all is done!
