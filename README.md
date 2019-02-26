@@ -18,6 +18,13 @@ ImageEditor library use FreeType 2.9.1 to render text to opengl texture, freetyp
 Demo's icon is from: https://icons8.com , it is a good place to find beautiful icons for android and iOS.
 
 Demo's font(chinese and english) is from: https://www.freechinesefont.com/, and they are free!
+
+# Demo Screenshot
+
+Main page:
+
+![](https://github.com/CreateChance/ImageEditor/blob/master/screenshot/main.png | width=100)
+
 # How to use?
 It's easy to use, you just send operators to IEManager instance, and all is done!
 
