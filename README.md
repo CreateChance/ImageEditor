@@ -3,7 +3,7 @@ Image edit library on android platform, based on opengl es 2.0.
 
 [Demo prebuilt apk](https://github.com/CreateChance/ImageEditor/raw/master/bin/ImageEditorDemo.apk)
 # Note
-This library is still developing, so do not use it on you product! 
+This library is still under developing, so do not use it on you product! 
 
 Any contribution is welcome!
 # Thanks
